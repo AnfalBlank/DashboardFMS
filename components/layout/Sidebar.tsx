@@ -146,6 +146,11 @@ function NavGroup({ item, pathname }: { item: typeof nav[number]; pathname: stri
 
 export function Sidebar() {
   const pathname = usePathname();
+  // Try to get user from localStorage (set by AuthProvider)
+  const storedUser = typeof window !== 'undefined'
+    ? (() => { try { return JSON.parse(localStorage.getItem('fms_user') ?? '{}'); } catch { return {}; } })()
+    : {};
+  const initials = storedUser?.name?.split(' ').map((n: string) => n[0]).slice(0,2).join('').toUpperCase() ?? 'AD';
 
   return (
     <aside className="fixed top-0 left-0 bottom-0 w-[248px] flex flex-col z-50 overflow-hidden"
@@ -183,11 +188,11 @@ export function Sidebar() {
       <div className="px-3 py-3 border-t border-white/10">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.08)' }}>
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0">
-            AD
+            {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-white truncate">ADMIN01</p>
-            <p className="text-[11px] text-slate-400 truncate">Administrator SPBP</p>
+            <p className="text-[13px] font-semibold text-white truncate">{storedUser?.username ?? 'USER'}</p>
+            <p className="text-[11px] text-slate-400 truncate">{storedUser?.role ?? 'User'}</p>
           </div>
           <Settings size={14} className="text-slate-500 flex-shrink-0" />
         </div>
