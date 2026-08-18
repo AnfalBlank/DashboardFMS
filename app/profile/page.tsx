@@ -1,115 +1,133 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { api, User } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
-import { auditLogs } from '@/lib/data';
-import { User, Shield, Clock, Key } from 'lucide-react';
+import { KeyRound, User as UserIcon } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { success } = useToast();
-  const [name, setName]   = useState('Ahmad Fauzi');
-  const [email, setEmail] = useState('admin01@spbp.polri.go.id');
-  const [phone, setPhone] = useState('+62 812 3456 7890');
+  const { user: authUser, refreshUser } = useAuth();
+  const [user, setUser] = useState<User | null>(authUser);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const userLogs = auditLogs.filter(l => l.user === 'ADMIN01');
+  const { success, error: toastError } = useToast();
+
+  useEffect(() => {
+    api.auth.me()
+      .then(res => {
+        if (res?.data) setUser(res.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!oldPassword || !newPassword) {
+      toastError('Password Wajib Diisi', 'Silakan isi password lama dan password baru.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toastError('Password Tidak Cocok', 'Konfirmasi password baru tidak cocok.');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await api.auth.changePassword(oldPassword, newPassword);
+      success('Password Berhasil Diubah', 'Gunakan password baru Anda untuk login berikutnya.');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: unknown) {
+      toastError('Gagal Mengubah Password', err instanceof Error ? err.message : 'Terjadi kesalahan.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="max-w-4xl">
-      <PageHeader title="Profil Pengguna" subtitle="Kelola informasi akun dan keamanan Anda" />
+    <div>
+      <PageHeader title="User Profile & Security" subtitle="Informasi akun pengguna dan pengaturan keamanan login" />
 
-      <div className="grid grid-cols-3 gap-5">
-        {/* Left: avatar + info */}
-        <div className="col-span-1 space-y-4">
-          <Card className="text-center">
-            <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-[28px] font-bold text-white mb-3"
-              style={{ background: 'linear-gradient(135deg,#1e3a5f,#2563eb)' }}>
-              AD
+      <div className="grid grid-cols-2 gap-5">
+        {/* User info */}
+        <Card>
+          <div className="flex items-center gap-4 mb-6 pb-4 border-b border-zinc-100">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-[18px] font-bold text-white shadow-sm"
+              style={{ background: 'linear-gradient(135deg,#1e3a5f,#2563eb)' }}
+            >
+              {(user?.name || user?.username || 'AD').slice(0, 2).toUpperCase()}
             </div>
-            <p className="text-[15px] font-semibold text-zinc-900">Ahmad Fauzi</p>
-            <p className="text-[12.5px] text-zinc-400 mt-0.5">ADMIN01</p>
-            <Badge variant="success" className="mt-2">ACTIVE</Badge>
-            <div className="mt-4 pt-4 border-t border-zinc-100 space-y-2 text-[12.5px]">
-              <div className="flex justify-between"><span className="text-zinc-500">Role</span><span className="font-medium">Administrator SPBP</span></div>
-              <div className="flex justify-between"><span className="text-zinc-500">Unit</span><span className="font-medium">SPBP Manokwari</span></div>
-              <div className="flex justify-between"><span className="text-zinc-500">Login terakhir</span><span className="font-medium">09 Agu 2026</span></div>
+            <div>
+              <h3 className="text-[16px] font-semibold text-zinc-900">{user?.name || 'Administrator SPBP'}</h3>
+              <p className="text-[13px] text-zinc-400">@{user?.username || 'ADMIN01'}</p>
+              <div className="mt-1">
+                <Badge variant="neutral">{user?.role || 'Super Admin'}</Badge>
+              </div>
             </div>
-          </Card>
+          </div>
 
-          <Card>
-            <div className="flex items-center gap-2 mb-3">
-              <Shield size={14} className="text-zinc-500" />
-              <h3 className="text-[13px] font-semibold">Permission Saya</h3>
-            </div>
-            <div className="space-y-1.5">
-              {['transaction.view','transaction.void','card.view','card.edit','card.block','quota.view','quota.generate','quota.topup','stock.view','report.view','report.export','audit.view'].map(p => (
-                <div key={p} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
-                  <span className="font-mono text-[11.5px] text-zinc-600">{p}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
+          <div className="space-y-3 text-[13px]">
+            {[
+              ['Nama Lengkap', user?.name || 'Administrator SPBP'],
+              ['Username Login', user?.username || 'ADMIN01'],
+              ['Role / Level Hak Akses', user?.role || 'Super Admin'],
+              ['Satuan Kerja', user?.unit || user?.department || 'SPBP Polda Papua Barat'],
+              ['Email Dinas', user?.email || 'admin.spbp@papuabarat.polri.go.id'],
+              ['Status Akun', user?.status || 'ACTIVE'],
+            ].map(([k, v]) => (
+              <div key={k} className="flex justify-between py-2 border-b border-zinc-50 last:border-0">
+                <span className="text-zinc-500">{k}</span>
+                <span className="font-medium text-zinc-800">{v}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
 
-        {/* Right: edit form + activity */}
-        <div className="col-span-2 space-y-4">
-          <Card>
-            <div className="flex items-center gap-2 mb-4">
-              <User size={14} className="text-zinc-500" />
-              <h3 className="text-[13px] font-semibold">Informasi Profil</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <Input label="Nama Lengkap" value={name} onChange={setName} />
-              <Input label="Username" value="ADMIN01" />
-              <Input label="Email" value={email} onChange={setEmail} type="email" />
-              <Input label="Nomor HP" value={phone} onChange={setPhone} />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="primary" onClick={() => success('Profil diperbarui', 'Data profil Anda berhasil disimpan.')}>
-                Simpan Perubahan
-              </Button>
-              <Button variant="outline">Batal</Button>
-            </div>
-          </Card>
+        {/* Change password */}
+        <Card>
+          <div className="flex items-center gap-2 mb-4">
+            <KeyRound size={16} className="text-zinc-600" />
+            <h3 className="text-[13px] font-semibold">Ubah Password Login</h3>
+          </div>
 
-          <Card>
-            <div className="flex items-center gap-2 mb-4">
-              <Key size={14} className="text-zinc-500" />
-              <h3 className="text-[13px] font-semibold">Ubah Password</h3>
-            </div>
-            <div className="grid grid-cols-1 gap-3 mb-4 max-w-sm">
-              <Input label="Password Saat Ini" type="password" placeholder="••••••••" />
-              <Input label="Password Baru" type="password" placeholder="••••••••" />
-              <Input label="Konfirmasi Password Baru" type="password" placeholder="••••••••" />
-            </div>
-            <Button variant="primary"
-              onClick={() => success('Password diperbarui', 'Password Anda berhasil diubah.')}>
-              Ubah Password
+          <form onSubmit={handleChangePassword} className="space-y-3">
+            <Input
+              label="Password Saat Ini (Lama) *"
+              type="password"
+              value={oldPassword}
+              onChange={setOldPassword}
+              placeholder="••••••••"
+            />
+            <Input
+              label="Password Baru *"
+              type="password"
+              value={newPassword}
+              onChange={setNewPassword}
+              placeholder="Minimal 6 karakter"
+            />
+            <Input
+              label="Konfirmasi Password Baru *"
+              type="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Ulangi password baru"
+            />
+
+            <Button variant="primary" type="submit" className="w-full mt-2" disabled={submitting}>
+              {submitting ? 'Memproses…' : 'Perbarui Password'}
             </Button>
-          </Card>
-
-          <Card padding={false}>
-            <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-2">
-              <Clock size={14} className="text-zinc-500" />
-              <h3 className="text-[13px] font-semibold">Aktivitas Saya</h3>
-            </div>
-            <div className="divide-y divide-zinc-50">
-              {userLogs.map(l => (
-                <div key={l.id} className="flex gap-3 px-5 py-3 hover:bg-zinc-50 transition">
-                  <div className="flex-1">
-                    <p className="text-[13px] font-medium text-zinc-800">{l.action} — {l.module}</p>
-                    <p className="text-[12px] text-zinc-400 mt-0.5">{l.reason}</p>
-                  </div>
-                  <span className="text-[11.5px] text-zinc-400 flex-shrink-0">{l.timestamp}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
+          </form>
+        </Card>
       </div>
     </div>
   );

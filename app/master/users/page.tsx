@@ -1,41 +1,68 @@
 'use client';
-import { users } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { api, User } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Badge, statusVariant } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { RefreshCw } from 'lucide-react';
 
 export default function MasterUsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadUsers = () => {
+    setLoading(true);
+    api.master.users()
+      .then(res => {
+        if (res?.data) setUsers(res.data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
   return (
     <div>
-      <PageHeader title="User Management" subtitle="Kelola pengguna sistem dan hak akses">
-        <Button variant="primary" size="sm">+ User Baru</Button>
+      <PageHeader title="Master Users & Personnel" subtitle="Data pengguna aplikasi Fuel Monitoring SPBP Polda Papua Barat">
+        <Button variant="outline" size="sm" onClick={loadUsers}>
+          <RefreshCw size={13} /> Refresh
+        </Button>
       </PageHeader>
+
       <Card padding={false}>
         <div className="overflow-x-auto">
           <table className="fuel-table">
-            <thead><tr>
-              <th>Nama</th><th>Username</th><th>Email</th><th>Role</th>
-              <th>Unit</th><th>Status</th><th>Login Terakhir</th><th></th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Nama Lengkap</th>
+                <th>Role / Akses</th>
+                <th>Satuan Kerja / Unit</th>
+                <th>Email</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
-              {users.map(u => (
-                <tr key={u.id}>
-                  <td className="font-medium">{u.name}</td>
-                  <td className="font-mono text-[12px] text-zinc-600">{u.username}</td>
-                  <td className="text-zinc-500 text-[12px]">{u.email}</td>
-                  <td><Badge variant="neutral">{u.role}</Badge></td>
-                  <td className="text-zinc-500 text-[12px]">{u.unit}</td>
-                  <td><Badge variant={statusVariant(u.status)}>{u.status}</Badge></td>
-                  <td className="text-zinc-400 text-[12px]">{u.lastLogin}</td>
-                  <td>
-                    <div className="flex gap-1">
-                      <button className="text-[12px] text-zinc-400 hover:text-zinc-700 px-2 py-1 hover:bg-zinc-100 rounded-lg transition">Edit</button>
-                      <button className="text-[12px] text-red-400 hover:text-red-700 px-2 py-1 hover:bg-red-50 rounded-lg transition">Reset PW</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {loading && users.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-[13px] text-zinc-400">Memuat data pengguna…</td></tr>
+              ) : users.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8 text-[13px] text-zinc-400">Belum ada pengguna terdaftar</td></tr>
+              ) : (
+                users.map(u => (
+                  <tr key={u.id}>
+                    <td className="font-mono font-semibold text-zinc-800">{u.username}</td>
+                    <td className="font-medium text-zinc-900">{u.name}</td>
+                    <td><Badge variant="neutral">{u.role}</Badge></td>
+                    <td className="text-zinc-600 text-[12px]">{u.unit || u.department || 'Polda Papua Barat'}</td>
+                    <td className="text-zinc-500 text-[12px]">{u.email || '—'}</td>
+                    <td><Badge variant={statusVariant(u.status || 'ACTIVE')}>{u.status || 'ACTIVE'}</Badge></td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

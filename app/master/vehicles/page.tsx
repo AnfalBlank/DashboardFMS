@@ -1,60 +1,480 @@
-'use client';
-import { vehicles } from '@/lib/data';
-import { Card } from '@/components/ui/Card';
-import { Badge, statusVariant } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { PageHeader } from '@/components/ui/PageHeader';
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { api, Vehicle, Unit } from "@/lib/api";
+import { Card } from "@/components/ui/Card";
+import { Badge, statusVariant } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Modal } from "@/components/ui/Modal";
+import { Plus, Edit, RefreshCw } from "lucide-react";
+import { useToast } from "@/components/ui/Toast";
 
-export default function VehiclesPage() {
+export default function MasterVehiclesPage() {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [editTarget, setEditTarget] = useState<Vehicle | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [form, setForm] = useState({
+    police_number: "",
+    brand: "Toyota",
+    model: "Hilux 4x4",
+    unit_id: "",
+    fuel_type: "Pertamax",
+    tank_capacity: "80",
+    type: "PATROLI",
+    status: "ACTIVE",
+  });
+
+  const { success, error: toastError } = useToast();
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [vRes, uRes] = await Promise.allSettled([
+        api.master.vehicles(),
+        api.master.units(),
+      ]);
+      if (vRes.status === "fulfilled" && vRes.value?.data)
+        setVehicles(vRes.value.data);
+      if (uRes.status === "fulfilled" && uRes.value?.data)
+        setUnits(uRes.value.data);
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.police_number || !form.unit_id) {
+      toastError(
+        "Data Belum Lengkap",
+        "Nomor polisi dan satker dinas wajib diisi.",
+      );
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await api.master.createVehicle({
+        police_number: form.police_number,
+        brand: form.brand,
+        model: form.model,
+        unit_id: form.unit_id,
+        fuel_type: form.fuel_type,
+        tank_capacity: Number(form.tank_capacity),
+        type: form.type,
+      });
+      success(
+        "Kendaraan Didaftarkan",
+        `Kendaraan dinas ${form.police_number} berhasil didaftarkan.`,
+      );
+      setAddModal(false);
+      setForm({
+        police_number: "",
+        brand: "Toyota",
+        model: "Hilux 4x4",
+        unit_id: "",
+        fuel_type: "Pertamax",
+        tank_capacity: "80",
+        type: "PATROLI",
+        status: "ACTIVE",
+      });
+      loadData();
+    } catch (err: unknown) {
+      toastError(
+        "Gagal Menambah Kendaraan",
+        err instanceof Error ? err.message : "Terjadi kesalahan.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+
+    try {
+      setSubmitting(true);
+      await api.master.updateVehicle(editTarget.id, {
+        brand: form.brand,
+        model: form.model,
+        unit_id: form.unit_id,
+        fuel_type: form.fuel_type,
+        tank_capacity: Number(form.tank_capacity),
+        type: form.type,
+        status: form.status,
+      });
+      success(
+        "Kendaraan Diperbarui",
+        `Informasi ${editTarget.police_number || editTarget.policeNumber} telah diperbarui.`,
+      );
+      setEditModal(false);
+      setEditTarget(null);
+      loadData();
+    } catch (err: unknown) {
+      toastError(
+        "Gagal Memperbarui Kendaraan",
+        err instanceof Error ? err.message : "Terjadi kesalahan.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div>
-      <PageHeader title="Vehicle Management" subtitle="Kelola kendaraan dan kaitan dengan kartu BBM">
-        <Button variant="outline" size="sm">Export</Button>
-        <Button variant="primary" size="sm">+ Kendaraan</Button>
+      <PageHeader
+        title="Master Vehicles"
+        subtitle="Data armada kendaraan dinas operasional Polri"
+      >
+        <Button variant="outline" size="sm" onClick={loadData}>
+          <RefreshCw size={13} /> Refresh
+        </Button>
+        <Button variant="primary" size="sm" onClick={() => setAddModal(true)}>
+          <Plus size={13} /> Tambah Kendaraan
+        </Button>
       </PageHeader>
-
-      <div className="grid grid-cols-4 gap-3 mb-5">
-        {[
-          { label: 'Total Kendaraan', value: vehicles.length.toString() },
-          { label: 'Aktif', value: vehicles.filter(v => v.status === 'ACTIVE').length.toString() },
-          { label: 'Tidak Aktif', value: vehicles.filter(v => v.status === 'INACTIVE').length.toString() },
-          { label: 'Terhubung Kartu', value: vehicles.filter(v => v.card).length.toString() },
-        ].map(k => (
-          <div key={k.label} className="bg-white rounded-xl border border-zinc-200 p-4 shadow-[0_1px_3px_rgba(0,0,0,.06)]">
-            <p className="text-[10px] uppercase tracking-wide text-zinc-400 mb-2">{k.label}</p>
-            <p className="text-[24px] font-light text-zinc-900">{k.value}</p>
-          </div>
-        ))}
-      </div>
 
       <Card padding={false}>
         <div className="overflow-x-auto">
           <table className="fuel-table">
-            <thead><tr>
-              <th>Nomor Polisi</th><th>Tipe</th><th>Brand</th><th>Model</th><th>Tahun</th>
-              <th>Unit</th><th>Jenis BBM</th><th>Kartu</th><th>Status</th><th></th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th>No. Polisi</th>
+                <th>Merek & Tipe</th>
+                <th>Satuan Kerja (Unit)</th>
+                <th>Jenis BBM</th>
+                <th>Kapasitas Tangki</th>
+                <th>Kategori Operasional</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
             <tbody>
-              {vehicles.map(v => (
-                <tr key={v.id}>
-                  <td className="font-mono font-semibold text-zinc-800">{v.policeNumber}</td>
-                  <td><Badge variant="neutral">{v.type}</Badge></td>
-                  <td className="font-medium">{v.brand}</td>
-                  <td className="text-zinc-600">{v.model}</td>
-                  <td className="text-zinc-500 text-[12px]">{v.year}</td>
-                  <td className="text-zinc-500 text-[12px]">{v.unit}</td>
-                  <td className="text-zinc-500 text-[12px]">{v.fuelType}</td>
-                  <td className="font-mono text-[12px] text-zinc-600">{v.card || '—'}</td>
-                  <td><Badge variant={statusVariant(v.status)}>{v.status}</Badge></td>
-                  <td>
-                    <button className="text-[12px] text-zinc-400 hover:text-zinc-700 px-2 py-1 hover:bg-zinc-100 rounded-lg transition">Edit</button>
+              {loading && vehicles.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="text-center py-8 text-[13px] text-zinc-400"
+                  >
+                    Memuat data kendaraan…
                   </td>
                 </tr>
-              ))}
+              ) : vehicles.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="text-center py-8 text-[13px] text-zinc-400"
+                  >
+                    Belum ada kendaraan terdaftar
+                  </td>
+                </tr>
+              ) : (
+                vehicles.map((v) => (
+                  <tr key={v.id}>
+                    <td className="font-mono font-semibold text-zinc-800">
+                      {v.police_number || v.policeNumber}
+                    </td>
+                    <td className="font-medium">
+                      {v.brand} {v.model}
+                    </td>
+                    <td className="text-zinc-600 text-[12px]">
+                      {v.unit_name || v.unit}
+                    </td>
+                    <td>
+                      <Badge variant="neutral">
+                        {v.fuel_type || v.fuelType || "Pertamax"}
+                      </Badge>
+                    </td>
+                    <td>{v.tank_capacity || v.tankCapacity || 60} L</td>
+                    <td className="text-zinc-500 text-[12px]">
+                      {v.type || "PATROLI"}
+                    </td>
+                    <td>
+                      <Badge variant={statusVariant(v.status)}>
+                        {v.status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          setEditTarget(v);
+                          setForm({
+                            police_number:
+                              v.police_number || v.policeNumber || "",
+                            brand: v.brand || "",
+                            model: v.model || "",
+                            unit_id: v.unit_id || "",
+                            fuel_type: v.fuel_type || v.fuelType || "Pertamax",
+                            tank_capacity: (
+                              v.tank_capacity ||
+                              v.tankCapacity ||
+                              60
+                            ).toString(),
+                            type: v.type || "PATROLI",
+                            status: v.status || "ACTIVE",
+                          });
+                          setEditModal(true);
+                        }}
+                        className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition"
+                      >
+                        <Edit size={13} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </Card>
+
+      {/* Add Modal */}
+      <Modal
+        open={addModal}
+        onClose={() => setAddModal(false)}
+        title="Pendaftaran Kendaraan Dinas Baru"
+      >
+        <form onSubmit={handleCreate} className="space-y-3">
+          <div>
+            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+              Nomor Polisi Dinas *
+            </label>
+            <input
+              placeholder="PB 1234 XX"
+              required
+              value={form.police_number}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, police_number: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-bold"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Merek
+              </label>
+              <input
+                value={form.brand}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, brand: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Model / Tipe
+              </label>
+              <input
+                value={form.model}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, model: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Satuan Kerja *
+              </label>
+              <select
+                value={form.unit_id}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, unit_id: e.target.value }))
+                }
+                required
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="">Pilih satker…</option>
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                BBM Standar
+              </label>
+              <select
+                value={form.fuel_type}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, fuel_type: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="Pertamax">Pertamax</option>
+                <option value="Pertalite">Pertalite</option>
+                <option value="Dexlite">Dexlite</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Kapasitas Tangki (L)
+              </label>
+              <input
+                type="number"
+                value={form.tank_capacity}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, tank_capacity: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Kategori
+              </label>
+              <select
+                value={form.type}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, type: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="PATROLI">PATROLI</option>
+                <option value="OPERASIONAL">OPERASIONAL</option>
+                <option value="PEJABAT">PEJABAT / VIP</option>
+                <option value="LOGISTIK">LOGISTIK</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              type="button"
+              className="flex-1"
+              onClick={() => setAddModal(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              className="flex-1"
+              disabled={submitting}
+            >
+              {submitting ? "Menyimpan…" : "Daftarkan Kendaraan"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        open={editModal}
+        onClose={() => setEditModal(false)}
+        title="Edit Kendaraan Dinas"
+      >
+        <form onSubmit={handleUpdate} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Merek
+              </label>
+              <input
+                value={form.brand}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, brand: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Model / Tipe
+              </label>
+              <input
+                value={form.model}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, model: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Satuan Kerja
+              </label>
+              <select
+                value={form.unit_id}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, unit_id: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="">Pilih satker…</option>
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Status
+              </label>
+              <select
+                value={form.status}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, status: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="MAINTENANCE">MAINTENANCE</option>
+                <option value="INACTIVE">INACTIVE</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              type="button"
+              className="flex-1"
+              onClick={() => setEditModal(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              className="flex-1"
+              disabled={submitting}
+            >
+              {submitting ? "Menyimpan…" : "Simpan Perubahan"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

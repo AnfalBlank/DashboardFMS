@@ -1,90 +1,296 @@
-'use client';
-import { pumps } from '@/lib/data';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { KpiCard } from '@/components/ui/KpiCard';
-import { useToast } from '@/components/ui/Toast';
-import { Modal } from '@/components/ui/Modal';
-import { useState } from 'react';
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { api, Nozzle, Totalizer, PumpRecon } from "@/lib/api";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { KpiCard } from "@/components/ui/KpiCard";
+import { useToast } from "@/components/ui/Toast";
+import { Modal } from "@/components/ui/Modal";
+import { Plus, RefreshCw } from "lucide-react";
 
 export default function TotalizerPage() {
-  const allNozzles  = pumps.flatMap(p => p.nozzles.map(n => ({ ...n, pumpNum: p.number, pumpStatus: p.status })));
-  const totalUsage  = allNozzles.reduce((s, n) => s + n.usage, 0);
-  const totalVar    = allNozzles.reduce((s, n) => s + n.variance, 0);
-  const varCount    = allNozzles.filter(n => n.variance > 0).length;
-  const { success, warning } = useToast();
-  const [manualModal, setManualModal] = useState(false);
-  const [openingModal, setOpeningModal] = useState(false);
+  const [totalizers, setTotalizers] = useState<Totalizer[]>([]);
+  const [reconciliations, setReconciliations] = useState<PumpRecon[]>([]);
+  const [nozzles, setNozzles] = useState<Nozzle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [shiftDate, setShiftDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+
+  // Totalizer Input Modal
+  const [inputModal, setInputModal] = useState(false);
+  const [form, setForm] = useState({
+    nozzle_id: "",
+    opening_value: "",
+    current_value: "",
+    shift_date: new Date().toISOString().split("T")[0],
+    shift: "PAGI",
+  });
+
+  const { success, error: toastError } = useToast();
+
+  const loadData = useCallback(
+    async (dateStr?: string) => {
+      try {
+        setLoading(true);
+        const [totRes, recRes, nzlRes] = await Promise.allSettled([
+          api.pumps.totalizers(dateStr),
+          api.pumps.reconciliation(dateStr),
+          api.pumps.nozzles(),
+        ]);
+
+        if (totRes.status === "fulfilled" && totRes.value?.data)
+          setTotalizers(totRes.value.data);
+        if (recRes.status === "fulfilled" && recRes.value?.data)
+          setReconciliations(recRes.value.data);
+        if (nzlRes.status === "fulfilled" && nzlRes.value?.data) {
+          setNozzles(nzlRes.value.data);
+          if (nzlRes.value.data.length > 0 && !form.nozzle_id) {
+            setForm((f) => ({ ...f, nozzle_id: nzlRes.value.data[0].id }));
+          }
+        }
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    },
+    [form.nozzle_id],
+  );
+
+  useEffect(() => {
+    loadData(shiftDate);
+  }, [shiftDate, loadData]);
+
+  const handleSaveTotalizer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.nozzle_id || !form.opening_value || !form.current_value) {
+      toastError(
+        "Data Belum Lengkap",
+        "Pilih nozzle dan isi angka totalizer awal serta akhir.",
+      );
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await api.pumps.pushTotalizer({
+        nozzle_id: form.nozzle_id,
+        opening_value: Number(form.opening_value),
+        current_value: Number(form.current_value),
+        shift_date: form.shift_date,
+        shift: form.shift,
+      });
+      success(
+        "Totalizer Tersimpan",
+        "Data pembacaan totalizer shift berhasil dicatat.",
+      );
+      setInputModal(false);
+      setForm((f) => ({ ...f, opening_value: "", current_value: "" }));
+      loadData(shiftDate);
+    } catch (err: unknown) {
+      toastError(
+        "Gagal Menyimpan Totalizer",
+        err instanceof Error ? err.message : "Terjadi kesalahan.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const totalReconVariance = reconciliations.reduce(
+    (s, r) => s + (r.variance_l ?? 0),
+    0,
+  );
+  const totalTotUsage = reconciliations.reduce(
+    (s, r) => s + (r.totalizer_usage ?? 0),
+    0,
+  );
+  const totalSysSales = reconciliations.reduce(
+    (s, r) => s + (r.system_sales ?? 0),
+    0,
+  );
 
   return (
     <div>
-      <PageHeader title="Totalizer Management" subtitle="Monitor opening, current, dan closing totalizer per nozzle">
-        <Button variant="outline" size="sm" onClick={() => setManualModal(true)}>Input Manual</Button>
-        <Button variant="primary" size="sm" onClick={() => setOpeningModal(true)}>Set Opening</Button>
+      <PageHeader
+        title="Totalizer Management"
+        subtitle="Catat dan pantau angka totalizer meter dispenser mekanik/elektronik per shift"
+      >
+        <Button variant="outline" size="sm" onClick={() => loadData(shiftDate)}>
+          <RefreshCw size={13} /> Refresh
+        </Button>
+        <Button variant="primary" size="sm" onClick={() => setInputModal(true)}>
+          <Plus size={13} /> Catat Totalizer Shift
+        </Button>
       </PageHeader>
 
       <div className="grid grid-cols-4 gap-3 mb-5">
-        <KpiCard eyebrow="Total Dispensing"  value={totalUsage.toLocaleString('id-ID')} unit="L" accent="black" />
-        <KpiCard eyebrow="Total Variance"    value={`+${totalVar}`} unit="L"
-          delta={varCount > 0 ? `${varCount} nozzle` : 'semua normal'}
-          deltaDir={totalVar > 0 ? 'down' : 'up'} accent={totalVar > 0 ? 'amber' : 'green'} />
-        <KpiCard eyebrow="Nozzle Aktif"      value={allNozzles.filter(n => n.status === 'ACTIVE').length.toString()} accent="green" />
-        <KpiCard eyebrow="Nozzle Offline"    value={allNozzles.filter(n => n.status === 'OFFLINE').length.toString()} accent="amber" />
+        <KpiCard
+          eyebrow="Dispensing Totalizer"
+          value={totalTotUsage.toLocaleString("id-ID")}
+          unit="L"
+          accent="black"
+        />
+        <KpiCard
+          eyebrow="Transaksi Sistem"
+          value={totalSysSales.toLocaleString("id-ID")}
+          unit="L"
+          accent="blue"
+        />
+        <KpiCard
+          eyebrow="Total Variance Pompa"
+          value={`${totalReconVariance > 0 ? `+${totalReconVariance}` : totalReconVariance}`}
+          unit="L"
+          delta={
+            Math.abs(totalReconVariance) > 5
+              ? "perlu kalibrasi nozzle"
+              : "akurasi normal"
+          }
+          deltaDir={Math.abs(totalReconVariance) > 5 ? "down" : "up"}
+          accent={Math.abs(totalReconVariance) > 5 ? "amber" : "green"}
+        />
+        <KpiCard
+          eyebrow="Total Nozzle Terpasang"
+          value={nozzles.length.toString()}
+          meta="semua pump island"
+          accent="black"
+        />
       </div>
 
-      <Card padding={false} className="mb-4">
+      {/* Date selector */}
+      <div className="flex items-center gap-3 mb-4 bg-white p-3 rounded-xl border border-zinc-200">
+        <span className="text-[13px] font-medium text-zinc-700">
+          Tanggal Shift:
+        </span>
+        <input
+          type="date"
+          value={shiftDate}
+          onChange={(e) => setShiftDate(e.target.value)}
+          className="px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+        />
+      </div>
+
+      {/* Dispenser reconciliation table */}
+      <Card padding={false} className="mb-5">
         <div className="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold">Detail Totalizer per Nozzle</h3>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => success('Export totalizer', 'File sedang disiapkan.')}>Export</Button>
-            <Button variant="aloe" size="sm"
-              onClick={() => { success('Variance dihitung', `Total variance: +${totalVar} L terdeteksi.`); }}>
-              Hitung Variance
-            </Button>
+          <div>
+            <h3 className="text-[13px] font-semibold">
+              Rekonsiliasi Nozzle Totalizer vs Transaksi Sistem
+            </h3>
+            <p className="text-[11.5px] text-zinc-400">
+              Membandingkan selisih antara liter flow meter pompa dengan
+              transaksi kartu
+            </p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => loadData(shiftDate)}
+          >
+            Hitung Ulang
+          </Button>
         </div>
         <div className="overflow-x-auto">
           <table className="fuel-table">
-            <thead><tr>
-              <th>Pump</th><th>Nozzle</th><th>Produk</th><th>Opening Totalizer</th>
-              <th>Current Totalizer</th><th>Actual Dispensed</th><th>System Transaksi</th>
-              <th>Variance</th><th>Status</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th>Nozzle ID</th>
+                <th>Pompa Dispenser</th>
+                <th>Nomor Nozzle</th>
+                <th>Produk BBM</th>
+                <th>Usage Totalizer (L)</th>
+                <th>Sales Sistem (L)</th>
+                <th>Variance (L)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
-              {allNozzles.map(n => (
-                <tr key={n.id}>
-                  <td className="font-semibold">Pump {n.pumpNum}</td>
-                  <td>
-                    <span className="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 rounded-full font-semibold text-[12px] text-zinc-700">
-                      {n.number}
-                    </span>
-                  </td>
-                  <td><Badge variant="neutral">{n.product}</Badge></td>
-                  <td className="font-mono text-[12px] text-zinc-500">{n.totalizerOpen.toLocaleString('id-ID')}</td>
-                  <td className="font-mono text-[12.5px] font-semibold text-zinc-800">{n.totalizerCurrent.toLocaleString('id-ID')}</td>
-                  <td className="font-semibold">{n.usage.toLocaleString('id-ID')} L</td>
-                  <td className="text-zinc-600">{n.systemSales.toLocaleString('id-ID')} L</td>
-                  <td>
-                    <span className={`font-semibold text-[13px] ${n.variance > 5 ? 'text-amber-600' : n.variance > 0 ? 'text-zinc-700' : 'text-green-600'}`}>
-                      {n.variance > 0 ? `+${n.variance}` : '0'} L
-                    </span>
-                  </td>
-                  <td>
-                    {n.pumpStatus === 'OFFLINE' ? <Badge variant="neutral">OFFLINE</Badge>
-                      : n.variance > 5 ? <Badge variant="warning">VARIANCE</Badge>
-                      : <Badge variant="success">NORMAL</Badge>}
+              {loading && reconciliations.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="text-center py-8 text-[13px] text-zinc-400"
+                  >
+                    Memuat rekonsiliasi totalizer…
                   </td>
                 </tr>
-              ))}
+              ) : reconciliations.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="text-center py-8 text-[13px] text-zinc-400"
+                  >
+                    Belum ada data totalizer tercatat untuk tanggal ini
+                  </td>
+                </tr>
+              ) : (
+                reconciliations.map((r) => (
+                  <tr key={r.nozzle_id}>
+                    <td className="font-mono text-[12px] text-zinc-500">
+                      {r.nozzle_id}
+                    </td>
+                    <td className="font-semibold text-zinc-800">
+                      Pompa {r.pump_number}
+                    </td>
+                    <td>
+                      <span className="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 rounded-full font-semibold text-[12px] text-zinc-700">
+                        N{r.nozzle_number}
+                      </span>
+                    </td>
+                    <td>
+                      <Badge variant="neutral">{r.product_name}</Badge>
+                    </td>
+                    <td className="font-semibold text-zinc-900">
+                      {(r.totalizer_usage ?? 0).toLocaleString("id-ID")} L
+                    </td>
+                    <td className="text-zinc-600">
+                      {(r.system_sales ?? 0).toLocaleString("id-ID")} L
+                    </td>
+                    <td>
+                      <span
+                        className={`font-semibold text-[13px] ${Math.abs(r.variance_l) > 5 ? "text-amber-600" : "text-green-600"}`}
+                      >
+                        {r.variance_l > 0 ? `+${r.variance_l}` : r.variance_l} L
+                      </span>
+                    </td>
+                    <td>
+                      <Badge
+                        variant={
+                          Math.abs(r.variance_l) > 5 ? "warning" : "success"
+                        }
+                      >
+                        {Math.abs(r.variance_l) > 5 ? "VARIANCE" : "NORMAL"}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
             <tfoot>
               <tr className="bg-zinc-50">
-                <td colSpan={5} className="px-4 py-3 text-[12px] font-semibold text-zinc-500">TOTAL</td>
-                <td className="px-4 py-3 font-bold">{totalUsage.toLocaleString('id-ID')} L</td>
-                <td className="px-4 py-3 font-bold">{allNozzles.reduce((s,n)=>s+n.systemSales,0).toLocaleString('id-ID')} L</td>
-                <td className="px-4 py-3 font-bold text-amber-600">+{totalVar} L</td>
+                <td
+                  colSpan={4}
+                  className="px-4 py-3 text-[12px] font-semibold text-zinc-600"
+                >
+                  TOTAL
+                </td>
+                <td className="px-4 py-3 font-bold text-zinc-900">
+                  {totalTotUsage.toLocaleString("id-ID")} L
+                </td>
+                <td className="px-4 py-3 font-bold text-zinc-900">
+                  {totalSysSales.toLocaleString("id-ID")} L
+                </td>
+                <td className="px-4 py-3 font-bold text-amber-600">
+                  {totalReconVariance > 0
+                    ? `+${totalReconVariance}`
+                    : totalReconVariance}{" "}
+                  L
+                </td>
                 <td></td>
               </tr>
             </tfoot>
@@ -92,55 +298,121 @@ export default function TotalizerPage() {
         </div>
       </Card>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 text-[13px] text-amber-800">
-        <span className="font-semibold">Catatan:</span> Penyesuaian totalizer manual memerlukan alasan dan approval.
-      </div>
-
-      {/* Manual input modal */}
-      <Modal open={manualModal} onClose={() => setManualModal(false)} title="Input Totalizer Manual" subtitle="Hanya untuk koreksi data sensor yang tidak terbaca">
-        <div className="space-y-3">
+      {/* Manual Input Modal */}
+      <Modal
+        open={inputModal}
+        onClose={() => setInputModal(false)}
+        title="Pencatatan Angka Totalizer Shift"
+      >
+        <form onSubmit={handleSaveTotalizer} className="space-y-3">
           <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1.5">Nozzle</label>
-            <select className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10">
-              {allNozzles.map(n => <option key={n.id}>Pump {n.pumpNum} — N{n.number} ({n.product})</option>)}
+            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+              Pilih Nozzle *
+            </label>
+            <select
+              value={form.nozzle_id}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, nozzle_id: e.target.value }))
+              }
+              required
+              className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+            >
+              {nozzles.map((n) => (
+                <option key={n.id} value={n.id}>
+                  Pompa {n.pump_number || n.pumpNum || "—"} · N{n.number} (
+                  {n.product_name || n.product})
+                </option>
+              ))}
             </select>
           </div>
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1.5">Nilai Totalizer</label>
-            <input type="number" placeholder="0" className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10" />
-          </div>
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1.5">Alasan (wajib)</label>
-            <textarea rows={2} placeholder="Jelaskan alasan koreksi…" className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 resize-none" />
-          </div>
-          <div className="flex gap-2 pt-1">
-            <Button variant="outline" className="flex-1" onClick={() => setManualModal(false)}>Batal</Button>
-            <Button variant="primary" className="flex-1"
-              onClick={() => { warning('Menunggu approval', 'Request koreksi totalizer dikirim.'); setManualModal(false); }}>
-              Submit ke Approval
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
-      {/* Set opening modal */}
-      <Modal open={openingModal} onClose={() => setOpeningModal(false)} title="Set Opening Totalizer" subtitle="Dilakukan pada awal shift/periode">
-        <div className="space-y-3">
-          {allNozzles.map(n => (
-            <div key={n.id} className="flex items-center gap-3">
-              <span className="text-[13px] font-medium text-zinc-700 w-40 flex-shrink-0">P{n.pumpNum}/N{n.number} {n.product}</span>
-              <input type="number" defaultValue={n.totalizerCurrent}
-                className="flex-1 px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Tanggal Shift *
+              </label>
+              <input
+                type="date"
+                required
+                value={form.shift_date}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, shift_date: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
             </div>
-          ))}
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Shift Kerja
+              </label>
+              <select
+                value={form.shift}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, shift: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="PAGI">Shift Pagi</option>
+                <option value="SIANG">Shift Siang</option>
+                <option value="MALAM">Shift Malam</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Totalizer Awal (Opening) *
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                required
+                placeholder="10450.5"
+                value={form.opening_value}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, opening_value: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Totalizer Akhir (Current) *
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                required
+                placeholder="10890.2"
+                value={form.current_value}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, current_value: e.target.value }))
+                }
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono"
+              />
+            </div>
+          </div>
+
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1" onClick={() => setOpeningModal(false)}>Batal</Button>
-            <Button variant="primary" className="flex-1"
-              onClick={() => { success('Opening totalizer disimpan', 'Data berhasil dicatat.'); setOpeningModal(false); }}>
-              Simpan Opening
+            <Button
+              variant="outline"
+              type="button"
+              className="flex-1"
+              onClick={() => setInputModal(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              className="flex-1"
+              disabled={submitting}
+            >
+              {submitting ? "Menyimpan…" : "Simpan Pembacaan"}
             </Button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   );

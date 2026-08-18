@@ -1,40 +1,18 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Search, CreditCard, Car, Clock, Building2, X } from 'lucide-react';
-import { cards, vehicles, transactions, units } from '@/lib/data';
+import { api, Card, Vehicle, Transaction, Unit } from '@/lib/api';
 import Link from 'next/link';
 import { clsx } from 'clsx';
 
-const allResults = [
-  ...cards.map(c => ({
-    type: 'Kartu', icon: <CreditCard size={13} />,
-    label: `${c.number} — ${c.holder}`,
-    sub: c.unit,
-    href: '/cards',
-    keywords: `${c.number} ${c.holder} ${c.unit}`.toLowerCase(),
-  })),
-  ...vehicles.map(v => ({
-    type: 'Kendaraan', icon: <Car size={13} />,
-    label: `${v.policeNumber} — ${v.brand} ${v.model}`,
-    sub: v.unit,
-    href: '/master/vehicles',
-    keywords: `${v.policeNumber} ${v.brand} ${v.model} ${v.unit}`.toLowerCase(),
-  })),
-  ...transactions.slice(0, 20).map(t => ({
-    type: 'Transaksi', icon: <Clock size={13} />,
-    label: t.id,
-    sub: `${t.holder} · ${t.product} · ${t.volume}L`,
-    href: '/transactions',
-    keywords: `${t.id} ${t.card} ${t.holder} ${t.vehicle}`.toLowerCase(),
-  })),
-  ...units.map(u => ({
-    type: 'Unit', icon: <Building2 size={13} />,
-    label: u.name,
-    sub: `${u.cards} kartu · ${u.vehicles} kendaraan`,
-    href: '/master/units',
-    keywords: `${u.name} ${u.code}`.toLowerCase(),
-  })),
-];
+interface SearchItem {
+  type: string;
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+  href: string;
+  keywords: string;
+}
 
 interface GlobalSearchProps {
   open: boolean;
@@ -44,22 +22,107 @@ interface GlobalSearchProps {
 export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
+  const [items, setItems] = useState<SearchItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const results = query.length > 1
-    ? allResults.filter(r => r.keywords.includes(query.toLowerCase())).slice(0, 8)
-    : [];
-
   useEffect(() => {
-    if (open) { setTimeout(() => inputRef.current?.focus(), 50); setQuery(''); setActive(0); }
+    if (!open) return;
+    setTimeout(() => inputRef.current?.focus(), 50);
+    setQuery('');
+    setActive(0);
+    setLoading(true);
+
+    // Fetch live searchable records
+    Promise.allSettled([
+      api.cards.list({ limit: 50 }),
+      api.master.vehicles(),
+      api.transactions.list({ limit: 30 }),
+      api.master.units(),
+    ]).then(([cardsRes, vehRes, trxRes, unitRes]) => {
+      const combined: SearchItem[] = [];
+
+      if (cardsRes.status === 'fulfilled' && cardsRes.value?.data) {
+        cardsRes.value.data.forEach((c: Card) => {
+          const num = c.card_number || c.number || '';
+          const holder = c.holder_name || c.holder || '';
+          const unit = c.unit_name || c.unit || '';
+          combined.push({
+            type: 'Kartu',
+            icon: <CreditCard size={13} />,
+            label: `${num} — ${holder}`,
+            sub: unit || 'Unit SPBP',
+            href: '/cards',
+            keywords: `${num} ${holder} ${unit}`.toLowerCase(),
+          });
+        });
+      }
+
+      if (vehRes.status === 'fulfilled' && vehRes.value?.data) {
+        vehRes.value.data.forEach((v: Vehicle) => {
+          const plate = v.police_number || v.policeNumber || '';
+          const brand = v.brand || '';
+          const model = v.model || '';
+          const unit = v.unit_name || v.unit || '';
+          combined.push({
+            type: 'Kendaraan',
+            icon: <Car size={13} />,
+            label: `${plate} ${brand} ${model}`.trim(),
+            sub: unit || 'Kendaraan Dinas',
+            href: '/master/vehicles',
+            keywords: `${plate} ${brand} ${model} ${unit}`.toLowerCase(),
+          });
+        });
+      }
+
+      if (trxRes.status === 'fulfilled' && trxRes.value?.data) {
+        trxRes.value.data.forEach((t: Transaction) => {
+          const id = t.id || '';
+          const card = t.card_number || t.card || '';
+          const holder = t.holder_name || t.holder || '';
+          const vol = t.volume_l ?? t.volume ?? 0;
+          const prod = t.product_name || t.product || '';
+          combined.push({
+            type: 'Transaksi',
+            icon: <Clock size={13} />,
+            label: id,
+            sub: `${holder} · ${prod} · ${vol}L`,
+            href: '/transactions',
+            keywords: `${id} ${card} ${holder} ${prod}`.toLowerCase(),
+          });
+        });
+      }
+
+      if (unitRes.status === 'fulfilled' && unitRes.value?.data) {
+        unitRes.value.data.forEach((u: Unit) => {
+          const name = u.name || '';
+          const code = u.code || '';
+          combined.push({
+            type: 'Unit',
+            icon: <Building2 size={13} />,
+            label: name,
+            sub: `${code} · Satker Polda Papua Barat`,
+            href: '/master/units',
+            keywords: `${name} ${code}`.toLowerCase(),
+          });
+        });
+      }
+
+      setItems(combined);
+      setLoading(false);
+    });
   }, [open]);
+
+  const results = query.length > 1
+    ? items.filter(r => r.keywords.includes(query.toLowerCase())).slice(0, 8)
+    : [];
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (!open) return;
       if (e.key === 'Escape') { onClose(); return; }
-      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(a => Math.min(a + 1, results.length - 1)); }
-      if (e.key === 'ArrowUp')   { e.preventDefault(); setActive(a => Math.max(a - 1, 0)); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(a => Math.min(a + 1, Math.max(0, results.length - 1))); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setActive(a => Math.max(a - 1, 0)); }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
@@ -97,7 +160,11 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
         </div>
 
         {/* Results */}
-        {results.length > 0 ? (
+        {loading ? (
+          <div className="py-10 text-center text-zinc-400 text-[13px]">
+            Memuat indeks pencarian…
+          </div>
+        ) : results.length > 0 ? (
           <div className="py-2">
             {results.map((r, i) => (
               <Link key={i} href={r.href} onClick={onClose}>
@@ -126,13 +193,17 @@ export function GlobalSearch({ open, onClose }: GlobalSearchProps) {
             <p className="text-[11.5px] font-semibold text-zinc-400 uppercase tracking-wide mb-3">Pintasan</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Semua Transaksi', href: '/transactions', icon: <Clock size={13}/> },
-                { label: 'Semua Kartu',     href: '/cards',        icon: <CreditCard size={13}/> },
-                { label: 'Tank Monitoring', href: '/tanks',        icon: <Building2 size={13}/> },
-                { label: 'Rekonsiliasi',    href: '/reconciliation', icon: <Search size={13}/> },
+                { label: 'Semua Transaksi', href: '/transactions', icon: <Clock size={13} /> },
+                { label: 'Semua Kartu', href: '/cards', icon: <CreditCard size={13} /> },
+                { label: 'Tank Monitoring', href: '/tanks', icon: <Building2 size={13} /> },
+                { label: 'Rekonsiliasi', href: '/reconciliation', icon: <Search size={13} /> },
               ].map(s => (
-                <Link key={s.href} href={s.href} onClick={onClose}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-[13px] font-medium text-zinc-700 transition">
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  onClick={onClose}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 text-[13px] font-medium text-zinc-700 transition"
+                >
                   <span className="text-zinc-400">{s.icon}</span>
                   {s.label}
                 </Link>

@@ -1,37 +1,69 @@
 'use client';
+import { useState, useEffect } from 'react';
+import { api, User } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { Badge, statusVariant } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { RefreshCw } from 'lucide-react';
 
-const operators = [
-  { id: 'OP01', name: 'Budi Santoso', username: 'OPERATOR01', shift: 'PAGI', status: 'ACTIVE', trxToday: 24 },
-  { id: 'OP02', name: 'Sari Dewi', username: 'OPERATOR02', shift: 'SIANG', status: 'ACTIVE', trxToday: 18 },
-  { id: 'OP03', name: 'Tono Prasetyo', username: 'OPERATOR03', shift: 'MALAM', status: 'ACTIVE', trxToday: 16 },
-  { id: 'OP04', name: 'Rini Wulandari', username: 'OPERATOR04', shift: 'PAGI', status: 'INACTIVE', trxToday: 0 },
-];
+export default function MasterOperatorsPage() {
+  const [operators, setOperators] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function OperatorsPage() {
+  const loadOperators = () => {
+    setLoading(true);
+    api.master.users()
+      .then(res => {
+        if (res?.data) {
+          const ops = res.data.filter(u => u.role?.toLowerCase().includes('operator') || u.role?.toLowerCase().includes('petugas') || u.role?.toLowerCase().includes('admin'));
+          setOperators(ops.length > 0 ? ops : res.data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadOperators();
+  }, []);
+
   return (
     <div>
-      <PageHeader title="Operators" subtitle="Kelola operator SPBP dan shift kerja">
-        <Button variant="primary" size="sm">+ Operator</Button>
+      <PageHeader title="Master Operators" subtitle="Data petugas operator pulau pompa SPBP Polda Papua Barat">
+        <Button variant="outline" size="sm" onClick={loadOperators}>
+          <RefreshCw size={13} /> Refresh
+        </Button>
       </PageHeader>
+
       <Card padding={false}>
         <div className="overflow-x-auto">
           <table className="fuel-table">
-            <thead><tr><th>Nama</th><th>Username</th><th>Shift</th><th>Trx Hari Ini</th><th>Status</th><th></th></tr></thead>
+            <thead>
+              <tr>
+                <th>NRP / ID</th>
+                <th>Nama Operator</th>
+                <th>Peran</th>
+                <th>Satuan Kerja</th>
+                <th>Status Tugas</th>
+              </tr>
+            </thead>
             <tbody>
-              {operators.map(o => (
-                <tr key={o.id}>
-                  <td className="font-medium">{o.name}</td>
-                  <td className="font-mono text-[12px] text-zinc-600">{o.username}</td>
-                  <td><Badge variant="neutral">{o.shift}</Badge></td>
-                  <td className="font-semibold">{o.trxToday}</td>
-                  <td><Badge variant={o.status === 'ACTIVE' ? 'success' : 'neutral'}>{o.status}</Badge></td>
-                  <td><button className="text-[12px] text-zinc-400 hover:text-zinc-700 px-2 py-1 hover:bg-zinc-100 rounded-lg transition">Edit</button></td>
-                </tr>
-              ))}
+              {loading && operators.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8 text-[13px] text-zinc-400">Memuat data operator…</td></tr>
+              ) : operators.length === 0 ? (
+                <tr><td colSpan={5} className="text-center py-8 text-[13px] text-zinc-400">Belum ada operator terdaftar</td></tr>
+              ) : (
+                operators.map(u => (
+                  <tr key={u.id}>
+                    <td className="font-mono font-semibold text-zinc-800">{u.username}</td>
+                    <td className="font-medium text-zinc-900">{u.name}</td>
+                    <td><Badge variant="neutral">{u.role}</Badge></td>
+                    <td className="text-zinc-600 text-[12px]">{u.unit || u.department || 'SPBP Polda Papua Barat'}</td>
+                    <td><Badge variant={statusVariant(u.status || 'ACTIVE')}>{u.status || 'ACTIVE'}</Badge></td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
