@@ -82,8 +82,7 @@
                   "    var json = pm.response.json();",
                   "    if (json && json.data && json.data.token) {",
                   "        pm.collectionVariables.set('token', json.data.token);",
-                  "        pm.environment.set('token', json.data.token);",
-                  "        console.log('✓ JWT Token successfully saved to collection and environment variable: token');",
+                  "        console.log('✓ JWT Token successfully saved to collection variable: token');",
                   "    }",
                   "}"
                 ],
@@ -2078,7 +2077,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"COMPANY_NAME\": \"SPBP Polda Papua Barat\",\n  \"SYSTEM_MODE\": \"ONLINE\",\n  \"MAX_DAILY_LITER\": \"5000\",\n  \"AUTO_RECONCILE_TIME\": \"23:59\"\n}"
+              "raw": "{\n  \"COMPANY_NAME\": \"SPBP Polda Papua Barat\",\n  \"SYSTEM_MODE\": \"ONLINE\",\n  \"MAX_DAILY_LITER\": \"5000\",\n  \"AUTO_RECONCILE_TIME\": \"23:59\",\n  \"fms_base_url\": \"http://192.168.1.100/api\",\n  \"fms_timeout_ms\": \"15000\",\n  \"fms_debug\": \"false\",\n  \"fms_enabled\": \"true\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/system/settings",
@@ -2091,7 +2090,86 @@
                 "settings"
               ]
             },
-            "description": "Memperbarui konfigurasi parameter global sistem."
+            "description": "Memperbarui konfigurasi parameter global sistem di database. Invalidation cache FMS Client otomatis terpicu."
+          },
+          "response": []
+        },
+        {
+          "name": "FMS Config: Get Active Resolved Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system/fms-config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "fms-config"
+              ]
+            },
+            "description": "Mendapatkan konfigurasi aktif integrasi Forecourt Controller FMS (teresolusi dari database, environment fallback, atau default)."
+          },
+          "response": []
+        },
+        {
+          "name": "FMS Config: Update FMS Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseUrl\": \"http://192.168.1.100/api\",\n  \"timeoutMs\": 15000,\n  \"debug\": false,\n  \"enabled\": true,\n  \"headers\": {\n    \"X-SPBU-ID\": \"SPBP-PAPUA-BARAT-01\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system/fms-config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "fms-config"
+              ]
+            },
+            "description": "Menyimpan atau memperbarui konfigurasi parameter koneksi FMS langsung ke tabel system_settings di database, menghapus cache in-memory, dan mencatat audit trail."
+          },
+          "response": []
+        },
+        {
+          "name": "FMS Config: Test Controller Connection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseUrl\": \"http://192.168.1.100/api\",\n  \"timeoutMs\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system/fms-config/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "fms-config",
+                "test"
+              ]
+            },
+            "description": "Menguji koneksi handshake ping dan mengukur respon latensi (ms) ke target Forecourt Controller FMS."
           },
           "response": []
         },
@@ -2137,7 +2215,7 @@
           "response": []
         },
         {
-          "name": "Integration: Get Controller Status",
+          "name": "Integration: Get Controller & FMS Status",
           "request": {
             "method": "GET",
             "header": [],
@@ -2152,7 +2230,7 @@
                 "integration"
               ]
             },
-            "description": "Mendapatkan status konektivitas integrasi controller pompa dispenser hardware."
+            "description": "Mendapatkan status integrasi transaksi controller pompa dispenser serta live status koneksi Forecourt Controller FMS (latensi ms, status connected, versi controller, jam server)."
           },
           "response": []
         }

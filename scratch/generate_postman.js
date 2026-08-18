@@ -1663,7 +1663,11 @@ const collection = {
                 COMPANY_NAME: "SPBP Polda Papua Barat",
                 SYSTEM_MODE: "ONLINE",
                 MAX_DAILY_LITER: "5000",
-                AUTO_RECONCILE_TIME: "23:59"
+                AUTO_RECONCILE_TIME: "23:59",
+                fms_base_url: "http://192.168.1.100/api",
+                fms_timeout_ms: "15000",
+                fms_debug: "false",
+                fms_enabled: "true"
               }, null, 2)
             },
             url: {
@@ -1671,7 +1675,78 @@ const collection = {
               host: ["{{baseUrl}}"],
               path: ["api", "system", "settings"]
             },
-            description: "Memperbarui konfigurasi parameter global sistem."
+            description: "Memperbarui konfigurasi parameter global sistem di database. Invalidation cache FMS Client otomatis terpicu."
+          },
+          response: []
+        },
+        {
+          name: "FMS Config: Get Active Resolved Config",
+          request: {
+            method: "GET",
+            header: [],
+            url: {
+              raw: "{{baseUrl}}/api/system/fms-config",
+              host: ["{{baseUrl}}"],
+              path: ["api", "system", "fms-config"]
+            },
+            description: "Mendapatkan konfigurasi aktif integrasi Forecourt Controller FMS (teresolusi dari database, environment fallback, atau default)."
+          },
+          response: []
+        },
+        {
+          name: "FMS Config: Update FMS Settings",
+          request: {
+            method: "PUT",
+            header: [
+              {
+                key: "Content-Type",
+                value: "application/json"
+              }
+            ],
+            body: {
+              mode: "raw",
+              raw: JSON.stringify({
+                baseUrl: "http://192.168.1.100/api",
+                timeoutMs: 15000,
+                debug: false,
+                enabled: true,
+                headers: {
+                  "X-SPBU-ID": "SPBP-PAPUA-BARAT-01"
+                }
+              }, null, 2)
+            },
+            url: {
+              raw: "{{baseUrl}}/api/system/fms-config",
+              host: ["{{baseUrl}}"],
+              path: ["api", "system", "fms-config"]
+            },
+            description: "Menyimpan atau memperbarui konfigurasi parameter koneksi FMS langsung ke tabel system_settings di database, menghapus cache in-memory, dan mencatat audit trail."
+          },
+          response: []
+        },
+        {
+          name: "FMS Config: Test Controller Connection",
+          request: {
+            method: "POST",
+            header: [
+              {
+                key: "Content-Type",
+                value: "application/json"
+              }
+            ],
+            body: {
+              mode: "raw",
+              raw: JSON.stringify({
+                baseUrl: "http://192.168.1.100/api",
+                timeoutMs: 5000
+              }, null, 2)
+            },
+            url: {
+              raw: "{{baseUrl}}/api/system/fms-config/test",
+              host: ["{{baseUrl}}"],
+              path: ["api", "system", "fms-config", "test"]
+            },
+            description: "Menguji koneksi handshake ping dan mengukur respon latensi (ms) ke target Forecourt Controller FMS."
           },
           response: []
         },
@@ -1704,7 +1779,7 @@ const collection = {
           response: []
         },
         {
-          name: "Integration: Get Controller Status",
+          name: "Integration: Get Controller & FMS Status",
           request: {
             method: "GET",
             header: [],
@@ -1713,7 +1788,7 @@ const collection = {
               host: ["{{baseUrl}}"],
               path: ["api", "system", "integration"]
             },
-            description: "Mendapatkan status konektivitas integrasi controller pompa dispenser hardware."
+            description: "Mendapatkan status integrasi transaksi controller pompa dispenser serta live status koneksi Forecourt Controller FMS (latensi ms, status connected, versi controller, jam server)."
           },
           response: []
         }
