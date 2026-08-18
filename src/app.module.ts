@@ -16,6 +16,7 @@ import { MasterModule } from './modules/master/master.module';
 import { SystemModule } from './modules/system/system.module';
 import { ControllerPushModule } from './modules/controller-push/controller-push.module';
 import { HealthModule } from './modules/health/health.module';
+import { FmsModule } from './modules/fms/fms.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { HealthModule } from './modules/health/health.module';
     SystemModule,
     ControllerPushModule,
     HealthModule,
+    FmsModule,
   ],
 })
 export class AppModule {}

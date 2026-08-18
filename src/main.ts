@@ -43,7 +43,7 @@ async function bootstrap() {
 
   app.use(json({ limit: "1mb" }));
   app.use(urlencoded({ extended: true }));
-  app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+  // app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
   // ── Global Filter & Pipe ──
   app.useGlobalFilters(new HttpExceptionFilter());

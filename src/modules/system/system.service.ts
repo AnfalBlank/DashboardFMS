@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Optional,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,15 @@ import {
 } from '../../database/entities';
 import { AuditService } from '../audit/audit.service';
 import { toNum } from '../../common/utils/db.util';
+import { FmsClientService } from '../fms/client/fms-client.service';
+import {
+  FmsDatabaseConfigDto,
+  FmsTestConnectionDto,
+} from '../fms/dto/fms-config.dto';
+import {
+  FmsResolvedConfig,
+  FmsConnectionTestResult,
+} from '../fms/interfaces/fms.interfaces';
 
 @Injectable()
 export class SystemService {
@@ -29,6 +39,8 @@ export class SystemService {
     @InjectRepository(Transaction)
     private readonly txRepo: Repository<Transaction>,
     private readonly audit: AuditService,
+    @Optional()
+    private readonly fmsClient?: FmsClientService,
   ) {}
 
   // ── Audit Log ──
@@ -199,6 +211,11 @@ export class SystemService {
       await this.settingRepo.save(setting);
     }
 
+    // Invalidate FMS client configuration cache so new settings take effect immediately
+    if (this.fmsClient) {
+      this.fmsClient.invalidateConfigCache();
+    }
+
     await this.audit.logAudit(
       userId,
       'UPDATE_SETTINGS',
@@ -211,6 +228,47 @@ export class SystemService {
     );
 
     return { message: 'Pengaturan disimpan' };
+  }
+
+  // ── FMS Integration Config ──
+  async getFmsConfig(): Promise<FmsResolvedConfig | null> {
+    if (!this.fmsClient) return null;
+    return this.fmsClient.resolveConfig();
+  }
+
+  async updateFmsConfig(
+    dto: FmsDatabaseConfigDto,
+    userId?: string,
+    ip?: string,
+  ): Promise<FmsResolvedConfig> {
+    if (!this.fmsClient) {
+      throw new BadRequestException('FMS Client service tidak tersedia');
+    }
+
+    const beforeConfig = await this.fmsClient.resolveConfig();
+    const updatedConfig = await this.fmsClient.saveDatabaseConfig(dto, userId);
+
+    await this.audit.logAudit(
+      userId,
+      'UPDATE_FMS_CONFIG',
+      'System',
+      'fms_config',
+      beforeConfig,
+      dto,
+      `Perubahan konfigurasi FMS Controller (BaseURL: ${updatedConfig.baseUrl})`,
+      ip,
+    );
+
+    return updatedConfig;
+  }
+
+  async testFmsConnection(
+    dto?: FmsTestConnectionDto,
+  ): Promise<FmsConnectionTestResult> {
+    if (!this.fmsClient) {
+      throw new BadRequestException('FMS Client service tidak tersedia');
+    }
+    return this.fmsClient.testConnection(dto);
   }
 
   // ── Notifications ──
@@ -228,7 +286,7 @@ export class SystemService {
 
   // ── Integration Monitor ──
   async getIntegrationStatus() {
-    const [totalRaw, todayCount] = await Promise.all([
+    const [totalRaw, todayCount, fmsConfig, fmsHealth] = await Promise.all([
       this.txRepo
         .createQueryBuilder('t')
         .select('COUNT(*)', 'total')
@@ -238,6 +296,18 @@ export class SystemService {
         .createQueryBuilder('t')
         .where('DATE(t.createdAt) = CURDATE()')
         .getCount(),
+      this.fmsClient ? this.fmsClient.resolveConfig().catch(() => null) : null,
+      this.fmsClient
+        ? this.fmsClient
+            .testConnection({ timeoutMs: 3000 })
+            .catch((err) => ({
+              success: false,
+              targetUrl: '',
+              statusCode: undefined,
+              message: err.message || 'Koneksi gagal',
+              latencyMs: 0,
+            }))
+        : null,
     ]);
 
     return {
@@ -247,6 +317,19 @@ export class SystemService {
       failed: 0,
       today: todayCount,
       last_sync: new Date().toISOString(),
+      fms_integration: {
+        enabled: fmsConfig?.enabled ?? false,
+        base_url: fmsConfig?.baseUrl ?? null,
+        source: fmsConfig?.source ?? 'DEFAULT',
+        timeout_ms: fmsConfig?.timeoutMs ?? 15000,
+        connected: fmsHealth?.success ?? false,
+        latency_ms: fmsHealth?.latencyMs ?? 0,
+        controller_version: (fmsHealth as any)?.controllerVersion ?? null,
+        server_time: (fmsHealth as any)?.serverTime ?? null,
+        message: fmsHealth?.message ?? null,
+        last_checked: new Date().toISOString(),
+      },
     };
   }
 }
+

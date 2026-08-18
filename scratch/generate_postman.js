@@ -36,6 +36,12 @@ const collection = {
       value: "spbp-controller-2026",
       type: "string",
       description: "Shared secret key untuk autentikasi hardware dispenser controller"
+    },
+    {
+      key: "fms_base_url",
+      value: "http://192.168.1.100/api",
+      type: "string",
+      description: "Target URL Forecourt Controller API (CodeIgniter 3)"
     }
   ],
   item: [
@@ -1759,6 +1765,53 @@ const collection = {
           response: []
         }
       ]
+    },
+
+    // ════════════════════ 14. Forecourt Management System (FMS) ════════════════════
+    {
+      name: "14. Forecourt Management System (FMS)",
+      item: [
+        {
+          name: "Test Connection to Controller (POST)",
+          request: {
+            method: "POST",
+            header: [
+              {
+                key: "Content-Type",
+                value: "application/json"
+              }
+            ],
+            body: {
+              mode: "raw",
+              raw: JSON.stringify({
+                baseUrl: "http://192.168.1.100/api",
+                timeoutMs: 5000
+              }, null, 2)
+            },
+            url: {
+              raw: "{{baseUrl}}/api/fms/test-connection",
+              host: ["{{baseUrl}}"],
+              path: ["api", "fms", "test-connection"]
+            },
+            description: "Menguji konektivitas, latency handshake, dan status controller hardware FMS aktif atau custom target URL."
+          },
+          response: []
+        },
+        {
+          name: "Test Connection Quick (GET)",
+          request: {
+            method: "GET",
+            header: [],
+            url: {
+              raw: "{{baseUrl}}/api/fms/test-connection",
+              host: ["{{baseUrl}}"],
+              path: ["api", "fms", "test-connection"]
+            },
+            description: "Shortcut GET untuk menguji koneksi cepat ke target Forecourt Controller aktif (tersinkron database/env)."
+          },
+          response: []
+        }
+      ]
     }
   ]
 };
@@ -1783,6 +1836,12 @@ const environment = {
       key: "controller_secret",
       value: "spbp-controller-2026",
       type: "secret",
+      enabled: true
+    },
+    {
+      key: "fms_base_url",
+      value: "http://192.168.1.100/api",
+      type: "default",
       enabled: true
     },
     {

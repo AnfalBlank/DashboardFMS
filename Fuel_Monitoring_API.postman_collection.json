@@ -33,6 +33,12 @@
       "value": "spbp-controller-2026",
       "type": "string",
       "description": "Shared secret key untuk autentikasi hardware dispenser controller"
+    },
+    {
+      "key": "fms_base_url",
+      "value": "http://192.168.1.100/api",
+      "type": "string",
+      "description": "Target URL Forecourt Controller API (CodeIgniter 3)"
     }
   ],
   "item": [
@@ -49,8 +55,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
             "description": "Memeriksa status operasional service backend API."
           },
@@ -98,8 +108,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Login untuk mendapatkan JWT token otorisasi. Token akan otomatis disimpan ke variable collection."
           },
@@ -112,8 +128,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
             },
             "description": "Mendapatkan profil dan role pengguna yang sedang login."
           },
@@ -135,8 +157,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/change-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "change-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
             },
             "description": "Mengubah password pengguna saat ini."
           },
@@ -149,8 +177,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             },
             "description": "Logout user dan mencatat ke audit trail."
           },
@@ -168,8 +202,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
+              ]
             },
             "description": "Mendapatkan metrik ringkasan KPI dashboard (stok aktif, transaksi hari ini, pemakaian kuota, alert)."
           },
@@ -182,8 +221,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/alerts",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "alerts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "alerts"
+              ]
             },
             "description": "Mendapatkan daftar peringatan aktif (stok kritis, kuota habis, selisih totalizer)."
           },
@@ -196,8 +241,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/dashboard/alerts/:id/read",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard", "alerts", ":id", "read"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "alerts",
+                ":id",
+                "read"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -222,8 +275,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/transactions?card=&unit=&product=&status=&from=&to=&limit=50&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ],
               "query": [
                 {
                   "key": "card",
@@ -278,8 +336,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/transactions/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -308,8 +372,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/transactions",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions"
+              ]
             },
             "description": "Mencatat transaksi pengisian BBM manual oleh operator SPBP."
           },
@@ -331,8 +400,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/transactions/:id/void",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", ":id", "void"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                ":id",
+                "void"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -357,8 +433,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/cards?search=&status=&unit=&limit=100&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards"
+              ],
               "query": [
                 {
                   "key": "search",
@@ -398,8 +479,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -419,8 +506,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id/transactions?limit=20&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards", ":id", "transactions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                ":id",
+                "transactions"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -452,8 +546,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id/quota",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards", ":id", "quota"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                ":id",
+                "quota"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -482,8 +583,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/cards",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards"
+              ]
             },
             "description": "Mendaftarkan kartu BBM / RFID baru ke dalam sistem."
           },
@@ -505,8 +611,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -535,8 +647,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id/block",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards", ":id", "block"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                ":id",
+                "block"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -565,8 +684,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id/unblock",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "cards", ":id", "unblock"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                ":id",
+                "unblock"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -591,8 +717,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/quota?period_id=&card_id=&unit_id=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "quota"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quota"
+              ],
               "query": [
                 {
                   "key": "period_id",
@@ -622,8 +753,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/quota/periods",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "quota", "periods"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quota",
+                "periods"
+              ]
             },
             "description": "Mendapatkan daftar seluruh periode kuota bulanan."
           },
@@ -636,8 +773,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/quota/ledger/:cardId",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "quota", "ledger", ":cardId"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quota",
+                "ledger",
+                ":cardId"
+              ],
               "variable": [
                 {
                   "key": "cardId",
@@ -666,8 +810,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/quota/generate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "quota", "generate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quota",
+                "generate"
+              ]
             },
             "description": "Menghasilkan (generate) alokasi kuota bulanan secara massal untuk seluruh atau satker tertentu."
           },
@@ -689,8 +839,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/quota/topup",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "quota", "topup"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "quota",
+                "topup"
+              ]
             },
             "description": "Menambahkan kuota darurat/tambahan (top-up) ke kartu tertentu dengan alasan dinas."
           },
@@ -708,8 +864,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tanks",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tanks"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks"
+              ]
             },
             "description": "Mendapatkan daftar tangki pendam SPBP, kapasitas, volume saat ini, dan level status."
           },
@@ -722,8 +883,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tanks/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tanks", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -743,8 +910,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/tanks/:id/readings?limit=50",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tanks", ":id", "readings"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks",
+                ":id",
+                "readings"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -780,8 +954,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/tanks/:id/readings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tanks", ":id", "readings"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks",
+                ":id",
+                "readings"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -810,8 +991,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/tanks/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "tanks", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -836,8 +1023,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/stock",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "stock"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stock"
+              ]
             },
             "description": "Mendapatkan ringkasan total stok saat ini per jenis produk BBM."
           },
@@ -850,8 +1042,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/stock/movements?product_id=&from=&to=&limit=50",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "stock", "movements"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stock",
+                "movements"
+              ],
               "query": [
                 {
                   "key": "product_id",
@@ -886,8 +1084,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/stock/deliveries",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "stock", "deliveries"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stock",
+                "deliveries"
+              ]
             },
             "description": "Mendapatkan riwayat penerimaan delivery supply BBM dari Pertamina."
           },
@@ -909,8 +1113,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/stock/deliveries",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "stock", "deliveries"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stock",
+                "deliveries"
+              ]
             },
             "description": "Mencatat dan mengonfirmasi penerimaan delivery BBM ke tangki pendam SPBP."
           },
@@ -932,8 +1142,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/stock/adjustment",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "stock", "adjustment"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "stock",
+                "adjustment"
+              ]
             },
             "description": "Mencatat penyesuaian fisik stok BBM (karena penguapan, kalibrasi, atau sampling)."
           },
@@ -951,8 +1167,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pumps",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pumps"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps"
+              ]
             },
             "description": "Mendapatkan daftar pulau pompa (pump dispensers) di SPBP."
           },
@@ -965,8 +1186,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pumps/nozzles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pumps", "nozzles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                "nozzles"
+              ]
             },
             "description": "Mendapatkan daftar nozzle beserta produk yang disalurkan."
           },
@@ -979,8 +1206,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/nozzles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "nozzles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "nozzles"
+              ]
             },
             "description": "Mendapatkan daftar seluruh nozzle dispenser yang terdaftar."
           },
@@ -993,8 +1225,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pumps/totalizers?date=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pumps", "totalizers"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                "totalizers"
+              ],
               "query": [
                 {
                   "key": "date",
@@ -1023,8 +1261,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/pumps/totalizers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pumps", "totalizers"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                "totalizers"
+              ]
             },
             "description": "Mencatat angka awal dan akhir totalizer mekanik/elektronik per shift kerja."
           },
@@ -1037,8 +1281,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pumps/reconciliation?date=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pumps", "reconciliation"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                "reconciliation"
+              ],
               "query": [
                 {
                   "key": "date",
@@ -1063,8 +1313,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reconciliation?date=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reconciliation"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reconciliation"
+              ],
               "query": [
                 {
                   "key": "date",
@@ -1093,8 +1348,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reconciliation/run",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reconciliation", "run"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reconciliation",
+                "run"
+              ]
             },
             "description": "Menjalankan kalkulasi rekonsiliasi harian dan mendeteksi varians/selisih fisik vs buku."
           },
@@ -1112,8 +1373,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reports/transactions?from=&to=&unit_id=&product_id=&limit=500",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reports", "transactions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "transactions"
+              ],
               "query": [
                 {
                   "key": "from",
@@ -1153,8 +1420,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reports/quota?period_id=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reports", "quota"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "quota"
+              ],
               "query": [
                 {
                   "key": "period_id",
@@ -1174,8 +1447,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reports/stock",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reports", "stock"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "stock"
+              ]
             },
             "description": "Laporan rekapitulasi audit dan rekonsiliasi stok BBM bulanan."
           },
@@ -1188,8 +1467,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reports/usage?from=&to=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reports", "usage"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "usage"
+              ],
               "query": [
                 {
                   "key": "from",
@@ -1214,8 +1499,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reports/totalizer",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reports", "totalizer"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "totalizer"
+              ]
             },
             "description": "Laporan audit dispenser totalizer vs transaksi sistem."
           },
@@ -1228,8 +1519,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reports/executive?month=8&year=2026",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reports", "executive"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reports",
+                "executive"
+              ],
               "query": [
                 {
                   "key": "month",
@@ -1259,8 +1556,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "products"
+              ]
             },
             "description": "Mendapatkan daftar master produk BBM (Pertamax, Pertalite, Dexlite, dll)."
           },
@@ -1282,8 +1585,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "products"
+              ]
             },
             "description": "Menambahkan jenis produk BBM baru."
           },
@@ -1296,8 +1605,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/prices",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "prices"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "prices"
+              ]
             },
             "description": "Mendapatkan riwayat perubahan harga produk BBM."
           },
@@ -1319,8 +1634,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/prices",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "prices"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "prices"
+              ]
             },
             "description": "Menetapkan harga baru produk BBM dengan tanggal berlaku (effective date)."
           },
@@ -1333,8 +1654,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/vehicles?unit_id=",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "vehicles"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "vehicles"
+              ],
               "query": [
                 {
                   "key": "unit_id",
@@ -1363,8 +1690,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/vehicles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "vehicles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "vehicles"
+              ]
             },
             "description": "Mendaftarkan data kendaraan dinas kepolisian baru."
           },
@@ -1386,8 +1719,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/vehicles/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "vehicles", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "vehicles",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1407,8 +1747,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/units",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "units"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "units"
+              ]
             },
             "description": "Mendapatkan daftar seluruh satuan kerja (Satker/Unit) Polda Papua Barat."
           },
@@ -1430,8 +1776,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/units",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "units"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "units"
+              ]
             },
             "description": "Menambahkan satuan kerja / divisi kepolisian baru."
           },
@@ -1453,8 +1805,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/units/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "units", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "units",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1474,8 +1833,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "users"
+              ]
             },
             "description": "Mendapatkan daftar pengguna sistem SPBP."
           },
@@ -1488,8 +1853,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/roles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "roles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "roles"
+              ]
             },
             "description": "Mendapatkan daftar peran pengguna sistem (Super Admin, Operator, Auditor, Pimpinan, dll)."
           },
@@ -1502,8 +1873,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/master/permissions",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "master", "permissions"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "master",
+                "permissions"
+              ]
             },
             "description": "Mendapatkan seluruh daftar hak akses izin fitur granular di sistem."
           },
@@ -1521,8 +1898,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/system/audit?module=&user_id=&from=&to=&limit=100&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "audit"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "audit"
+              ],
               "query": [
                 {
                   "key": "module",
@@ -1567,8 +1950,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/system/approvals?status=PENDING",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "approvals"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "approvals"
+              ],
               "query": [
                 {
                   "key": "status",
@@ -1597,8 +1986,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/system/approvals/:id/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "approvals", ":id", "approve"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "approvals",
+                ":id",
+                "approve"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1627,8 +2024,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/system/approvals/:id/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "approvals", ":id", "reject"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "approvals",
+                ":id",
+                "reject"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -1648,8 +2053,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/system/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "settings"
+              ]
             },
             "description": "Mendapatkan seluruh pasangan konfigurasi global sistem key-value."
           },
@@ -1671,8 +2082,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/system/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "settings"
+              ]
             },
             "description": "Memperbarui konfigurasi parameter global sistem."
           },
@@ -1685,8 +2102,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/system/notifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "notifications"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "notifications"
+              ]
             },
             "description": "Mendapatkan daftar notifikasi sistem terkini."
           },
@@ -1699,8 +2122,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/system/notifications/read-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "notifications", "read-all"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "notifications",
+                "read-all"
+              ]
             },
             "description": "Menandai seluruh notifikasi sistem sebagai sudah dibaca."
           },
@@ -1713,8 +2143,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/system/integration",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "system", "integration"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "system",
+                "integration"
+              ]
             },
             "description": "Mendapatkan status konektivitas integrasi controller pompa dispenser hardware."
           },
@@ -1749,10 +2185,70 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/controller/transaction",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "controller", "transaction"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "controller",
+                "transaction"
+              ]
             },
             "description": "Endpoint push otomatis dari hardware controller dispenser saat pengisian BBM selesai."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "14. Forecourt Management System (FMS)",
+      "item": [
+        {
+          "name": "Test Connection to Controller (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseUrl\": \"http://192.168.1.100/api\",\n  \"timeoutMs\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/fms/test-connection",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fms",
+                "test-connection"
+              ]
+            },
+            "description": "Menguji konektivitas, latency handshake, dan status controller hardware FMS aktif atau custom target URL."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Connection Quick (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/fms/test-connection",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "fms",
+                "test-connection"
+              ]
+            },
+            "description": "Shortcut GET untuk menguji koneksi cepat ke target Forecourt Controller aktif (tersinkron database/env)."
           },
           "response": []
         }

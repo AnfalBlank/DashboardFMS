@@ -11,9 +11,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { SystemService } from './system.service';
 import { ApprovalActionDto } from './dto/approval-action.dto';
+import {
+  FmsDatabaseConfigDto,
+  FmsTestConnectionDto,
+} from '../fms/dto/fms-config.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { RequirePermissions } from '../../common/decorators/permissions.decorator';
@@ -114,6 +118,55 @@ export class SystemController {
     return { success: true, ...data };
   }
 
+  // ── FMS Integration Config ──
+  @Get('fms-config')
+  @RequirePermissions('system.manage')
+  @ApiOperation({ summary: 'Get active resolved FMS Forecourt Controller configuration' })
+  @ApiResponse({
+    status: 200,
+    description: 'Active FMS configuration resolved from DB or environment variables',
+  })
+  async getFmsConfig() {
+    const data = await this.systemService.getFmsConfig();
+    return { success: true, data };
+  }
+
+  @Put('fms-config')
+  @RequirePermissions('system.manage')
+  @ApiOperation({ summary: 'Update FMS Controller integration settings in database' })
+  @ApiResponse({
+    status: 200,
+    description: 'FMS settings updated and cache invalidated immediately',
+  })
+  async updateFmsConfig(
+    @Body() dto: FmsDatabaseConfigDto,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.systemService.updateFmsConfig(dto, userId, ip);
+    return {
+      success: true,
+      message: 'Konfigurasi FMS berhasil diperbarui',
+      data,
+    };
+  }
+
+  @Post('fms-config/test')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermissions('system.manage')
+  @ApiOperation({ summary: 'Test connection and handshake ping to Forecourt Controller' })
+  @ApiResponse({
+    status: 200,
+    description: 'Handshake ping test result with latency and controller details',
+  })
+  async testFmsConnection(@Body() dto?: FmsTestConnectionDto) {
+    const data = await this.systemService.testFmsConnection(dto);
+    return {
+      success: data.success,
+      data,
+    };
+  }
+
   // ── Notifications ──
   @Get('notifications')
   @ApiOperation({ summary: 'Get recent system notifications' })
@@ -132,9 +185,10 @@ export class SystemController {
   // ── Integration Monitor ──
   @Get('integration')
   @RequirePermissions('system.manage')
-  @ApiOperation({ summary: 'Get controller sync integration status' })
+  @ApiOperation({ summary: 'Get controller sync integration and FMS status' })
   async getIntegrationStatus() {
     const data = await this.systemService.getIntegrationStatus();
     return { success: true, data };
   }
 }
+
