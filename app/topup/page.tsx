@@ -1,18 +1,19 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { api, Card as CardType, Approval } from '@/lib/api';
+import { api, Card as CardType, Approval, Product } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Input, Select, Textarea } from '@/components/ui/Input';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Fuel } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
 export default function TopUpPage() {
   const [cards, setCards] = useState<CardType[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState<Approval[]>([]);
-  const [form, setForm] = useState({ card_id: '', amount: '', reason: '' });
+  const [form, setForm] = useState({ card_id: '', product_id: '', amount: '', reason: '' });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const { success, warning, error: toastError } = useToast();
@@ -20,15 +21,19 @@ export default function TopUpPage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [cRes, aRes] = await Promise.allSettled([
+      const [cRes, aRes, pRes] = await Promise.allSettled([
         api.cards.list({ limit: 100 }),
         api.system.approvals('PENDING'),
+        api.master.products(),
       ]);
       if (cRes.status === 'fulfilled' && cRes.value?.data) {
         setCards(cRes.value.data);
       }
       if (aRes.status === 'fulfilled' && aRes.value?.data) {
         setPendingApprovals(aRes.value.data);
+      }
+      if (pRes.status === 'fulfilled' && pRes.value?.data) {
+        setProducts(pRes.value.data);
       }
     } catch {
       // ignore
@@ -41,7 +46,38 @@ export default function TopUpPage() {
     loadData();
   }, [loadData]);
 
-  const selectedCard = cards.find(c => (c.id === form.card_id) || (c.card_number === form.card_id) || (c.number === form.card_id));
+  const selectedCard = cards.find(
+    c => c.id === form.card_id || c.card_number === form.card_id || c.number === form.card_id
+  );
+
+  const handleCardChange = (cardId: string) => {
+    const card = cards.find(
+      c => c.id === cardId || c.card_number === cardId || c.number === cardId
+    );
+
+    let matchedProdId = card?.product_id || '';
+    if (!matchedProdId && card) {
+      const fuelName = (
+        card.product_name ||
+        card.fuel_type ||
+        card.fuelType ||
+        ''
+      ).toLowerCase();
+      const matched = products.find(
+        p =>
+          p.id === card.product_id ||
+          p.name.toLowerCase() === fuelName ||
+          p.code.toLowerCase() === fuelName
+      );
+      if (matched) matchedProdId = matched.id;
+    }
+
+    setForm(f => ({
+      ...f,
+      card_id: cardId,
+      product_id: matchedProdId || f.product_id || (products[0]?.id ?? ''),
+    }));
+  };
 
   const handleSubmitTopup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,15 +86,40 @@ export default function TopUpPage() {
       return;
     }
 
+    const matchedProd = products.find(
+      p =>
+        p.id === form.product_id ||
+        p.id === selectedCard?.product_id ||
+        p.name.toLowerCase() ===
+          (
+            selectedCard?.product_name ||
+            selectedCard?.fuel_type ||
+            selectedCard?.fuelType ||
+            ''
+          ).toLowerCase()
+    );
+
+    const targetProductId =
+      form.product_id ||
+      selectedCard?.product_id ||
+      matchedProd?.id ||
+      products[0]?.id;
+
     try {
       setSubmitting(true);
       await api.quota.topup({
         card_id: selectedCard?.id || form.card_id,
+        product_id: targetProductId,
         amount_l: Number(form.amount),
         reason: form.reason,
       });
-      success('Permohonan Top Up Terkirim', `Permohonan top up ${form.amount} L telah diajukan ke sistem approval.`);
-      setForm({ card_id: '', amount: '', reason: '' });
+      success(
+        'Top Up Kuota Berhasil',
+        `Alokasi kuota sebesar ${form.amount} L berhasil ditambahkan ke kartu ${
+          selectedCard?.card_number || selectedCard?.number || form.card_id
+        }.`
+      );
+      setForm({ card_id: '', product_id: '', amount: '', reason: '' });
       loadData();
     } catch (err: unknown) {
       toastError('Gagal Mengajukan Top Up', err instanceof Error ? err.message : 'Terjadi kesalahan.');
@@ -100,36 +161,58 @@ export default function TopUpPage() {
               <Select
                 label="Pilih Kartu BBM *"
                 value={form.card_id}
-                onChange={v => setForm(f => ({ ...f, card_id: v }))}
+                onChange={handleCardChange}
                 options={[
                   { value: '', label: 'Pilih kartu terdaftar…' },
                   ...cards.map(c => {
                     const num = c.card_number || c.number || '';
                     const holder = c.holder_name || c.holder || '';
-                    return { value: c.id || num, label: `${num} — ${holder}` };
+                    const fuel = c.product_name || c.fuel_type || c.fuelType || '';
+                    return { value: c.id || num, label: `${num} — ${holder}${fuel ? ` (${fuel})` : ''}` };
                   }),
                 ]}
               />
 
               {selectedCard && (
-                <div className="bg-zinc-50 rounded-xl p-3 text-[12.5px] space-y-1.5 border border-zinc-100">
+                <div className="bg-zinc-50 rounded-xl p-3 text-[12.5px] space-y-2 border border-zinc-200">
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Pemegang</span>
-                    <span className="font-medium">{selectedCard.holder_name || selectedCard.holder}</span>
+                    <span className="font-semibold text-zinc-900">{selectedCard.holder_name || selectedCard.holder}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Satker</span>
                     <span className="font-medium">{selectedCard.unit_name || selectedCard.unit || 'SPBP'}</span>
                   </div>
+                  {selectedCard.police_number && (
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Kendaraan Dinas</span>
+                      <span className="font-mono font-medium text-zinc-800">{selectedCard.police_number}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Pagu Bulanan</span>
                     <span className="font-semibold text-zinc-900">{selectedCard.monthly_limit ?? selectedCard.monthlyLimit ?? 200} L</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">BBM</span>
-                    <span className="font-medium text-zinc-700">{selectedCard.product_name || selectedCard.fuel_type || selectedCard.fuelType || 'Pertamax'}</span>
+                  <div className="flex justify-between items-center pt-1 border-t border-zinc-200/60">
+                    <span className="text-zinc-500">Produk BBM</span>
+                    <Badge variant="neutral">
+                      <Fuel size={11} className="inline mr-1 opacity-70" />
+                      {selectedCard.product_name || selectedCard.fuel_type || selectedCard.fuelType || 'Pertamax'}
+                    </Badge>
                   </div>
                 </div>
+              )}
+
+              {products.length > 0 && (
+                <Select
+                  label="Produk BBM yang Di-top Up *"
+                  value={form.product_id}
+                  onChange={v => setForm(f => ({ ...f, product_id: v }))}
+                  options={products.map(p => ({
+                    value: p.id,
+                    label: `${p.name} (${p.code})`,
+                  }))}
+                />
               )}
 
               <Input
@@ -148,7 +231,7 @@ export default function TopUpPage() {
               />
 
               <Button variant="primary" type="submit" className="w-full" disabled={submitting}>
-                {submitting ? 'Mengirim…' : 'Submit untuk Approval'}
+                {submitting ? 'Mengirim…' : 'Submit Top Up Kuota'}
               </Button>
             </form>
           </Card>
@@ -159,8 +242,8 @@ export default function TopUpPage() {
             <div className="space-y-3">
               {[
                 { step: '1. REQUEST', desc: 'Operator/Admin mengajukan top up kuota', done: true },
-                { step: '2. PENDING APPROVAL', desc: 'Menunggu verifikasi pejabat berwenang', done: false },
-                { step: '3. APPROVED & SYNC', desc: 'Pagu bertambah otomatis dan tercatat di ledger', done: false },
+                { step: '2. AUDIT & LEDGER', desc: 'Penambahan tercatat di ledger kuota & audit log', done: true },
+                { step: '3. DIRECT SYNC', desc: 'Pagu bertambah otomatis dan siap dispensing', done: true },
               ].map((s, i) => (
                 <div key={i} className="flex gap-3 items-start">
                   <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold mt-0.5 ${s.done ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-400'}`}>
@@ -238,3 +321,4 @@ export default function TopUpPage() {
     </div>
   );
 }
+

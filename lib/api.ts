@@ -379,6 +379,7 @@ export interface Card {
   activation_date?: string;
   activation?: string;
   rfid_uid?: string;
+  rfidUid?: string;
   notes?: string;
 }
 
@@ -944,6 +945,7 @@ export interface CreateCard {
   expiry_date?: string;
   activation_date?: string;
   rfid_uid?: string;
+  rfidUid?: string;
   notes?: string;
 }
 

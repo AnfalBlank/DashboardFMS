@@ -158,6 +158,21 @@ export default function MasterVehiclesPage() {
     }
   };
 
+  const openAddModal = () => {
+    setForm({
+      police_number: "",
+      brand: "Toyota",
+      model: "Hilux 4x4",
+      unit_id: "",
+      product_id: products[0]?.id || "",
+      fuel_type: products[0]?.name || "Pertamax",
+      tank_capacity: "80",
+      type: "PATROLI",
+      status: "ACTIVE",
+    });
+    setAddModal(true);
+  };
+
   return (
     <div>
       <PageHeader
@@ -167,7 +182,7 @@ export default function MasterVehiclesPage() {
         <Button variant="outline" size="sm" onClick={loadData}>
           <RefreshCw size={13} /> Refresh
         </Button>
-        <Button variant="primary" size="sm" onClick={() => setAddModal(true)}>
+        <Button variant="primary" size="sm" onClick={openAddModal}>
           <Plus size={13} /> Tambah Kendaraan
         </Button>
       </PageHeader>

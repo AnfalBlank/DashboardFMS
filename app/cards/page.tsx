@@ -25,6 +25,7 @@ import {
   Fuel,
   Lock,
   Car,
+  Radio,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useToast } from "@/components/ui/Toast";
@@ -63,8 +64,8 @@ export default function CardsPage() {
   const { success, warning, error: toastError } = useToast();
   const router = useRouter();
 
-  // Form state
-  const [form, setForm] = useState({
+  // Form states (separated to prevent state contamination between Add & Edit)
+  const initialCreateForm = {
     card_number: "",
     card_type: "REGULER",
     holder_name: "",
@@ -74,6 +75,18 @@ export default function CardsPage() {
     monthly_limit: "200",
     expiry_date: "2027-12-31",
     activation_date: new Date().toISOString().split("T")[0],
+    rfid_uid: "",
+    notes: "",
+  };
+
+  const [createForm, setCreateForm] = useState(initialCreateForm);
+
+  const [editForm, setEditForm] = useState({
+    holder_name: "",
+    unit_id: "",
+    vehicle_id: "",
+    fuel_type: "Pertamax",
+    monthly_limit: "200",
     rfid_uid: "",
     notes: "",
   });
@@ -108,14 +121,64 @@ export default function CardsPage() {
     });
   }, [fetchCards]);
 
-  const handleVehicleChange = (vehicleId: string) => {
+  const openAddModal = () => {
+    setCreateForm({
+      ...initialCreateForm,
+      fuel_type: products[0]?.name || "Pertamax",
+      activation_date: new Date().toISOString().split("T")[0],
+    });
+    setShowAddModal(true);
+  };
+
+  const openEditModal = (target: CardType) => {
+    setEditTarget(target);
+    const targetVeh = vehicles.find((v) => v.id === target.vehicle_id);
+    setEditForm({
+      holder_name: target.holder_name || target.holder || "",
+      unit_id: target.unit_id || "",
+      vehicle_id: target.vehicle_id || "",
+      fuel_type:
+        target.product_name ||
+        target.fuel_type ||
+        target.fuelType ||
+        targetVeh?.product_name ||
+        targetVeh?.fuel_type ||
+        products[0]?.name ||
+        "Pertamax",
+      monthly_limit: (
+        target.monthly_limit ??
+        target.monthlyLimit ??
+        200
+      ).toString(),
+      rfid_uid: target.rfid_uid || target.rfidUid || "",
+      notes: target.notes || "",
+    });
+    setShowEditModal(true);
+  };
+
+  const handleCreateVehicleChange = (vehicleId: string) => {
     const selectedVeh = vehicles.find((v) => v.id === vehicleId);
     const vFuel =
       selectedVeh?.product_name ||
       selectedVeh?.fuel_type ||
       selectedVeh?.fuelType ||
       "";
-    setForm((f) => ({
+    setCreateForm((f) => ({
+      ...f,
+      vehicle_id: vehicleId,
+      fuel_type: vehicleId && vFuel ? vFuel : f.fuel_type,
+      unit_id: f.unit_id || selectedVeh?.unit_id || "",
+    }));
+  };
+
+  const handleEditVehicleChange = (vehicleId: string) => {
+    const selectedVeh = vehicles.find((v) => v.id === vehicleId);
+    const vFuel =
+      selectedVeh?.product_name ||
+      selectedVeh?.fuel_type ||
+      selectedVeh?.fuelType ||
+      "";
+    setEditForm((f) => ({
       ...f,
       vehicle_id: vehicleId,
       fuel_type: vehicleId && vFuel ? vFuel : f.fuel_type,
@@ -151,7 +214,7 @@ export default function CardsPage() {
 
   const handleCreateCard = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.card_number || !form.holder_name) {
+    if (!createForm.card_number || !createForm.holder_name) {
       toastError(
         "Data Belum Lengkap",
         "Nomor kartu dan nama pemegang wajib diisi.",
@@ -161,44 +224,36 @@ export default function CardsPage() {
 
     try {
       setSubmitting(true);
-      const selectedVeh = vehicles.find((v) => v.id === form.vehicle_id);
+      const selectedVeh = vehicles.find((v) => v.id === createForm.vehicle_id);
       const fuelToUse = selectedVeh
         ? selectedVeh.product_name ||
           selectedVeh.fuel_type ||
           selectedVeh.fuelType ||
-          form.fuel_type
-        : form.fuel_type;
+          createForm.fuel_type
+        : createForm.fuel_type;
 
       await api.cards.create({
-        card_number: form.card_number,
-        card_type: form.card_type,
-        holder_name: form.holder_name,
-        unit_id: form.unit_id || undefined,
-        vehicle_id: form.vehicle_id || undefined,
+        card_number: createForm.card_number,
+        card_type: createForm.card_type as "REGULER" | "KHUSUS",
+        holder_name: createForm.holder_name,
+        unit_id: createForm.unit_id || undefined,
+        vehicle_id: createForm.vehicle_id || undefined,
         fuel_type: fuelToUse,
-        monthly_limit: Number(form.monthly_limit),
-        expiry_date: form.expiry_date,
-        activation_date: form.activation_date,
-        rfid_uid: form.rfid_uid || undefined,
-        notes: form.notes || undefined,
+        monthly_limit: Number(createForm.monthly_limit),
+        expiry_date: createForm.expiry_date,
+        activation_date: createForm.activation_date,
+        rfid_uid: createForm.rfid_uid || undefined,
+        notes: createForm.notes || undefined,
       });
       success(
         "Kartu Didaftarkan",
-        `Kartu ${form.card_number} berhasil didaftarkan ke sistem.`,
+        `Kartu ${createForm.card_number} berhasil didaftarkan ke sistem.`,
       );
       setShowAddModal(false);
-      setForm({
-        card_number: "",
-        card_type: "REGULER",
-        holder_name: "",
-        unit_id: "",
-        vehicle_id: "",
+      setCreateForm({
+        ...initialCreateForm,
         fuel_type: products[0]?.name || "Pertamax",
-        monthly_limit: "200",
-        expiry_date: "2027-12-31",
         activation_date: new Date().toISOString().split("T")[0],
-        rfid_uid: "",
-        notes: "",
       });
       fetchCards();
     } catch (err: unknown) {
@@ -217,21 +272,22 @@ export default function CardsPage() {
 
     try {
       setSubmitting(true);
-      const selectedVeh = vehicles.find((v) => v.id === form.vehicle_id);
+      const selectedVeh = vehicles.find((v) => v.id === editForm.vehicle_id);
       const fuelToUse = selectedVeh
         ? selectedVeh.product_name ||
           selectedVeh.fuel_type ||
           selectedVeh.fuelType ||
-          form.fuel_type
-        : form.fuel_type;
+          editForm.fuel_type
+        : editForm.fuel_type;
 
       await api.cards.update(editTarget.id || editTarget.card_number, {
-        holder_name: form.holder_name,
-        unit_id: form.unit_id || undefined,
-        vehicle_id: form.vehicle_id || undefined,
+        holder_name: editForm.holder_name,
+        unit_id: editForm.unit_id || undefined,
+        vehicle_id: editForm.vehicle_id || undefined,
         fuel_type: fuelToUse,
-        monthly_limit: Number(form.monthly_limit),
-        notes: form.notes,
+        monthly_limit: Number(editForm.monthly_limit),
+        rfid_uid: editForm.rfid_uid || undefined,
+        notes: editForm.notes,
       });
       success(
         "Kartu Diperbarui",
@@ -246,10 +302,10 @@ export default function CardsPage() {
       ) {
         setSelected({
           ...selected,
-          holder_name: form.holder_name,
-          holder: form.holder_name,
-          unit_id: form.unit_id,
-          vehicle_id: form.vehicle_id,
+          holder_name: editForm.holder_name,
+          holder: editForm.holder_name,
+          unit_id: editForm.unit_id,
+          vehicle_id: editForm.vehicle_id,
           police_number:
             selectedVeh?.police_number || selectedVeh?.policeNumber || "",
           vehicle:
@@ -257,8 +313,9 @@ export default function CardsPage() {
           product_name: fuelToUse,
           fuel_type: fuelToUse,
           fuelType: fuelToUse,
-          monthly_limit: Number(form.monthly_limit),
-          monthlyLimit: Number(form.monthly_limit),
+          monthly_limit: Number(editForm.monthly_limit),
+          monthlyLimit: Number(editForm.monthly_limit),
+          rfid_uid: editForm.rfid_uid,
         });
       }
       fetchCards();
@@ -358,7 +415,7 @@ export default function CardsPage() {
         <Button
           variant="primary"
           size="sm"
-          onClick={() => setShowAddModal(true)}
+          onClick={openAddModal}
         >
           <Plus size={13} />
           Tambah Kartu
@@ -532,33 +589,7 @@ export default function CardsPage() {
                             <Eye size={13} />
                           </button>
                           <button
-                            onClick={() => {
-                              setEditTarget(c);
-                              setForm({
-                                card_number: c.card_number || c.number || "",
-                                card_type: c.card_type || c.type || "REGULER",
-                                holder_name: c.holder_name || c.holder || "",
-                                unit_id: c.unit_id || "",
-                                vehicle_id: c.vehicle_id || "",
-                                fuel_type:
-                                  c.product_name ||
-                                  c.fuel_type ||
-                                  c.fuelType ||
-                                  "Pertamax",
-                                monthly_limit: (
-                                  c.monthly_limit ??
-                                  c.monthlyLimit ??
-                                  200
-                                ).toString(),
-                                expiry_date:
-                                  c.expiry_date || c.expiry || "2027-12-31",
-                                activation_date:
-                                  c.activation_date || c.activation || "",
-                                rfid_uid: c.rfid_uid || "",
-                                notes: c.notes || "",
-                              });
-                              setShowEditModal(true);
-                            }}
+                            onClick={() => openEditModal(c)}
                             title="Edit kartu"
                             className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition"
                           >
@@ -779,38 +810,7 @@ export default function CardsPage() {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => {
-                      setEditTarget(selected);
-                      setForm({
-                        card_number:
-                          selected.card_number || selected.number || "",
-                        card_type:
-                          selected.card_type || selected.type || "REGULER",
-                        holder_name:
-                          selected.holder_name || selected.holder || "",
-                        unit_id: selected.unit_id || "",
-                        vehicle_id: selected.vehicle_id || "",
-                        fuel_type:
-                          selected.product_name ||
-                          selected.fuel_type ||
-                          selected.fuelType ||
-                          "Pertamax",
-                        monthly_limit: (
-                          selected.monthly_limit ??
-                          selected.monthlyLimit ??
-                          200
-                        ).toString(),
-                        expiry_date:
-                          selected.expiry_date ||
-                          selected.expiry ||
-                          "2027-12-31",
-                        activation_date:
-                          selected.activation_date || selected.activation || "",
-                        rfid_uid: selected.rfid_uid || "",
-                        notes: selected.notes || "",
-                      });
-                      setShowEditModal(true);
-                    }}
+                    onClick={() => selected && openEditModal(selected)}
                   >
                     <Edit size={13} /> Edit
                   </Button>
@@ -863,21 +863,43 @@ export default function CardsPage() {
               <input
                 placeholder="008231"
                 required
-                value={form.card_number}
+                value={createForm.card_number}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, card_number: e.target.value }))
+                  setCreateForm((f) => ({ ...f, card_number: e.target.value }))
                 }
                 className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-bold font-mono"
               />
             </div>
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                UID RFID Tag (Opsional)
+              </label>
+              <div className="relative">
+                <input
+                  placeholder="mis. E28068940000"
+                  value={createForm.rfid_uid}
+                  onChange={(e) =>
+                    setCreateForm((f) => ({ ...f, rfid_uid: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono pl-8"
+                />
+                <Radio
+                  size={13}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
                 Tipe Kartu
               </label>
               <select
-                value={form.card_type}
+                value={createForm.card_type}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, card_type: e.target.value }))
+                  setCreateForm((f) => ({ ...f, card_type: e.target.value }))
                 }
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
@@ -885,21 +907,20 @@ export default function CardsPage() {
                 <option value="KHUSUS">KHUSUS / OPERASIONAL</option>
               </select>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-              Nama Pemegang / NRP *
-            </label>
-            <input
-              placeholder="Bripka Joko Susilo"
-              required
-              value={form.holder_name}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, holder_name: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
-            />
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Nama Pemegang / NRP *
+              </label>
+              <input
+                placeholder="Bripka Joko Susilo"
+                required
+                value={createForm.holder_name}
+                onChange={(e) =>
+                  setCreateForm((f) => ({ ...f, holder_name: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -908,9 +929,9 @@ export default function CardsPage() {
                 Satuan Kerja (Unit)
               </label>
               <select
-                value={form.unit_id}
+                value={createForm.unit_id}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, unit_id: e.target.value }))
+                  setCreateForm((f) => ({ ...f, unit_id: e.target.value }))
                 }
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
@@ -928,8 +949,8 @@ export default function CardsPage() {
                 Kendaraan Dinas Tertaut
               </label>
               <select
-                value={form.vehicle_id}
-                onChange={(e) => handleVehicleChange(e.target.value)}
+                value={createForm.vehicle_id}
+                onChange={(e) => handleCreateVehicleChange(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
                 <option value="">Tanpa kendaraan khusus…</option>
@@ -948,11 +969,11 @@ export default function CardsPage() {
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
                 Produk / Jenis BBM
               </label>
-              {form.vehicle_id ? (
+              {createForm.vehicle_id ? (
                 <div className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[13px] text-emerald-900 font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Fuel size={13} className="text-emerald-700" />
-                    {form.fuel_type}
+                    {createForm.fuel_type}
                   </span>
                   <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
                     <Lock size={10} /> Auto-Sync
@@ -960,9 +981,9 @@ export default function CardsPage() {
                 </div>
               ) : (
                 <select
-                  value={form.fuel_type}
+                  value={createForm.fuel_type}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, fuel_type: e.target.value }))
+                    setCreateForm((f) => ({ ...f, fuel_type: e.target.value }))
                   }
                   className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
                 >
@@ -983,7 +1004,7 @@ export default function CardsPage() {
                   )}
                 </select>
               )}
-              {form.vehicle_id && (
+              {createForm.vehicle_id && (
                 <p className="text-[11px] text-emerald-700 mt-1">
                   🔒 Produk BBM otomatis disinkronkan dari armada kendaraan dinas.
                 </p>
@@ -996,9 +1017,12 @@ export default function CardsPage() {
               </label>
               <input
                 type="number"
-                value={form.monthly_limit}
+                value={createForm.monthly_limit}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, monthly_limit: e.target.value }))
+                  setCreateForm((f) => ({
+                    ...f,
+                    monthly_limit: e.target.value,
+                  }))
                 }
                 className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               />
@@ -1029,22 +1053,46 @@ export default function CardsPage() {
       {/* Edit Card Modal */}
       <Modal
         open={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditTarget(null);
+        }}
         title="Edit Kartu BBM"
       >
         <form onSubmit={handleUpdateCard} className="space-y-3">
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-              Nama Pemegang *
-            </label>
-            <input
-              required
-              value={form.holder_name}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, holder_name: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Nama Pemegang *
+              </label>
+              <input
+                required
+                value={editForm.holder_name}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, holder_name: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                UID RFID Tag
+              </label>
+              <div className="relative">
+                <input
+                  placeholder="mis. E28068940000"
+                  value={editForm.rfid_uid}
+                  onChange={(e) =>
+                    setEditForm((f) => ({ ...f, rfid_uid: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono pl-8"
+                />
+                <Radio
+                  size={13}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -1053,9 +1101,9 @@ export default function CardsPage() {
                 Satuan Kerja
               </label>
               <select
-                value={form.unit_id}
+                value={editForm.unit_id}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, unit_id: e.target.value }))
+                  setEditForm((f) => ({ ...f, unit_id: e.target.value }))
                 }
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
@@ -1073,8 +1121,8 @@ export default function CardsPage() {
                 Kendaraan Dinas Tertaut
               </label>
               <select
-                value={form.vehicle_id}
-                onChange={(e) => handleVehicleChange(e.target.value)}
+                value={editForm.vehicle_id}
+                onChange={(e) => handleEditVehicleChange(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
                 <option value="">Tanpa kendaraan khusus…</option>
@@ -1093,11 +1141,11 @@ export default function CardsPage() {
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
                 Produk / Jenis BBM
               </label>
-              {form.vehicle_id ? (
+              {editForm.vehicle_id ? (
                 <div className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[13px] text-emerald-900 font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     <Fuel size={13} className="text-emerald-700" />
-                    {form.fuel_type}
+                    {editForm.fuel_type}
                   </span>
                   <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
                     <Lock size={10} /> Auto-Sync
@@ -1105,9 +1153,9 @@ export default function CardsPage() {
                 </div>
               ) : (
                 <select
-                  value={form.fuel_type}
+                  value={editForm.fuel_type}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, fuel_type: e.target.value }))
+                    setEditForm((f) => ({ ...f, fuel_type: e.target.value }))
                   }
                   className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
                 >
@@ -1136,9 +1184,12 @@ export default function CardsPage() {
               </label>
               <input
                 type="number"
-                value={form.monthly_limit}
+                value={editForm.monthly_limit}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, monthly_limit: e.target.value }))
+                  setEditForm((f) => ({
+                    ...f,
+                    monthly_limit: e.target.value,
+                  }))
                 }
                 className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               />
@@ -1151,9 +1202,9 @@ export default function CardsPage() {
             </label>
             <textarea
               rows={2}
-              value={form.notes}
+              value={editForm.notes}
               onChange={(e) =>
-                setForm((f) => ({ ...f, notes: e.target.value }))
+                setEditForm((f) => ({ ...f, notes: e.target.value }))
               }
               className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 resize-none"
             />
@@ -1164,7 +1215,10 @@ export default function CardsPage() {
               variant="outline"
               type="button"
               className="flex-1"
-              onClick={() => setShowEditModal(false)}
+              onClick={() => {
+                setShowEditModal(false);
+                setEditTarget(null);
+              }}
             >
               Batal
             </Button>
