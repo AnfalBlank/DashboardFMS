@@ -127,7 +127,7 @@ export default function TopUpPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">BBM</span>
-                    <span className="font-medium text-zinc-700">{selectedCard.fuel_type || selectedCard.fuelType || 'Pertamax'}</span>
+                    <span className="font-medium text-zinc-700">{selectedCard.product_name || selectedCard.fuel_type || selectedCard.fuelType || 'Pertamax'}</span>
                   </div>
                 </div>
               )}

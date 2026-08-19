@@ -1,17 +1,18 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { api, Vehicle, Unit } from "@/lib/api";
+import { api, Vehicle, Unit, Product } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { Badge, statusVariant } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Modal } from "@/components/ui/Modal";
-import { Plus, Edit, RefreshCw } from "lucide-react";
+import { Plus, Edit, RefreshCw, Fuel } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 
 export default function MasterVehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [addModal, setAddModal] = useState(false);
@@ -24,6 +25,7 @@ export default function MasterVehiclesPage() {
     brand: "Toyota",
     model: "Hilux 4x4",
     unit_id: "",
+    product_id: "",
     fuel_type: "Pertamax",
     tank_capacity: "80",
     type: "PATROLI",
@@ -35,24 +37,44 @@ export default function MasterVehiclesPage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [vRes, uRes] = await Promise.allSettled([
+      const [vRes, uRes, pRes] = await Promise.allSettled([
         api.master.vehicles(),
         api.master.units(),
+        api.master.products(),
       ]);
       if (vRes.status === "fulfilled" && vRes.value?.data)
         setVehicles(vRes.value.data);
       if (uRes.status === "fulfilled" && uRes.value?.data)
         setUnits(uRes.value.data);
+      if (pRes.status === "fulfilled" && pRes.value?.data) {
+        setProducts(pRes.value.data);
+        if (pRes.value.data.length > 0 && !form.product_id) {
+          setForm((f) => ({
+            ...f,
+            product_id: f.product_id || pRes.value.data[0].id,
+            fuel_type: f.fuel_type || pRes.value.data[0].name,
+          }));
+        }
+      }
     } catch {
       // ignore
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [form.product_id]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleProductChange = (productId: string) => {
+    const selectedProd = products.find((p) => p.id === productId);
+    setForm((f) => ({
+      ...f,
+      product_id: productId,
+      fuel_type: selectedProd ? selectedProd.name : f.fuel_type,
+    }));
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +93,7 @@ export default function MasterVehiclesPage() {
         brand: form.brand,
         model: form.model,
         unit_id: form.unit_id,
+        product_id: form.product_id || undefined,
         fuel_type: form.fuel_type,
         tank_capacity: Number(form.tank_capacity),
         type: form.type,
@@ -85,7 +108,8 @@ export default function MasterVehiclesPage() {
         brand: "Toyota",
         model: "Hilux 4x4",
         unit_id: "",
-        fuel_type: "Pertamax",
+        product_id: products[0]?.id || "",
+        fuel_type: products[0]?.name || "Pertamax",
         tank_capacity: "80",
         type: "PATROLI",
         status: "ACTIVE",
@@ -111,6 +135,7 @@ export default function MasterVehiclesPage() {
         brand: form.brand,
         model: form.model,
         unit_id: form.unit_id,
+        product_id: form.product_id || undefined,
         fuel_type: form.fuel_type,
         tank_capacity: Number(form.tank_capacity),
         type: form.type,
@@ -118,7 +143,7 @@ export default function MasterVehiclesPage() {
       });
       success(
         "Kendaraan Diperbarui",
-        `Informasi ${editTarget.police_number || editTarget.policeNumber} telah diperbarui.`,
+        `Informasi ${editTarget.police_number || editTarget.policeNumber} telah diperbarui (kartu tertaut otomatis tersinkronkan).`,
       );
       setEditModal(false);
       setEditTarget(null);
@@ -137,7 +162,7 @@ export default function MasterVehiclesPage() {
     <div>
       <PageHeader
         title="Master Vehicles"
-        subtitle="Data armada kendaraan dinas operasional Polri"
+        subtitle="Data armada kendaraan dinas operasional Polri dan relasi produk BBM"
       >
         <Button variant="outline" size="sm" onClick={loadData}>
           <RefreshCw size={13} /> Refresh
@@ -155,7 +180,7 @@ export default function MasterVehiclesPage() {
                 <th>No. Polisi</th>
                 <th>Merek & Tipe</th>
                 <th>Satuan Kerja (Unit)</th>
-                <th>Jenis BBM</th>
+                <th>Produk BBM</th>
                 <th>Kapasitas Tangki</th>
                 <th>Kategori Operasional</th>
                 <th>Status</th>
@@ -195,8 +220,14 @@ export default function MasterVehiclesPage() {
                     </td>
                     <td>
                       <Badge variant="neutral">
-                        {v.fuel_type || v.fuelType || "Pertamax"}
+                        <Fuel size={11} className="inline mr-1 opacity-70" />
+                        {v.product_name || v.fuel_type || v.fuelType || "Pertamax"}
                       </Badge>
+                      {v.product_code && (
+                        <span className="ml-1 text-[10px] text-zinc-400 font-mono">
+                          ({v.product_code})
+                        </span>
+                      )}
                     </td>
                     <td>{v.tank_capacity || v.tankCapacity || 60} L</td>
                     <td className="text-zinc-500 text-[12px]">
@@ -211,13 +242,30 @@ export default function MasterVehiclesPage() {
                       <button
                         onClick={() => {
                           setEditTarget(v);
+                          const matchedProduct = products.find(
+                            (p) =>
+                              p.id === v.product_id ||
+                              p.id === v.productId ||
+                              p.name.toLowerCase() ===
+                                (v.product_name || v.fuel_type || v.fuelType || "").toLowerCase()
+                          );
                           setForm({
                             police_number:
                               v.police_number || v.policeNumber || "",
                             brand: v.brand || "",
                             model: v.model || "",
                             unit_id: v.unit_id || "",
-                            fuel_type: v.fuel_type || v.fuelType || "Pertamax",
+                            product_id:
+                              v.product_id ||
+                              v.productId ||
+                              matchedProduct?.id ||
+                              "",
+                            fuel_type:
+                              v.product_name ||
+                              v.fuel_type ||
+                              v.fuelType ||
+                              matchedProduct?.name ||
+                              "Pertamax",
                             tank_capacity: (
                               v.tank_capacity ||
                               v.tankCapacity ||
@@ -229,6 +277,7 @@ export default function MasterVehiclesPage() {
                           setEditModal(true);
                         }}
                         className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition"
+                        title="Edit Kendaraan"
                       >
                         <Edit size={13} />
                       </button>
@@ -259,7 +308,7 @@ export default function MasterVehiclesPage() {
               onChange={(e) =>
                 setForm((f) => ({ ...f, police_number: e.target.value }))
               }
-              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-bold"
+              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-bold font-mono uppercase"
             />
           </div>
 
@@ -293,7 +342,7 @@ export default function MasterVehiclesPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-                Satuan Kerja *
+                Satuan Kerja (Unit) *
               </label>
               <select
                 value={form.unit_id}
@@ -313,18 +362,26 @@ export default function MasterVehiclesPage() {
             </div>
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-                BBM Standar
+                Produk BBM Standar *
               </label>
               <select
-                value={form.fuel_type}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, fuel_type: e.target.value }))
-                }
+                value={form.product_id}
+                onChange={(e) => handleProductChange(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
-                <option value="Pertamax">Pertamax</option>
-                <option value="Pertalite">Pertalite</option>
-                <option value="Dexlite">Dexlite</option>
+                {products.length > 0 ? (
+                  products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.code}) {p.octane_cetane ? `• ${p.octane_cetane}` : ''}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="prod-ptx">Pertamax (PTX)</option>
+                    <option value="prod-plt">Pertalite (PLT)</option>
+                    <option value="prod-dxl">Dexlite (DXL)</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
@@ -345,7 +402,7 @@ export default function MasterVehiclesPage() {
             </div>
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-                Kategori
+                Kategori Operasional
               </label>
               <select
                 value={form.type}
@@ -439,7 +496,47 @@ export default function MasterVehiclesPage() {
             </div>
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-                Status
+                Produk BBM Standar
+              </label>
+              <select
+                value={form.product_id}
+                onChange={(e) => handleProductChange(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-medium text-zinc-800"
+              >
+                {products.length > 0 ? (
+                  products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.code})
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="prod-ptx">Pertamax</option>
+                    <option value="prod-plt">Pertalite</option>
+                    <option value="prod-dxl">Dexlite</option>
+                  </>
+                )}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Kapasitas Tangki (L)
+              </label>
+              <input
+                type="number"
+                value={form.tank_capacity}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, tank_capacity: e.target.value }))
+                }
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Status Armada
               </label>
               <select
                 value={form.status}
@@ -452,6 +549,17 @@ export default function MasterVehiclesPage() {
                 <option value="MAINTENANCE">MAINTENANCE</option>
                 <option value="INACTIVE">INACTIVE</option>
               </select>
+            </div>
+          </div>
+
+          {/* Sync notification card */}
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-[12px] text-blue-800 leading-relaxed flex items-start gap-2">
+            <span className="text-base leading-none">💡</span>
+            <div>
+              <p className="font-semibold text-blue-900 mb-0.5">Sinkronisasi Otomatis Kartu BBM</p>
+              <p className="text-blue-700 text-[11.5px]">
+                Mengubah produk BBM kendaraan ini akan secara otomatis memperbarui jenis BBM pada seluruh kartu BBM yang tertaut ke armada ini.
+              </p>
             </div>
           </div>
 
@@ -478,3 +586,4 @@ export default function MasterVehiclesPage() {
     </div>
   );
 }
+

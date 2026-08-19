@@ -5,6 +5,7 @@ import {
   Card as CardType,
   Unit,
   Vehicle,
+  Product,
   CardQuota,
   Transaction,
 } from "@/lib/api";
@@ -21,6 +22,9 @@ import {
   Ban,
   CheckCircle2,
   History,
+  Fuel,
+  Lock,
+  Car,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useToast } from "@/components/ui/Toast";
@@ -31,6 +35,7 @@ export default function CardsPage() {
   const [cards, setCards] = useState<CardType[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters
@@ -89,15 +94,34 @@ export default function CardsPage() {
 
   useEffect(() => {
     fetchCards();
-    Promise.allSettled([api.master.units(), api.master.vehicles()]).then(
-      ([uRes, vRes]) => {
-        if (uRes.status === "fulfilled" && uRes.value?.data)
-          setUnits(uRes.value.data);
-        if (vRes.status === "fulfilled" && vRes.value?.data)
-          setVehicles(vRes.value.data);
-      },
-    );
+    Promise.allSettled([
+      api.master.units(),
+      api.master.vehicles(),
+      api.master.products(),
+    ]).then(([uRes, vRes, pRes]) => {
+      if (uRes.status === "fulfilled" && uRes.value?.data)
+        setUnits(uRes.value.data);
+      if (vRes.status === "fulfilled" && vRes.value?.data)
+        setVehicles(vRes.value.data);
+      if (pRes.status === "fulfilled" && pRes.value?.data)
+        setProducts(pRes.value.data);
+    });
   }, [fetchCards]);
+
+  const handleVehicleChange = (vehicleId: string) => {
+    const selectedVeh = vehicles.find((v) => v.id === vehicleId);
+    const vFuel =
+      selectedVeh?.product_name ||
+      selectedVeh?.fuel_type ||
+      selectedVeh?.fuelType ||
+      "";
+    setForm((f) => ({
+      ...f,
+      vehicle_id: vehicleId,
+      fuel_type: vehicleId && vFuel ? vFuel : f.fuel_type,
+      unit_id: f.unit_id || selectedVeh?.unit_id || "",
+    }));
+  };
 
   const handleSelectCard = async (c: CardType) => {
     setSelected(c);
@@ -137,13 +161,21 @@ export default function CardsPage() {
 
     try {
       setSubmitting(true);
+      const selectedVeh = vehicles.find((v) => v.id === form.vehicle_id);
+      const fuelToUse = selectedVeh
+        ? selectedVeh.product_name ||
+          selectedVeh.fuel_type ||
+          selectedVeh.fuelType ||
+          form.fuel_type
+        : form.fuel_type;
+
       await api.cards.create({
         card_number: form.card_number,
         card_type: form.card_type,
         holder_name: form.holder_name,
         unit_id: form.unit_id || undefined,
         vehicle_id: form.vehicle_id || undefined,
-        fuel_type: form.fuel_type,
+        fuel_type: fuelToUse,
         monthly_limit: Number(form.monthly_limit),
         expiry_date: form.expiry_date,
         activation_date: form.activation_date,
@@ -161,7 +193,7 @@ export default function CardsPage() {
         holder_name: "",
         unit_id: "",
         vehicle_id: "",
-        fuel_type: "Pertamax",
+        fuel_type: products[0]?.name || "Pertamax",
         monthly_limit: "200",
         expiry_date: "2027-12-31",
         activation_date: new Date().toISOString().split("T")[0],
@@ -185,11 +217,19 @@ export default function CardsPage() {
 
     try {
       setSubmitting(true);
+      const selectedVeh = vehicles.find((v) => v.id === form.vehicle_id);
+      const fuelToUse = selectedVeh
+        ? selectedVeh.product_name ||
+          selectedVeh.fuel_type ||
+          selectedVeh.fuelType ||
+          form.fuel_type
+        : form.fuel_type;
+
       await api.cards.update(editTarget.id || editTarget.card_number, {
         holder_name: form.holder_name,
         unit_id: form.unit_id || undefined,
         vehicle_id: form.vehicle_id || undefined,
-        fuel_type: form.fuel_type,
+        fuel_type: fuelToUse,
         monthly_limit: Number(form.monthly_limit),
         notes: form.notes,
       });
@@ -208,8 +248,15 @@ export default function CardsPage() {
           ...selected,
           holder_name: form.holder_name,
           holder: form.holder_name,
-          fuel_type: form.fuel_type,
-          fuelType: form.fuel_type,
+          unit_id: form.unit_id,
+          vehicle_id: form.vehicle_id,
+          police_number:
+            selectedVeh?.police_number || selectedVeh?.policeNumber || "",
+          vehicle:
+            selectedVeh?.police_number || selectedVeh?.policeNumber || "",
+          product_name: fuelToUse,
+          fuel_type: fuelToUse,
+          fuelType: fuelToUse,
           monthly_limit: Number(form.monthly_limit),
           monthlyLimit: Number(form.monthly_limit),
         });
@@ -318,7 +365,6 @@ export default function CardsPage() {
         </Button>
       </PageHeader>
 
-      {/* Stats */}
       <div className="grid grid-cols-5 gap-3 mb-5">
         {[
           { label: "Total Kartu", value: cards.length.toString(), color: "" },
@@ -362,7 +408,6 @@ export default function CardsPage() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 mb-4">
         <div className="flex-1 relative">
           <Search
@@ -399,7 +444,6 @@ export default function CardsPage() {
         />
       </div>
 
-      {/* Table */}
       <Card padding={false}>
         <div className="overflow-x-auto">
           <table className="fuel-table">
@@ -410,7 +454,7 @@ export default function CardsPage() {
                 <th>Pemegang</th>
                 <th>Satuan Kerja</th>
                 <th>Kendaraan</th>
-                <th>Produk</th>
+                <th>Produk BBM</th>
                 <th>Limit/Bln</th>
                 <th>Status</th>
                 <th>Aksi</th>
@@ -441,7 +485,8 @@ export default function CardsPage() {
                   const holder = c.holder_name || c.holder || "—";
                   const unit = c.unit_name || c.unit || "—";
                   const veh = c.police_number || c.vehicle || "—";
-                  const fuel = c.fuel_type || c.fuelType || "Pertamax";
+                  const fuel =
+                    c.product_name || c.fuel_type || c.fuelType || "Pertamax";
                   const limit = c.monthly_limit ?? c.monthlyLimit ?? 0;
 
                   return (
@@ -456,8 +501,21 @@ export default function CardsPage() {
                       </td>
                       <td className="font-medium text-zinc-900">{holder}</td>
                       <td className="text-zinc-500 text-[12px]">{unit}</td>
-                      <td className="text-zinc-500 text-[12px]">{veh}</td>
-                      <td className="text-zinc-500 text-[12px]">{fuel}</td>
+                      <td className="text-zinc-500 text-[12px]">
+                        {veh !== "—" ? (
+                          <span className="font-mono font-medium text-zinc-700">
+                            {veh}
+                          </span>
+                        ) : (
+                          <span className="text-zinc-400">—</span>
+                        )}
+                      </td>
+                      <td>
+                        <Badge variant="neutral">
+                          <Fuel size={11} className="inline mr-1 opacity-70" />
+                          {fuel}
+                        </Badge>
+                      </td>
                       <td className="font-semibold">{limit} L</td>
                       <td>
                         <Badge variant={statusVariant(c.status)}>
@@ -483,7 +541,10 @@ export default function CardsPage() {
                                 unit_id: c.unit_id || "",
                                 vehicle_id: c.vehicle_id || "",
                                 fuel_type:
-                                  c.fuel_type || c.fuelType || "Pertamax",
+                                  c.product_name ||
+                                  c.fuel_type ||
+                                  c.fuelType ||
+                                  "Pertamax",
                                 monthly_limit: (
                                   c.monthly_limit ??
                                   c.monthlyLimit ??
@@ -518,8 +579,8 @@ export default function CardsPage() {
                             className={clsx(
                               "p-1.5 rounded-lg transition",
                               c.status === "BLOCKED"
-                                ? "text-green-600 hover:bg-green-50"
-                                : "text-red-500 hover:bg-red-50",
+                                ? "text-emerald-600 hover:bg-emerald-50"
+                                : "text-zinc-400 hover:text-red-600 hover:bg-red-50",
                             )}
                           >
                             {c.status === "BLOCKED" ? (
@@ -537,47 +598,37 @@ export default function CardsPage() {
             </tbody>
           </table>
         </div>
-        <div className="px-5 py-3 border-t border-zinc-100 flex items-center justify-between">
-          <span className="text-[12px] text-zinc-400">
-            Menampilkan {filtered.length} dari {cards.length} kartu
-          </span>
-          <Button variant="outline" size="sm" onClick={fetchCards}>
-            Refresh
-          </Button>
-        </div>
       </Card>
 
-      {/* Detail drawer */}
+      {/* Detail Drawer */}
       {selected && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="flex-1 bg-black/30"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
             onClick={() => setSelected(null)}
           />
-          <div className="w-[440px] bg-white h-full overflow-y-auto shadow-2xl animate-fade-in">
-            <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h2 className="text-[15px] font-semibold">Detail Kartu BBM</h2>
+          <div className="relative w-[480px] bg-white h-full shadow-2xl z-10 overflow-y-auto flex flex-col">
+            <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-zinc-400">
+                  Detail Kartu BBM
+                </p>
+                <h2 className="text-[20px] font-semibold text-zinc-900 font-mono">
+                  {selected.card_number || selected.number}
+                </h2>
+              </div>
               <button
                 onClick={() => setSelected(null)}
-                className="w-7 h-7 flex items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+                className="w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-700"
               >
                 ✕
               </button>
             </div>
-            <div className="px-6 py-5 space-y-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wide text-zinc-400 mb-1">
-                    Nomor Kartu
-                  </p>
-                  <p className="text-[26px] font-light text-zinc-900 font-mono">
-                    {selected.card_number || selected.number}
-                  </p>
-                </div>
-                <Badge
-                  variant={statusVariant(selected.status)}
-                  className="mt-2"
-                >
+
+            <div className="p-6 space-y-5 flex-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-zinc-500">Status Kartu</span>
+                <Badge variant={statusVariant(selected.status)}>
                   {selected.status}
                 </Badge>
               </div>
@@ -592,7 +643,10 @@ export default function CardsPage() {
                   ],
                   [
                     "Produk BBM",
-                    selected.fuel_type || selected.fuelType || "—",
+                    selected.product_name ||
+                      selected.fuel_type ||
+                      selected.fuelType ||
+                      "—",
                   ],
                   [
                     "Tipe Kartu",
@@ -618,6 +672,23 @@ export default function CardsPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Linked vehicle sync badge */}
+              {(selected.vehicle_id ||
+                selected.police_number ||
+                selected.vehicle) && (
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-[12px] text-emerald-800 flex items-center gap-2">
+                  <Car size={16} className="text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-semibold">Tersinkronisasi Kendaraan:</span>{" "}
+                    Jenis BBM kartu ini otomatis diselaraskan dengan spesifikasi BBM armada dinas{" "}
+                    <span className="font-mono font-bold">
+                      {selected.police_number || selected.vehicle}
+                    </span>
+                    .
+                  </div>
+                </div>
+              )}
 
               {/* Quota bar */}
               <div className="bg-zinc-50 rounded-xl p-4">
@@ -720,7 +791,10 @@ export default function CardsPage() {
                         unit_id: selected.unit_id || "",
                         vehicle_id: selected.vehicle_id || "",
                         fuel_type:
-                          selected.fuel_type || selected.fuelType || "Pertamax",
+                          selected.product_name ||
+                          selected.fuel_type ||
+                          selected.fuelType ||
+                          "Pertamax",
                         monthly_limit: (
                           selected.monthly_limit ??
                           selected.monthlyLimit ??
@@ -738,7 +812,7 @@ export default function CardsPage() {
                       setShowEditModal(true);
                     }}
                   >
-                    <Edit size={13} /> Edit Kartu
+                    <Edit size={13} /> Edit
                   </Button>
                   <Button
                     variant={selected.status === "BLOCKED" ? "aloe" : "danger"}
@@ -751,22 +825,22 @@ export default function CardsPage() {
                     }}
                   >
                     {selected.status === "BLOCKED" ? (
-                      <CheckCircle2 size={13} />
+                      <>
+                        <CheckCircle2 size={13} /> Buka Blokir
+                      </>
                     ) : (
-                      <Ban size={13} />
+                      <>
+                        <Ban size={13} /> Blokir Kartu
+                      </>
                     )}
-                    {selected.status === "BLOCKED" ? "Buka Blokir" : "Blokir"}
                   </Button>
                 </div>
                 <Button
-                  variant="primary"
+                  variant="outline"
                   className="w-full"
-                  onClick={() => {
-                    setSelected(null);
-                    router.push("/topup");
-                  }}
+                  onClick={() => router.push("/topup")}
                 >
-                  Top Up Kuota Darurat →
+                  <Plus size={13} /> Top Up Kuota Kartu Ini →
                 </Button>
               </div>
             </div>
@@ -774,26 +848,26 @@ export default function CardsPage() {
         </div>
       )}
 
-      {/* Add Card Modal */}
+      {/* Add Modal */}
       <Modal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title="Pendaftaran Kartu BBM / RFID Baru"
+        title="Pendaftaran Kartu BBM & RFID Baru"
       >
         <form onSubmit={handleCreateCard} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-                Nomor Kartu *
+                Nomor Kartu BBM *
               </label>
               <input
-                placeholder="CRD-2026-099"
+                placeholder="008231"
                 required
                 value={form.card_number}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, card_number: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-bold font-mono"
               />
             </div>
             <div>
@@ -809,7 +883,6 @@ export default function CardsPage() {
               >
                 <option value="REGULER">REGULER</option>
                 <option value="KHUSUS">KHUSUS / OPERASIONAL</option>
-                <option value="DARURAT">DARURAT</option>
               </select>
             </div>
           </div>
@@ -856,15 +929,14 @@ export default function CardsPage() {
               </label>
               <select
                 value={form.vehicle_id}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, vehicle_id: e.target.value }))
-                }
+                onChange={(e) => handleVehicleChange(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               >
-                <option value="">Pilih kendaraan…</option>
+                <option value="">Tanpa kendaraan khusus…</option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
-                    {v.police_number || v.policeNumber} ({v.brand} {v.model})
+                    {v.police_number || v.policeNumber} ({v.brand} {v.model}) •{" "}
+                    {v.product_name || v.fuel_type || v.fuelType || "Pertamax"}
                   </option>
                 ))}
               </select>
@@ -874,21 +946,48 @@ export default function CardsPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-                Jenis BBM
+                Produk / Jenis BBM
               </label>
-              <select
-                value={form.fuel_type}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, fuel_type: e.target.value }))
-                }
-                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
-              >
-                <option value="Pertamax">Pertamax</option>
-                <option value="Pertalite">Pertalite</option>
-                <option value="Dexlite">Dexlite</option>
-                <option value="Pertamax Turbo">Pertamax Turbo</option>
-                <option value="Pertamina DEX">Pertamina DEX</option>
-              </select>
+              {form.vehicle_id ? (
+                <div className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[13px] text-emerald-900 font-semibold flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Fuel size={13} className="text-emerald-700" />
+                    {form.fuel_type}
+                  </span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                    <Lock size={10} /> Auto-Sync
+                  </span>
+                </div>
+              ) : (
+                <select
+                  value={form.fuel_type}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, fuel_type: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+                >
+                  {products.length > 0 ? (
+                    products.map((p) => (
+                      <option key={p.id} value={p.name}>
+                        {p.name} ({p.code})
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Pertamax">Pertamax</option>
+                      <option value="Pertalite">Pertalite</option>
+                      <option value="Dexlite">Dexlite</option>
+                      <option value="Pertamax Turbo">Pertamax Turbo</option>
+                      <option value="Pertamina DEX">Pertamina DEX</option>
+                    </>
+                  )}
+                </select>
+              )}
+              {form.vehicle_id && (
+                <p className="text-[11px] text-emerald-700 mt-1">
+                  🔒 Produk BBM otomatis disinkronkan dari armada kendaraan dinas.
+                </p>
+              )}
             </div>
 
             <div>
@@ -904,20 +1003,6 @@ export default function CardsPage() {
                 className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-              RFID UID / Serial Hardware
-            </label>
-            <input
-              placeholder="E28068940000"
-              value={form.rfid_uid}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, rfid_uid: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono"
-            />
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -981,6 +1066,68 @@ export default function CardsPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Kendaraan Dinas Tertaut
+              </label>
+              <select
+                value={form.vehicle_id}
+                onChange={(e) => handleVehicleChange(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              >
+                <option value="">Tanpa kendaraan khusus…</option>
+                {vehicles.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.police_number || v.policeNumber} ({v.brand} {v.model}) •{" "}
+                    {v.product_name || v.fuel_type || v.fuelType || "Pertamax"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Produk / Jenis BBM
+              </label>
+              {form.vehicle_id ? (
+                <div className="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[13px] text-emerald-900 font-semibold flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Fuel size={13} className="text-emerald-700" />
+                    {form.fuel_type}
+                  </span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5">
+                    <Lock size={10} /> Auto-Sync
+                  </span>
+                </div>
+              ) : (
+                <select
+                  value={form.fuel_type}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, fuel_type: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+                >
+                  {products.length > 0 ? (
+                    products.map((p) => (
+                      <option key={p.id} value={p.name}>
+                        {p.name} ({p.code})
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Pertamax">Pertamax</option>
+                      <option value="Pertalite">Pertalite</option>
+                      <option value="Dexlite">Dexlite</option>
+                      <option value="Pertamax Turbo">Pertamax Turbo</option>
+                      <option value="Pertamina DEX">Pertamina DEX</option>
+                    </>
+                  )}
+                </select>
+              )}
             </div>
 
             <div>

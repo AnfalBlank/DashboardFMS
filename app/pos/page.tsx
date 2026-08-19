@@ -271,7 +271,7 @@ export default function POSPage() {
     setIsRfidModalOpen(false);
 
     // Auto match nozzle with card fuel type if available
-    const cardFuel = (card.fuel_type || card.fuelType || '').toLowerCase();
+    const cardFuel = (card.product_name || card.fuel_type || card.fuelType || '').toLowerCase();
     if (cardFuel && currentProduct && currentProduct.name.toLowerCase() !== cardFuel) {
       const match = nozzles.find(n => (n.product_name || n.product || '').toLowerCase() === cardFuel);
       if (match) {
@@ -306,10 +306,10 @@ export default function POSPage() {
     if (selectedCard.status === 'SUSPENDED') {
       return { valid: false, message: 'Kartu DITANGGUHKAN sementara.' };
     }
-    const cardFuel = (selectedCard.fuel_type || selectedCard.fuelType || '').toLowerCase();
+    const cardFuel = (selectedCard.product_name || selectedCard.fuel_type || selectedCard.fuelType || '').toLowerCase();
     const prodName = (currentProduct?.name || '').toLowerCase();
     if (cardFuel && prodName && cardFuel !== prodName) {
-      return { valid: false, message: `BBM tidak sesuai: Kartu terdaftar untuk [${selectedCard.fuel_type || selectedCard.fuelType}], nozzle mengeluarkan [${currentProduct?.name}].` };
+      return { valid: false, message: `BBM tidak sesuai: Kartu terdaftar untuk [${selectedCard.product_name || selectedCard.fuel_type || selectedCard.fuelType}], nozzle mengeluarkan [${currentProduct?.name}].` };
     }
     if (parsedVolume <= 0) {
       return { valid: false, message: 'Volume pengisian harus lebih dari 0 Liter.' };
@@ -738,7 +738,7 @@ export default function POSPage() {
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-400">BBM Terdaftar</p>
-                      <p className="font-bold text-xs text-amber-300">{selectedCard.fuel_type || selectedCard.fuelType || 'Semua'}</p>
+                      <p className="font-bold text-xs text-amber-300">{selectedCard.product_name || selectedCard.fuel_type || selectedCard.fuelType || 'Semua'}</p>
                     </div>
                   </div>
 
@@ -1056,7 +1056,7 @@ export default function POSPage() {
                     <p className="text-[11px] text-slate-500">
                       {c.unit_name || c.unit} • {c.police_number || c.vehicle}
                     </p>
-                    <p className="text-[10px] text-blue-600 font-semibold">BBM: {c.fuel_type || c.fuelType || 'Semua'}</p>
+                    <p className="text-[10px] text-blue-600 font-semibold">BBM: {c.product_name || c.fuel_type || c.fuelType || 'Semua'}</p>
                   </div>
                 </div>
 

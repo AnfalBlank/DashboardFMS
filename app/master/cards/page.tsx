@@ -56,7 +56,9 @@ export default function MasterCardsPage() {
                     <td className="font-medium">{c.holder_name || c.holder}</td>
                     <td className="text-zinc-500 text-[12px]">{c.unit_name || c.unit}</td>
                     <td className="text-zinc-500 text-[12px]">{c.police_number || c.vehicle || '—'}</td>
-                    <td className="text-zinc-500 text-[12px]">{c.fuel_type || c.fuelType || 'Pertamax'}</td>
+                    <td className="text-zinc-700 text-[12px]">
+                      <Badge variant="neutral">{c.product_name || c.fuel_type || c.fuelType || 'Pertamax'}</Badge>
+                    </td>
                     <td className="font-medium">{c.monthly_limit ?? c.monthlyLimit ?? 0} L</td>
                     <td><Badge variant={statusVariant(c.status)}>{c.status}</Badge></td>
                   </tr>

@@ -365,6 +365,8 @@ export interface Card {
   vehicle_id?: string;
   police_number?: string;
   vehicle?: string;
+  product_id?: string;
+  product_name?: string;
   fuel_type?: string;
   fuelType?: string;
   monthly_limit: number;
@@ -493,6 +495,12 @@ export interface Vehicle {
   unit_id?: string;
   unit_name?: string;
   unit?: string;
+  product_id?: string;
+  productId?: string;
+  product_name?: string;
+  productName?: string;
+  product_code?: string;
+  productCode?: string;
   fuel_type?: string;
   fuelType?: string;
   tank_capacity?: number;
@@ -930,6 +938,7 @@ export interface CreateCard {
   holder_name: string;
   unit_id?: string;
   vehicle_id?: string;
+  product_id?: string;
   fuel_type?: string;
   monthly_limit?: number;
   expiry_date?: string;
@@ -942,8 +951,8 @@ export interface GenerateQuota {
   period: string;
   year: number;
   month: number;
-  product_id: string;
-  default_l: number;
+  product_id?: string;
+  default_l?: number;
   scope?: string;
   unit_id?: string;
 }
@@ -1007,6 +1016,7 @@ export interface CreateVehicle {
   model?: string;
   year?: number;
   unit_id?: string;
+  product_id?: string;
   fuel_type?: string;
   tank_capacity?: number;
   notes?: string;
