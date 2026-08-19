@@ -25,7 +25,7 @@ export class TanksService {
     @InjectRepository(Notification)
     private readonly notificationRepo: Repository<Notification>,
     private readonly audit: AuditService,
-  ) {}
+  ) { }
 
   async findAll() {
     const list = await this.tankRepo
@@ -164,11 +164,12 @@ export class TanksService {
 
   async update(id: string, dto: UpdateTankDto, userId?: string, ip?: string) {
     const updateData: Partial<Tank> = {};
+    if (dto.capacity_l !== undefined) updateData.capacityL = dto.capacity_l;
     if (dto.current_l !== undefined) updateData.currentL = dto.current_l;
     if (dto.threshold_low !== undefined) updateData.thresholdLow = dto.threshold_low;
     if (dto.threshold_critical !== undefined) updateData.thresholdCritical = dto.threshold_critical;
     if (dto.threshold_high !== undefined) updateData.thresholdHigh = dto.threshold_high;
-
+    const beforeUpdate = await this.findOne(id);
     await this.tankRepo.update(id, updateData);
 
     await this.audit.logAudit(
@@ -176,7 +177,7 @@ export class TanksService {
       'UPDATE_TANK',
       'Tank',
       id,
-      null,
+      beforeUpdate, //
       dto,
       dto.reason ?? null,
       ip,

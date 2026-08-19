@@ -5,6 +5,11 @@ export class UpdateTankDto {
   @ApiPropertyOptional({ example: 12000 })
   @IsNumber()
   @IsOptional()
+  capacity_l?: number;
+
+  @ApiPropertyOptional({ example: 12000 })
+  @IsNumber()
+  @IsOptional()
   current_l?: number;
 
   @ApiPropertyOptional({ example: 30 })

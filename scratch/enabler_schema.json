@@ -1,0 +1,4936 @@
+{
+  "aktivasi": {
+    "tableName": "aktivasi",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "serial_number",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "key_aktivasi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "anydesk": {
+    "tableName": "anydesk",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "anydesk_id",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "barcode_data": {
+    "tableName": "barcode_data",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "barcode",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "product_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_type",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_value",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nozzle_up",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "fueling",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "complete",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "change_mop": {
+    "tableName": "change_mop",
+    "primaryKeys": [
+      "no_urut"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no_urut",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_attendant",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "odometer",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "vehicle_no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "vehicle_type",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "phone_no",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "agency_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "agency_type",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "customer_type",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "type_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "amount_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ref_no_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "verify_no_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "terminal_id_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "payments_json",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "change_price_history": {
+    "tableName": "change_price_history",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "nama_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "old_price",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "new_price",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "change_time",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "extended_digit_mode": {
+    "tableName": "extended_digit_mode",
+    "primaryKeys": [
+      "id_edm"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_edm",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ext_digit_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "footer": {
+    "tableName": "footer",
+    "primaryKeys": [
+      "id_footer"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_footer",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "text_footer",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "fueling_data": {
+    "tableName": "fueling_data",
+    "primaryKeys": [
+      "no_sistem"
+    ],
+    "autoIncrement": "no_sistem",
+    "columns": [
+      {
+        "name": "no_urut",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_ip",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_nozzle",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_product",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "amount",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "unit_price",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "number_shift",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "barcode",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_kirim",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": "current_timestamp()",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "send_server_flag",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_name",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ip_address",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_atg",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_minyak_atg",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "print_counter",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_loop",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_sistem",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "id_preset",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "ganti_harga_order": {
+    "tableName": "ganti_harga_order",
+    "primaryKeys": [
+      "id_produk"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_produk",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "harga",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_berlaku",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "zona_waktu",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ganti_harga_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "ganti_waktu_order": {
+    "tableName": "ganti_waktu_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jam",
+        "type": "varchar(4)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "menit",
+        "type": "varchar(4)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "detik",
+        "type": "varchar(4)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tahun",
+        "type": "varchar(6)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "bulan",
+        "type": "varchar(4)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "hari",
+        "type": "varchar(4)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ganti_waktu_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "harga_product": {
+    "tableName": "harga_product",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "harga_product",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "harga_dispenser",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "header": {
+    "tableName": "header",
+    "primaryKeys": [
+      "id_header"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_header",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "text_header",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "id_pump_nota": {
+    "tableName": "id_pump_nota",
+    "primaryKeys": [
+      "index_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump_nota",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "ip_server": {
+    "tableName": "ip_server",
+    "primaryKeys": [
+      "index_ip_server"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "index_ip_server",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ip_server",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "port_server",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "last_fueling_data": {
+    "tableName": "last_fueling_data",
+    "primaryKeys": [
+      "index_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "index_ip",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_urut",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_product",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "amount",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "unit_price",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "number_shift",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "print_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "last_gps_data": {
+    "tableName": "last_gps_data",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "latitude",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "longitude",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "speed",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "date_stamp",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "time_stamp",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_kirim",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "send_server_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "last_self_service_data": {
+    "tableName": "last_self_service_data",
+    "primaryKeys": [
+      "id_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_verifikasi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "input_verifikasi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tipe_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_validation_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "max_kuota_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "sisa_kuota_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nilai_preset",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_preset",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_pembayaran",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_transaction_mypertamina",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "odometer",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nopol",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "complete_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_subsidi_transaksi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_mypertamina_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_kirim",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "last_status_pump": {
+    "tableName": "last_status_pump",
+    "primaryKeys": [
+      "index_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pump_idle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pump_nozzleup",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pump_fueling",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pump_complete",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pump_connected",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "last_tank_data": {
+    "tableName": "last_tank_data",
+    "primaryKeys": [
+      "id_tank"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_tank",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_oil",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_air",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "temperature",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_oil",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_air",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "delivery_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "probe_status",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ruang_kosong",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "link_server": {
+    "tableName": "link_server",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "link",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "list_device": {
+    "tableName": "list_device",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "type",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "list_usb": {
+    "tableName": "list_usb",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_usb",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "login_history": {
+    "tableName": "login_history",
+    "primaryKeys": [
+      "id"
+    ],
+    "autoIncrement": "id",
+    "columns": [
+      {
+        "name": "id",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "ip_address",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "logo": {
+    "tableName": "logo",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_logo",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "mapping_ip": {
+    "tableName": "mapping_ip",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ip_address",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "master_price": {
+    "tableName": "master_price",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "master_price_enable",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "nama_product": {
+    "tableName": "nama_product",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_product",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tank_number",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "password": {
+    "tableName": "password",
+    "primaryKeys": [
+      "id_password"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_password",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "password_text",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "pid_aplication": {
+    "tableName": "pid_aplication",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pid_number",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "start_time",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "preset_history": {
+    "tableName": "preset_history",
+    "primaryKeys": [
+      "id"
+    ],
+    "autoIncrement": "id",
+    "columns": [
+      {
+        "name": "id",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_type",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_value",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "product_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ip_address",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_preset",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_batal",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "type_pot",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "card_number_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "customer_id_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "customer_name_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "driver_name_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "vehicle_no_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "balance_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pin_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_limit_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "produk_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "amount_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "odometer_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "vehicle_type_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "phone_no_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "agency_name_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "agency_type_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "customer_type_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "payments_pot",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "preset_order": {
+    "tableName": "preset_order",
+    "primaryKeys": [
+      "id_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_type",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_value",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "product_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "barcode",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_time",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_preset",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "print_nota_order": {
+    "tableName": "print_nota_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_urut",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_print",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "print_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "odometer",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nopol",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "print_total_order": {
+    "tableName": "print_total_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "harga_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_kotor",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_tera",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_offline",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_driveoff",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_bersih",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_delivery",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_kotor",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "print_time",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "print_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "open_shift_time",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "close_shift_time",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "profil_site": {
+    "tableName": "profil_site",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_site",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tid",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "mid",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_company",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_controller",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "qr_payment_order": {
+    "tableName": "qr_payment_order",
+    "primaryKeys": [
+      "id_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "amount",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_spbu",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tid",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "mid",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "order_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_value",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "message_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "mid_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tid_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "transaction_id_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "sof_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "rc_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "qr_content_respon",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "scan_status_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "scan_status",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "reboot_order": {
+    "tableName": "reboot_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "reboot_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "reset_order": {
+    "tableName": "reset_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "reset_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "restart_server_order": {
+    "tableName": "restart_server_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_restart",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "restart_port1_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "restart_port2_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "restart_checker_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "restart_send2server_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "restart_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "rfid_data": {
+    "tableName": "rfid_data",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "rfid_number",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_id",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "login_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nopol",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "saldo",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "scanner_address": {
+    "tableName": "scanner_address",
+    "primaryKeys": [
+      "id_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ip_scanner",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "self_service_history": {
+    "tableName": "self_service_history",
+    "primaryKeys": [
+      "id_self_service"
+    ],
+    "autoIncrement": "id_self_service",
+    "columns": [
+      {
+        "name": "id_self_service",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_verifikasi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "input_verifikasi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tipe_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_validation_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "max_kuota_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "sisa_kuota_subsidi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nilai_preset",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_preset",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_pembayaran",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_transaction_mypertamina",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "odometer",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nopol",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "preset_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "complete_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_subsidi_transaksi",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_mypertamina_payment",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_kirim",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_urut",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "self_service_mode": {
+    "tableName": "self_service_mode",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "mode",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "timeout",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "seting_dispenser": {
+    "tableName": "seting_dispenser",
+    "primaryKeys": [
+      "id_dispenser"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_dispenser",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": "0",
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_pump",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump1",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump2",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump3",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump4",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump5",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump6",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump7",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump8",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump9",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jumlah_nozzle_pump10",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_awal",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump1_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump2_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump3_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump4_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump5_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump6_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump7_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump8_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump9_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_pump10_flag",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump1",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump2",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump3",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump4",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump5",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump6",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump7",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump8",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump9",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_pump10",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump1",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump2",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump3",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump4",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump5",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump6",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump7",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump8",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump9",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump10",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "setting_port": {
+    "tableName": "setting_port",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "port_com",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "setting_produk": {
+    "tableName": "setting_produk",
+    "primaryKeys": [
+      "id_produk"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_produk",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "harga_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "code_produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "setting_pump": {
+    "tableName": "setting_pump",
+    "primaryKeys": [
+      "id_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "number_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_pump",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "number_of_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "port_number",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "auth_by_card_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_polling",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "setting_tank": {
+    "tableName": "setting_tank",
+    "primaryKeys": [
+      "id_tank"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_tank",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_max",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_max",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "warna_oil",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "warna_air",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tank_product",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "koreksi_minyak",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "koreksi_air",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_atg",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "number_tank",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "name_tank",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "set_id_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_port",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_polling",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "shift_history": {
+    "tableName": "shift_history",
+    "primaryKeys": [
+      "id_shift"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_shift",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "open_shift_time",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "close_shift_time",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_tank_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_tank_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_tank_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_tank_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "open_shift_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_send_server",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "send_server_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "stock_tank_shift": {
+    "tableName": "stock_tank_shift",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "id_tank",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_shift",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_minyak_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_minyak_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_air_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_air_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_air_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_air_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_send_server",
+        "type": "datetime",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "send_server_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_delivery": {
+    "tableName": "tank_delivery",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "id_tank",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_shift",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_minyak_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_minyak_awal",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_minyak_akhir",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_air_awal",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_air_akhir",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_air_awal",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tinggi_air_akhir",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_mulai_delivery",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_selesai_delivery",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "volume_permintaan",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_do",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_invoice",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "no_kendaraan",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nama_pengemudi",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "pengirim",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "delivery_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_send_server",
+        "type": "text",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "send_server_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table": {
+    "tableName": "tank_table",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table1": {
+    "tableName": "tank_table1",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table2": {
+    "tableName": "tank_table2",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table3": {
+    "tableName": "tank_table3",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table4": {
+    "tableName": "tank_table4",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table5": {
+    "tableName": "tank_table5",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table6": {
+    "tableName": "tank_table6",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tank_table7": {
+    "tableName": "tank_table7",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "A",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "B",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tap_kartu_order": {
+    "tableName": "tap_kartu_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "jenis_kartu",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "order_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tap_kartu_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_rfid_number",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tap_rfid_value": {
+    "tableName": "tap_rfid_value",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_user",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "user_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "nopol",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "saldo",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "produk",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "keterangan",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tap_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "tera_order": {
+    "tableName": "tera_order",
+    "primaryKeys": [
+      "id_pump"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "product_name",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tera_time",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "tera_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "timezone": {
+    "tableName": "timezone",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "time_zone",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "totalizer": {
+    "tableName": "totalizer",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "id_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_dispenser",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_ip",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_product",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_acc",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_acc",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "totalizer_history": {
+    "tableName": "totalizer_history",
+    "primaryKeys": [],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_shift",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "totalizer_shift": {
+    "tableName": "totalizer_shift",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": "no",
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "index_pump",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "index_nozzle",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "id_shift",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_amount_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_awal",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "total_volume_akhir",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "waktu_send_server",
+        "type": "datetime",
+        "nullable": true,
+        "defaultValue": "NULL",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "send_server_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "user": {
+    "tableName": "user",
+    "primaryKeys": [
+      "id_user"
+    ],
+    "autoIncrement": "id_user",
+    "columns": [
+      {
+        "name": "id_user",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": true
+      },
+      {
+        "name": "nama_user",
+        "type": "varchar(10)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "password_user",
+        "type": "varchar(255)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "status_user",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "ip_address",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "login_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "aktif_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "rfid_number",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "verifikasi_subsidi_order": {
+    "tableName": "verifikasi_subsidi_order",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "code_value",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "verification_type",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "spbu_id",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "dispenser_id",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "produk_bbm",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "order_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_value",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "respon_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  },
+  "version": {
+    "tableName": "version",
+    "primaryKeys": [
+      "no"
+    ],
+    "autoIncrement": null,
+    "columns": [
+      {
+        "name": "no",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": true,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "version",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "new_version",
+        "type": "text",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "update_flag",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "update_time",
+        "type": "datetime",
+        "nullable": false,
+        "defaultValue": "current_timestamp()",
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "update_order",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      },
+      {
+        "name": "progress",
+        "type": "int(11)",
+        "nullable": false,
+        "defaultValue": null,
+        "isPrimary": false,
+        "isAutoIncrement": false
+      }
+    ]
+  }
+}

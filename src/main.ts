@@ -3,7 +3,6 @@ import { ValidationPipe, Logger } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import morgan from "morgan";
 import { json, urlencoded } from "express";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
@@ -43,7 +42,6 @@ async function bootstrap() {
 
   app.use(json({ limit: "1mb" }));
   app.use(urlencoded({ extended: true }));
-  // app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
   // ── Global Filter & Pipe ──
   app.useGlobalFilters(new HttpExceptionFilter());
