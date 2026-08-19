@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { api, setToken, clearToken, User } from './api';
+import { api, setToken, clearToken, onUnauthorized, User } from './api';
 
 interface AuthCtx {
   user: User | null;
@@ -16,6 +16,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const handleLogout = useCallback(() => {
+    clearToken();
+    setUser(null);
+  }, []);
+
   const refreshUser = useCallback(async () => {
     try {
       const res = await api.auth.me();
@@ -24,11 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('fms_user', JSON.stringify(res.data));
       }
     } catch {
-      // If token expired, clear
-      clearToken();
-      setUser(null);
+      // If token expired or unauthorized, clear
+      handleLogout();
     }
-  }, []);
+  }, [handleLogout]);
 
   useEffect(() => {
     // Restore session from localStorage
@@ -48,6 +52,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshUser]);
 
+  useEffect(() => {
+    // Listen for unauthorized 401 events from API client
+    const unsubscribe = onUnauthorized(() => {
+      handleLogout();
+    });
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'fms_token' && !e.newValue) {
+        handleLogout();
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
+    }
+
+    return () => {
+      unsubscribe();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('storage', handleStorageChange);
+      }
+    };
+  }, [handleLogout]);
+
   const login = useCallback(async (username: string, password: string) => {
     const res = await api.auth.login(username, password);
     setToken(res.data.token);
@@ -57,9 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     api.auth.logout().catch(() => {});
-    clearToken();
-    setUser(null);
-  }, []);
+    handleLogout();
+  }, [handleLogout]);
 
   return <Ctx.Provider value={{ user, loading, login, logout, refreshUser }}>{children}</Ctx.Provider>;
 }

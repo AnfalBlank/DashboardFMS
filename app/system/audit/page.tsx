@@ -84,7 +84,9 @@ export default function AuditTrailPage() {
                     <td className="font-medium text-zinc-900">{l.username || l.user}</td>
                     <td><Badge variant="neutral">{l.action}</Badge></td>
                     <td className="font-medium text-zinc-700">{l.target || l.resource || '—'}</td>
-                    <td className="text-zinc-500 text-[12px] max-w-sm truncate">{l.detail || l.description || '—'}</td>
+                    <td className="text-zinc-500 text-[12px] max-w-sm overflow-scroll">
+                      {l.detail || l.description || (l.before_val && l.after_val ? <><div className='font-mono'>{JSON.stringify(JSON.parse(l.before_val!))}</div><i>to</i><pre>{JSON.stringify(JSON.parse(l.after_val!))}</pre></> : null) || '—'}
+                    </td>
                     <td className="font-mono text-[11.5px] text-zinc-400">{l.ip_address || l.ip || '127.0.0.1'}</td>
                   </tr>
                 ))

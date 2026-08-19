@@ -21,6 +21,30 @@ export function clearToken(): void {
   localStorage.removeItem('fms_user');
 }
 
+type UnauthorizedCallback = () => void;
+const unauthorizedListeners = new Set<UnauthorizedCallback>();
+
+export function onUnauthorized(callback: UnauthorizedCallback): () => void {
+  unauthorizedListeners.add(callback);
+  return () => {
+    unauthorizedListeners.delete(callback);
+  };
+}
+
+export function notifyUnauthorized(): void {
+  clearToken();
+  unauthorizedListeners.forEach((cb) => {
+    try {
+      cb();
+    } catch {
+      /* ignore */
+    }
+  });
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('fms:unauthorized'));
+  }
+}
+
 async function request<T>(
   method: string,
   path: string,
@@ -44,6 +68,9 @@ async function request<T>(
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    if (res.status === 401 && !options?.noAuth && path !== '/api/auth/login') {
+      notifyUnauthorized();
+    }
     throw new Error(data?.message ?? `HTTP ${res.status}: ${res.statusText}`);
   }
   return data as T;
@@ -199,10 +226,24 @@ export const api = {
     settings: () => request<ApiResponse<SystemSettings>>('GET', '/api/system/settings'),
     saveSettings: (data: Partial<SystemSettings> | Record<string, unknown>) => request<{ success: boolean }>('PUT', '/api/system/settings', data),
     updateSettings: (data: Partial<SystemSettings> | Record<string, unknown>) => request<{ success: boolean }>('PUT', '/api/system/settings', data),
+    fmsConfig: () => request<ApiResponse<FmsConfig>>('GET', '/api/system/fms-config'),
+    updateFmsConfig: (data: Partial<FmsConfig> | Record<string, unknown>) => request<{ success: boolean; data?: FmsConfig }>('PUT', '/api/system/fms-config', data),
+    testFmsConfig: (data?: { baseUrl?: string; timeoutMs?: number }) =>
+      request<ApiResponse<FmsTestConnectionResult>>('POST', '/api/system/fms-config/test', data),
     notifications: () => request<ApiResponse<NotificationSettings> | ApiListResponse<NotificationItem>>('GET', '/api/system/notifications'),
     updateNotifications: (data: Partial<NotificationSettings> | Record<string, unknown>) => request<{ success: boolean }>('PUT', '/api/system/notifications', data),
     markAllRead: () => request<{ success: boolean }>('PUT', '/api/system/notifications/read-all'),
     integration: () => request<ApiResponse<IntegrationStatus>>('GET', '/api/system/integration'),
+    testFms: (data?: { baseUrl?: string; timeoutMs?: number }) =>
+      request<ApiResponse<FmsTestConnectionResult>>('POST', '/api/system/fms-config/test', data),
+  },
+
+  // ── Forecourt Management System (FMS) ──
+  fms: {
+    testConnection: (data?: { baseUrl?: string; timeoutMs?: number }) =>
+      request<ApiResponse<FmsTestConnectionResult>>('POST', '/api/fms/test-connection', data),
+    testConnectionQuick: () =>
+      request<ApiResponse<FmsTestConnectionResult>>('GET', '/api/fms/test-connection'),
   },
 
   // ── Controller Hardware ──
@@ -696,6 +737,11 @@ export interface SystemSettings {
   alert_critical_pct: number;
   alert_low_pct: number;
   daily_report_time: string;
+  fms_base_url?: string;
+  fms_timeout_ms?: number;
+  fms_debug?: boolean;
+  fms_enabled?: boolean;
+  fms_headers?: string;
   [key: string]: unknown;
 }
 
@@ -709,6 +755,26 @@ export interface NotificationSettings {
   [key: string]: unknown;
 }
 
+export interface FmsConfig {
+  baseUrl: string;
+  timeoutMs: number;
+  debug: boolean;
+  enabled: boolean;
+  headers?: Record<string, string> | string;
+  source?: string;
+  [key: string]: unknown;
+}
+
+export interface FmsTestConnectionResult {
+  success: boolean;
+  latencyMs?: number;
+  controllerVersion?: string;
+  serverTime?: string;
+  message?: string;
+  error?: string;
+  [key: string]: unknown;
+}
+
 export interface IntegrationStatus {
   total_received: number;
   synced: number;
@@ -717,6 +783,14 @@ export interface IntegrationStatus {
   today: number;
   last_sync: string;
   status?: string;
+  fms?: {
+    connected: boolean;
+    latencyMs?: number;
+    controllerVersion?: string;
+    serverTime?: string;
+    baseUrl?: string;
+  };
+  [key: string]: unknown;
 }
 
 export interface UsageReport {

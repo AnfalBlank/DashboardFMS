@@ -7,14 +7,36 @@ import {
   Droplets, Package, Truck, SlidersHorizontal, Gauge, GitBranch,
   BarChart3, FileText, Star, Database, Tag, Car, Building2, Users,
   UserCog, Settings, ShieldCheck, CheckSquare, Activity, Layers,
-  ChevronDown, ChevronRight, Fuel
+  ChevronDown, Fuel, Zap
 } from 'lucide-react';
 import { useState } from 'react';
 
-const nav = [
+interface NavItemSingle {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  badge?: string;
+}
+
+interface NavItemGroup {
+  label: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  children: Array<{
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
+    badge?: string;
+  }>;
+}
+
+type NavItem = NavItemSingle | NavItemGroup;
+
+const nav: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { label: 'POS Terminal', href: '/pos', icon: Fuel, badge: 'POS' },
   {
     label: 'Fuel Management', icon: Droplets, children: [
+      { label: 'POS Transaksi', href: '/pos', icon: Zap },
       { label: 'Transactions', href: '/transactions', icon: Clock },
       { label: 'Cards', href: '/cards', icon: CreditCard },
       { label: 'Quota', href: '/quota', icon: Gauge },
@@ -72,19 +94,20 @@ const nav = [
   { label: 'Pengaturan', href: '/settings', icon: Settings },
 ];
 
-function NavGroup({ item, pathname }: { item: typeof nav[number]; pathname: string }) {
+function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
   const hasChildren = 'children' in item && item.children;
   const isActive = hasChildren
     ? item.children!.some(c => pathname === c.href || pathname.startsWith(c.href + '/'))
-    : pathname === item.href;
+    : pathname === (item as NavItemSingle).href;
   const [open, setOpen] = useState(isActive);
   const Icon = item.icon;
 
-  /* ── Single link (Dashboard) ── */
+  /* ── Single link (Dashboard / POS) ── */
   if (!hasChildren) {
+    const single = item as NavItemSingle;
     return (
       <Link
-        href={(item as { href: string }).href}
+        href={single.href}
         className={clsx(
           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13.5px] font-medium transition-all duration-150',
           isActive
@@ -93,7 +116,17 @@ function NavGroup({ item, pathname }: { item: typeof nav[number]; pathname: stri
         )}
       >
         <Icon size={16} className="flex-shrink-0" />
-        {item.label}
+        <span className="flex-1">{single.label}</span>
+        {single.badge && (
+          <span className={clsx(
+            'text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide uppercase',
+            isActive
+              ? 'bg-emerald-600 text-white'
+              : 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
+          )}>
+            {single.badge}
+          </span>
+        )}
       </Link>
     );
   }

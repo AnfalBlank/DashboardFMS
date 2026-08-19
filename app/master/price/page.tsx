@@ -135,9 +135,9 @@ export default function MasterPricePage() {
                       {p.product_name || p.product_id}
                     </td>
                     <td className="font-bold text-[14px] text-zinc-900">
-                      Rp {p.price_per_liter?.toLocaleString("id-ID")}
+                      Rp {p.price_per_unit?.toLocaleString("id-ID")}
                     </td>
-                    <td className="text-zinc-600">{p.effective_from}</td>
+                    <td className="text-zinc-600">{p.effective_date}</td>
                     <td className="text-zinc-500 text-[12px]">
                       {p.reason || "Keputusan Resmi"}
                     </td>
