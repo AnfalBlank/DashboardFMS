@@ -8,6 +8,7 @@ import {
   Card,
   Transaction,
   CardQuota,
+  Vehicle,
 } from '../../database/entities';
 import { AuditService } from '../audit/audit.service';
 import { v4 as uuid } from 'uuid';
@@ -24,6 +25,8 @@ export class CardsService {
     private readonly txRepo: Repository<Transaction>,
     @InjectRepository(CardQuota)
     private readonly cardQuotaRepo: Repository<CardQuota>,
+    @InjectRepository(Vehicle)
+    private readonly vehicleRepo: Repository<Vehicle>,
     private readonly audit: AuditService,
   ) {}
 
@@ -37,7 +40,8 @@ export class CardsService {
     const qb = this.cardRepo
       .createQueryBuilder('c')
       .leftJoinAndSelect('c.unit', 'u')
-      .leftJoinAndSelect('c.vehicle', 'v');
+      .leftJoinAndSelect('c.vehicle', 'v')
+      .leftJoinAndSelect('v.product', 'vp');
 
     if (search) {
       qb.andWhere(
@@ -68,7 +72,9 @@ export class CardsService {
       police_number: c.vehicle?.policeNumber,
       brand: c.vehicle?.brand,
       model: c.vehicle?.model,
-      fuel_type: c.fuelType,
+      product_id: c.vehicle?.productId,
+      product_name: c.vehicle?.product?.name,
+      fuel_type: c.vehicle?.product?.name ?? c.vehicle?.fuelType ?? c.fuelType,
       monthly_limit: toNum(c.monthlyLimit),
       expiry_date: c.expiryDate,
       activation_date: c.activationDate,
@@ -86,6 +92,7 @@ export class CardsService {
       .createQueryBuilder('c')
       .leftJoinAndSelect('c.unit', 'u')
       .leftJoinAndSelect('c.vehicle', 'v')
+      .leftJoinAndSelect('v.product', 'vp')
       .where('c.id = :id OR c.cardNumber = :id', { id })
       .getOne();
 
@@ -109,7 +116,9 @@ export class CardsService {
       brand: c.vehicle?.brand,
       model: c.vehicle?.model,
       year: c.vehicle?.year,
-      fuel_type: c.fuelType,
+      product_id: c.vehicle?.productId,
+      product_name: c.vehicle?.product?.name,
+      fuel_type: c.vehicle?.product?.name ?? c.vehicle?.fuelType ?? c.fuelType,
       monthly_limit: toNum(c.monthlyLimit),
       expiry_date: c.expiryDate,
       activation_date: c.activationDate,
@@ -187,14 +196,30 @@ export class CardsService {
 
   async create(dto: CreateCardDto, userId: string, ip?: string) {
     const id = uuid();
+    let fuelType = dto.fuel_type ?? undefined;
+    let unitId = dto.unit_id ?? undefined;
+
+    if (dto.vehicle_id) {
+      const veh = await this.vehicleRepo.findOne({
+        where: { id: dto.vehicle_id },
+        relations: ['product'],
+      });
+      if (veh) {
+        fuelType = veh.product?.name ?? veh.fuelType ?? fuelType;
+        if (!unitId && veh.unitId) {
+          unitId = veh.unitId;
+        }
+      }
+    }
+
     const card = this.cardRepo.create({
       id,
       cardNumber: dto.card_number,
       cardType: dto.card_type ?? 'REGULER',
       holderName: dto.holder_name,
-      unitId: dto.unit_id ?? undefined,
+      unitId,
       vehicleId: dto.vehicle_id ?? undefined,
-      fuelType: dto.fuel_type ?? undefined,
+      fuelType,
       monthlyLimit: dto.monthly_limit ?? 200,
       expiryDate: dto.expiry_date ?? undefined,
       activationDate: dto.activation_date ?? undefined,
@@ -230,10 +255,25 @@ export class CardsService {
     const updateData: Partial<Card> = {};
     if (dto.holder_name !== undefined) updateData.holderName = dto.holder_name;
     if (dto.unit_id !== undefined) updateData.unitId = dto.unit_id;
-    if (dto.vehicle_id !== undefined) updateData.vehicleId = dto.vehicle_id;
-    if (dto.fuel_type !== undefined) updateData.fuelType = dto.fuel_type;
     if (dto.monthly_limit !== undefined) updateData.monthlyLimit = dto.monthly_limit;
     if (dto.notes !== undefined) updateData.notes = dto.notes;
+
+    if (dto.vehicle_id !== undefined) {
+      updateData.vehicleId = dto.vehicle_id || (null as any);
+      if (dto.vehicle_id) {
+        const veh = await this.vehicleRepo.findOne({
+          where: { id: dto.vehicle_id },
+          relations: ['product'],
+        });
+        if (veh) {
+          updateData.fuelType = veh.product?.name ?? veh.fuelType;
+        }
+      }
+    }
+
+    if (dto.fuel_type !== undefined && updateData.fuelType === undefined) {
+      updateData.fuelType = dto.fuel_type;
+    }
 
     await this.cardRepo.update(id, updateData);
 

@@ -86,6 +86,8 @@ async function seed(): Promise<void> {
   const tankRepo = dataSource.getRepository(Tank);
   const periodRepo = dataSource.getRepository(QuotaPeriod);
   const settingRepo = dataSource.getRepository(SystemSetting);
+  const vehRepo = dataSource.getRepository(Vehicle);
+  const cardRepo = dataSource.getRepository(Card);
 
   // ── Roles ──
   const roles = [
@@ -230,6 +232,34 @@ async function seed(): Promise<void> {
     );
   }
   console.log('  ✓ Quota Period');
+
+  // ── Vehicles ──
+  const vehicles = [
+    { id: 'veh-01', policeNumber: 'PB 1234 XX', type: 'Sedan', brand: 'Toyota', model: 'Corolla Altis', year: 2023, unitId: 'unit-ditres', productId: 'prod-ptx', fuelType: 'Pertamax', notes: 'Mobil Dinas Ditreskrimsus' },
+    { id: 'veh-02', policeNumber: 'PB 5678 YY', type: 'SUV', brand: 'Mitsubishi', model: 'Pajero Sport', year: 2024, unitId: 'unit-brimob', productId: 'prod-dxl', fuelType: 'Dexlite', notes: 'Kendaraan Taktis Brimob' },
+    { id: 'veh-03', policeNumber: 'PB 9012 ZZ', type: 'Patroli', brand: 'Mazda', model: 'Mazda 6 Patrol', year: 2022, unitId: 'unit-lantas', productId: 'prod-ptx', fuelType: 'Pertamax', notes: 'Patroli Ditlantas' },
+  ];
+  for (const v of vehicles) {
+    const exists = await vehRepo.findOneBy({ id: v.id });
+    if (!exists) {
+      await vehRepo.save(vehRepo.create(v));
+    }
+  }
+  console.log('  ✓ Vehicles');
+
+  // ── Cards ──
+  const cards = [
+    { id: 'crd-01', cardNumber: 'CRD-2026-001', cardType: 'REGULER' as const, holderName: 'Bripka Joko Susilo', unitId: 'unit-ditres', vehicleId: 'veh-01', fuelType: 'Pertamax', monthlyLimit: 250, rfidUid: 'E28068940001', status: 'ACTIVE' as const },
+    { id: 'crd-02', cardNumber: 'CRD-2026-002', cardType: 'KHUSUS' as const, holderName: 'Iptu Bambang S', unitId: 'unit-brimob', vehicleId: 'veh-02', fuelType: 'Dexlite', monthlyLimit: 300, rfidUid: 'E28068940002', status: 'ACTIVE' as const },
+    { id: 'crd-03', cardNumber: 'CRD-2026-003', cardType: 'REGULER' as const, holderName: 'Bripda Agus H', unitId: 'unit-lantas', vehicleId: 'veh-03', fuelType: 'Pertamax', monthlyLimit: 200, rfidUid: 'E28068940003', status: 'ACTIVE' as const },
+  ];
+  for (const c of cards) {
+    const exists = await cardRepo.findOneBy({ id: c.id });
+    if (!exists) {
+      await cardRepo.save(cardRepo.create(c));
+    }
+  }
+  console.log('  ✓ Cards');
 
   // ── System Settings ──
   const settings: [string, string][] = [

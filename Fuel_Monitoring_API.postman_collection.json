@@ -578,7 +578,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"card_number\": \"CRD-2026-099\",\n  \"card_type\": \"REGULER\",\n  \"holder_name\": \"Bripka Joko Susilo\",\n  \"unit_id\": \"unit-ditres\",\n  \"vehicle_id\": \"veh-01\",\n  \"fuel_type\": \"PTX\",\n  \"monthly_limit\": 200,\n  \"expiry_date\": \"2027-12-31\",\n  \"activation_date\": \"2026-01-01\",\n  \"rfid_uid\": \"E28068940000\",\n  \"notes\": \"Kendaraan Dinas Patroli Satker Ditreskrimsus\"\n}"
+              "raw": "{\n  \"card_number\": \"CRD-2026-099\",\n  \"card_type\": \"REGULER\",\n  \"holder_name\": \"Bripka Joko Susilo\",\n  \"unit_id\": \"unit-ditres\",\n  \"vehicle_id\": \"veh-01\",\n  \"monthly_limit\": 200,\n  \"expiry_date\": \"2027-12-31\",\n  \"activation_date\": \"2026-01-01\",\n  \"rfid_uid\": \"E28068940000\",\n  \"notes\": \"Kendaraan Dinas Patroli Satker Ditreskrimsus\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/cards",
@@ -590,7 +590,7 @@
                 "cards"
               ]
             },
-            "description": "Mendaftarkan kartu BBM / RFID baru ke dalam sistem."
+            "description": "Mendaftarkan kartu BBM / RFID baru ke dalam sistem. Jenis bahan bakar (fuel_type) secara otomatis mengikuti kendaraan yang ditautkan (vehicle_id)."
           },
           "response": []
         },
@@ -606,7 +606,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"holder_name\": \"Bripka Joko Susilo Updated\",\n  \"unit_id\": \"unit-ditres\",\n  \"vehicle_id\": \"veh-01\",\n  \"fuel_type\": \"PTX\",\n  \"monthly_limit\": 250,\n  \"notes\": \"Penyesuaian kuota bulanan operasi dinas\"\n}"
+              "raw": "{\n  \"holder_name\": \"Bripka Joko Susilo Updated\",\n  \"unit_id\": \"unit-ditres\",\n  \"vehicle_id\": \"veh-01\",\n  \"monthly_limit\": 250,\n  \"notes\": \"Penyesuaian kuota bulanan operasi dinas\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/cards/:id",
@@ -805,7 +805,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"period\": \"August 2026\",\n  \"year\": 2026,\n  \"month\": 8,\n  \"product_id\": \"prod-ptx\",\n  \"default_l\": 200,\n  \"scope\": \"all\"\n}"
+              "raw": "{\n  \"period\": \"August 2026\",\n  \"year\": 2026,\n  \"month\": 8,\n  \"scope\": \"all\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/quota/generate",
@@ -818,7 +818,7 @@
                 "generate"
               ]
             },
-            "description": "Menghasilkan (generate) alokasi kuota bulanan secara massal untuk seluruh atau satker tertentu."
+            "description": "Menghasilkan (generate) alokasi kuota bulanan secara massal. Produk BBM otomatis disesuaikan dari master kartu / kendaraan masing-masing, dan volume kuota disesuaikan dari limit kartu (atau default_l jika diberikan)."
           },
           "response": []
         },
@@ -1685,7 +1685,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"police_number\": \"PB 1234 XX\",\n  \"type\": \"Sedan\",\n  \"brand\": \"Toyota\",\n  \"model\": \"Corolla Altis\",\n  \"year\": 2023,\n  \"unit_id\": \"unit-ditres\",\n  \"fuel_type\": \"PTX\",\n  \"notes\": \"Mobil Dinas Operasional Khusus\"\n}"
+              "raw": "{\n  \"police_number\": \"PB 1234 XX\",\n  \"type\": \"Sedan\",\n  \"brand\": \"Toyota\",\n  \"model\": \"Corolla Altis\",\n  \"year\": 2023,\n  \"unit_id\": \"unit-ditres\",\n  \"product_id\": \"prod-ptx\",\n  \"fuel_type\": \"Pertamax\",\n  \"notes\": \"Mobil Dinas Operasional Khusus\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/vehicles",
@@ -1698,7 +1698,7 @@
                 "vehicles"
               ]
             },
-            "description": "Mendaftarkan data kendaraan dinas kepolisian baru."
+            "description": "Mendaftarkan data kendaraan dinas kepolisian baru beserta relasi master produk BBM (product_id)."
           },
           "response": []
         },
@@ -1714,7 +1714,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"Sedan\",\n  \"brand\": \"Toyota\",\n  \"model\": \"Corolla Altis\",\n  \"year\": 2023,\n  \"unit_id\": \"unit-ditres\",\n  \"fuel_type\": \"PTX\",\n  \"status\": \"ACTIVE\",\n  \"notes\": \"Update catatan pemeliharaan kendaraan\"\n}"
+              "raw": "{\n  \"type\": \"Sedan\",\n  \"brand\": \"Toyota\",\n  \"model\": \"Corolla Altis\",\n  \"year\": 2023,\n  \"unit_id\": \"unit-ditres\",\n  \"product_id\": \"prod-ptx\",\n  \"fuel_type\": \"Pertamax\",\n  \"status\": \"ACTIVE\",\n  \"notes\": \"Update catatan pemeliharaan kendaraan\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/master/vehicles/:id",
@@ -1735,7 +1735,7 @@
                 }
               ]
             },
-            "description": "Memperbarui rincian kendaraan dinas."
+            "description": "Memperbarui rincian kendaraan dinas dan relasi master produk BBM (otomatis menyelaraskan kartu terkait)."
           },
           "response": []
         },

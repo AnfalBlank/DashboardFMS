@@ -71,7 +71,12 @@ export class CreateVehicleDto {
   @IsOptional()
   unit_id?: string;
 
-  @ApiPropertyOptional({ example: 'PTX' })
+  @ApiPropertyOptional({ example: 'prod-ptx', description: 'Product ID from master products' })
+  @IsString()
+  @IsOptional()
+  product_id?: string;
+
+  @ApiPropertyOptional({ example: 'PTX', description: 'Fuel type code or name (optional if product_id provided)' })
   @IsString()
   @IsOptional()
   fuel_type?: string;
@@ -108,7 +113,12 @@ export class UpdateVehicleDto {
   @IsOptional()
   unit_id?: string;
 
-  @ApiPropertyOptional({ example: 'PTX' })
+  @ApiPropertyOptional({ example: 'prod-ptx', description: 'Product ID from master products' })
+  @IsString()
+  @IsOptional()
+  product_id?: string;
+
+  @ApiPropertyOptional({ example: 'PTX', description: 'Fuel type code or name' })
   @IsString()
   @IsOptional()
   fuel_type?: string;

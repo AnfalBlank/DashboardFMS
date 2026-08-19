@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Unit } from './unit.entity';
 import { Card } from './card.entity';
+import { Product } from './product.entity';
 
 @Entity('vehicles')
 export class Vehicle {
@@ -36,6 +37,13 @@ export class Vehicle {
   @ManyToOne(() => Unit, (unit) => unit.vehicles, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'unit_id' })
   unit?: Unit;
+
+  @Column({ name: 'product_id', type: 'varchar', length: 64, nullable: true })
+  productId?: string;
+
+  @ManyToOne(() => Product, (product) => product.vehicles, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'product_id' })
+  product?: Product;
 
   @Column({ name: 'fuel_type', type: 'varchar', length: 64, nullable: true })
   fuelType?: string;

@@ -8,6 +8,7 @@ import {
 import { PriceHistory } from './price-history.entity';
 import { Tank } from './tank.entity';
 import { Nozzle } from './nozzle.entity';
+import { Vehicle } from './vehicle.entity';
 
 @Entity('products')
 export class Product {
@@ -40,4 +41,8 @@ export class Product {
 
   @OneToMany(() => Nozzle, (nozzle) => nozzle.product)
   nozzles: Nozzle[];
+
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.product)
+  vehicles: Vehicle[];
 }
+

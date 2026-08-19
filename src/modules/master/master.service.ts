@@ -8,6 +8,7 @@ import {
   Product,
   PriceHistory,
   Vehicle,
+  Card,
   Unit,
   User,
   Role,
@@ -34,6 +35,8 @@ export class MasterService {
     private readonly priceHistoryRepo: Repository<PriceHistory>,
     @InjectRepository(Vehicle)
     private readonly vehicleRepo: Repository<Vehicle>,
+    @InjectRepository(Card)
+    private readonly cardRepo: Repository<Card>,
     @InjectRepository(Unit)
     private readonly unitRepo: Repository<Unit>,
     @InjectRepository(User)
@@ -157,7 +160,8 @@ export class MasterService {
   async getVehicles(unitId?: string) {
     const qb = this.vehicleRepo
       .createQueryBuilder('v')
-      .leftJoinAndSelect('v.unit', 'u');
+      .leftJoinAndSelect('v.unit', 'u')
+      .leftJoinAndSelect('v.product', 'p');
 
     if (unitId) {
       qb.where('v.unitId = :unitId', { unitId });
@@ -176,7 +180,10 @@ export class MasterService {
       year: v.year,
       unit_id: v.unitId,
       unit_name: v.unit?.name,
-      fuel_type: v.fuelType,
+      product_id: v.productId,
+      product_name: v.product?.name,
+      product_code: v.product?.code,
+      fuel_type: v.product?.name ?? v.fuelType,
       status: v.status,
       notes: v.notes,
       created_at: v.createdAt,
@@ -185,6 +192,25 @@ export class MasterService {
 
   async createVehicle(dto: CreateVehicleDto, userId: string, ip?: string) {
     const id = uuid();
+    let productId = dto.product_id ?? undefined;
+    let fuelType = dto.fuel_type ?? undefined;
+
+    if (productId) {
+      const prod = await this.productRepo.findOneBy({ id: productId });
+      if (prod) {
+        fuelType = prod.name;
+      }
+    } else if (fuelType) {
+      const prod = await this.productRepo
+        .createQueryBuilder('p')
+        .where('p.code = :val OR p.name = :val OR p.id = :val', { val: fuelType })
+        .getOne();
+      if (prod) {
+        productId = prod.id;
+        fuelType = prod.name;
+      }
+    }
+
     const veh = this.vehicleRepo.create({
       id,
       policeNumber: dto.police_number,
@@ -193,7 +219,8 @@ export class MasterService {
       model: dto.model ?? undefined,
       year: dto.year ?? undefined,
       unitId: dto.unit_id ?? undefined,
-      fuelType: dto.fuel_type ?? undefined,
+      productId,
+      fuelType,
       notes: dto.notes ?? undefined,
     });
     await this.vehicleRepo.save(veh);
@@ -219,11 +246,42 @@ export class MasterService {
     if (dto.model !== undefined) updateData.model = dto.model;
     if (dto.year !== undefined) updateData.year = dto.year;
     if (dto.unit_id !== undefined) updateData.unitId = dto.unit_id;
-    if (dto.fuel_type !== undefined) updateData.fuelType = dto.fuel_type;
     if (dto.status !== undefined) updateData.status = dto.status as any;
     if (dto.notes !== undefined) updateData.notes = dto.notes;
 
+    let syncedFuelType: string | undefined = undefined;
+
+    if (dto.product_id !== undefined) {
+      updateData.productId = dto.product_id;
+      if (dto.product_id) {
+        const prod = await this.productRepo.findOneBy({ id: dto.product_id });
+        if (prod) {
+          updateData.fuelType = prod.name;
+          syncedFuelType = prod.name;
+        }
+      }
+    }
+
+    if (dto.fuel_type !== undefined && updateData.fuelType === undefined) {
+      updateData.fuelType = dto.fuel_type;
+      syncedFuelType = dto.fuel_type;
+      const prod = await this.productRepo
+        .createQueryBuilder('p')
+        .where('p.code = :val OR p.name = :val OR p.id = :val', { val: dto.fuel_type })
+        .getOne();
+      if (prod) {
+        updateData.productId = prod.id;
+        updateData.fuelType = prod.name;
+        syncedFuelType = prod.name;
+      }
+    }
+
     await this.vehicleRepo.update(id, updateData);
+
+    // Cascade sync card fuelType for cards associated with this vehicle
+    if (syncedFuelType !== undefined) {
+      await this.cardRepo.update({ vehicleId: id }, { fuelType: syncedFuelType });
+    }
 
     await this.audit.logAudit(
       userId,

@@ -456,7 +456,6 @@ const collection = {
                 holder_name: "Bripka Joko Susilo",
                 unit_id: "unit-ditres",
                 vehicle_id: "veh-01",
-                fuel_type: "PTX",
                 monthly_limit: 200,
                 expiry_date: "2027-12-31",
                 activation_date: "2026-01-01",
@@ -469,7 +468,7 @@ const collection = {
               host: ["{{baseUrl}}"],
               path: ["api", "cards"]
             },
-            description: "Mendaftarkan kartu BBM / RFID baru ke dalam sistem."
+            description: "Mendaftarkan kartu BBM / RFID baru ke dalam sistem. Jenis bahan bakar (fuel_type) secara otomatis mengikuti kendaraan yang ditautkan (vehicle_id)."
           },
           response: []
         },
@@ -489,7 +488,6 @@ const collection = {
                 holder_name: "Bripka Joko Susilo Updated",
                 unit_id: "unit-ditres",
                 vehicle_id: "veh-01",
-                fuel_type: "PTX",
                 monthly_limit: 250,
                 notes: "Penyesuaian kuota bulanan operasi dinas"
               }, null, 2)
@@ -651,8 +649,6 @@ const collection = {
                 period: "August 2026",
                 year: 2026,
                 month: 8,
-                product_id: "prod-ptx",
-                default_l: 200,
                 scope: "all"
               }, null, 2)
             },
@@ -661,7 +657,7 @@ const collection = {
               host: ["{{baseUrl}}"],
               path: ["api", "quota", "generate"]
             },
-            description: "Menghasilkan (generate) alokasi kuota bulanan secara massal untuk seluruh atau satker tertentu."
+            description: "Menghasilkan (generate) alokasi kuota bulanan secara massal. Produk BBM otomatis disesuaikan dari master kartu / kendaraan masing-masing, dan volume kuota disesuaikan dari limit kartu (atau default_l jika diberikan)."
           },
           response: []
         },
@@ -1347,7 +1343,8 @@ const collection = {
                 model: "Corolla Altis",
                 year: 2023,
                 unit_id: "unit-ditres",
-                fuel_type: "PTX",
+                product_id: "prod-ptx",
+                fuel_type: "Pertamax",
                 notes: "Mobil Dinas Operasional Khusus"
               }, null, 2)
             },
@@ -1356,7 +1353,7 @@ const collection = {
               host: ["{{baseUrl}}"],
               path: ["api", "master", "vehicles"]
             },
-            description: "Mendaftarkan data kendaraan dinas kepolisian baru."
+            description: "Mendaftarkan data kendaraan dinas kepolisian baru beserta relasi master produk BBM (product_id)."
           },
           response: []
         },
@@ -1378,7 +1375,8 @@ const collection = {
                 model: "Corolla Altis",
                 year: 2023,
                 unit_id: "unit-ditres",
-                fuel_type: "PTX",
+                product_id: "prod-ptx",
+                fuel_type: "Pertamax",
                 status: "ACTIVE",
                 notes: "Update catatan pemeliharaan kendaraan"
               }, null, 2)
@@ -1395,7 +1393,7 @@ const collection = {
                 }
               ]
             },
-            description: "Memperbarui rincian kendaraan dinas."
+            description: "Memperbarui rincian kendaraan dinas dan relasi master produk BBM (otomatis menyelaraskan kartu terkait)."
           },
           response: []
         },

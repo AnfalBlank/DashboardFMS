@@ -12,12 +12,12 @@ export class UpdateCardDto {
   @IsOptional()
   unit_id?: string;
 
-  @ApiPropertyOptional({ example: 'veh-01' })
+  @ApiPropertyOptional({ example: 'veh-01', description: 'Assigned vehicle ID. Card fuel_type will automatically follow vehicle product.' })
   @IsString()
   @IsOptional()
   vehicle_id?: string;
 
-  @ApiPropertyOptional({ example: 'PTX' })
+  @ApiPropertyOptional({ example: 'Pertamax', description: 'Fuel type (auto-inherited from vehicle if vehicle_id is provided)' })
   @IsString()
   @IsOptional()
   fuel_type?: string;

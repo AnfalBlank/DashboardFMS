@@ -9,6 +9,7 @@ import {
   QuotaPeriod,
   QuotaLedger,
   Card,
+  Product,
 } from '../../database/entities';
 import { AuditService } from '../audit/audit.service';
 import { toNum } from '../../common/utils/db.util';
@@ -27,6 +28,8 @@ export class QuotaService {
     private readonly quotaLedgerRepo: Repository<QuotaLedger>,
     @InjectRepository(Card)
     private readonly cardRepo: Repository<Card>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
     private readonly dataSource: DataSource,
     private readonly audit: AuditService,
   ) {}
@@ -37,7 +40,9 @@ export class QuotaService {
       .innerJoinAndSelect('cq.card', 'c')
       .innerJoinAndSelect('cq.period', 'qp')
       .innerJoinAndSelect('cq.product', 'p')
-      .leftJoinAndSelect('c.unit', 'u');
+      .leftJoinAndSelect('c.unit', 'u')
+      .leftJoinAndSelect('c.vehicle', 'v')
+      .leftJoinAndSelect('v.product', 'vp');
 
     if (period_id) {
       qb.andWhere('cq.periodId = :period_id', { period_id });
@@ -61,7 +66,7 @@ export class QuotaService {
       card_number: cq.card?.cardNumber,
       holder_name: cq.card?.holderName,
       unit_id: cq.card?.unitId,
-      fuel_type: cq.card?.fuelType,
+      fuel_type: cq.card?.vehicle?.product?.name ?? cq.card?.vehicle?.fuelType ?? cq.card?.fuelType,
       unit_name: cq.card?.unit?.name,
       product_id: cq.productId,
       product_name: cq.product?.name,
@@ -144,6 +149,8 @@ export class QuotaService {
 
     const cardQb = this.cardRepo
       .createQueryBuilder('c')
+      .leftJoinAndSelect('c.vehicle', 'v')
+      .leftJoinAndSelect('v.product', 'vp')
       .where("c.status = 'ACTIVE'");
 
     if (dto.scope === 'unit' && dto.unit_id) {
@@ -154,15 +161,67 @@ export class QuotaService {
     }
 
     const cards = await cardQb.getMany();
+    const allProducts = await this.productRepo.find();
+
+    const productMapById = new Map<string, Product>();
+    const productMapByCode = new Map<string, Product>();
+    const productMapByName = new Map<string, Product>();
+
+    for (const p of allProducts) {
+      productMapById.set(p.id, p);
+      if (p.code) productMapByCode.set(p.code.toLowerCase(), p);
+      if (p.name) productMapByName.set(p.name.toLowerCase(), p);
+    }
+
+    const resolveCardProductId = (card: Card): string | null => {
+      // 1. Check vehicle.productId
+      if (card.vehicle?.productId && productMapById.has(card.vehicle.productId)) {
+        return card.vehicle.productId;
+      }
+      // 2. Check card.fuelType
+      if (card.fuelType) {
+        const ft = card.fuelType.trim();
+        if (productMapById.has(ft)) return ft;
+        const ftLower = ft.toLowerCase();
+        if (productMapByCode.has(ftLower)) return productMapByCode.get(ftLower)!.id;
+        if (productMapByName.has(ftLower)) return productMapByName.get(ftLower)!.id;
+      }
+      // 3. Check vehicle.fuelType
+      if (card.vehicle?.fuelType) {
+        const vft = card.vehicle.fuelType.trim();
+        if (productMapById.has(vft)) return vft;
+        const vftLower = vft.toLowerCase();
+        if (productMapByCode.has(vftLower)) return productMapByCode.get(vftLower)!.id;
+        if (productMapByName.has(vftLower)) return productMapByName.get(vftLower)!.id;
+      }
+      // 4. Fallback to dto.product_id if provided
+      if (dto.product_id && productMapById.has(dto.product_id)) {
+        return dto.product_id;
+      }
+      // 5. Default fallback to first active product
+      if (allProducts.length > 0) {
+        return allProducts[0].id;
+      }
+      return null;
+    };
+
     let created = 0;
+    let totalL = 0;
 
     await this.dataSource.transaction(async (em) => {
       for (const card of cards) {
+        const targetProductId = resolveCardProductId(card);
+        if (!targetProductId) continue;
+
+        const allocL = dto.default_l !== undefined && dto.default_l !== null
+          ? Number(dto.default_l)
+          : (toNum(card.monthlyLimit) > 0 ? toNum(card.monthlyLimit) : 200);
+
         const existingQuota = await em.findOne(CardQuota, {
           where: {
             cardId: card.id,
             periodId,
-            productId: dto.product_id,
+            productId: targetProductId,
           },
         });
 
@@ -172,10 +231,10 @@ export class QuotaService {
             id: qId,
             cardId: card.id,
             periodId,
-            productId: dto.product_id,
-            allocatedL: dto.default_l,
+            productId: targetProductId,
+            allocatedL: allocL,
             usedL: 0,
-            remainingL: dto.default_l,
+            remainingL: allocL,
             status: 'ACTIVE',
           });
           await em.save(CardQuota, newQuota);
@@ -185,13 +244,14 @@ export class QuotaService {
             quotaId: qId,
             cardId: card.id,
             type: 'ALLOCATION',
-            amountL: dto.default_l,
-            balanceL: dto.default_l,
+            amountL: allocL,
+            balanceL: allocL,
             description: `Monthly Allocation ${dto.period}`,
             createdBy: userId,
           });
           await em.save(QuotaLedger, ledger);
           created++;
+          totalL += allocL;
         }
       }
     });
@@ -202,7 +262,7 @@ export class QuotaService {
       'Quota',
       periodId,
       null,
-      { period: dto.period, cards: created, default_l: dto.default_l },
+      { period: dto.period, cards: created, default_l: dto.default_l, total_l: totalL },
       null,
       ip,
     );
@@ -211,7 +271,7 @@ export class QuotaService {
       period_id: periodId,
       cards_processed: cards.length,
       quotas_created: created,
-      total_l: created * dto.default_l,
+      total_l: totalL,
     };
   }
 

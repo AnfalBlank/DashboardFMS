@@ -28,15 +28,16 @@ export class GenerateQuotaDto {
   @Max(12)
   month: number;
 
-  @ApiProperty({ example: 'prod-ptx' })
+  @ApiPropertyOptional({ example: 'prod-ptx', description: 'Opsional. Jika tidak diisi, produk BBM otomatis disesuaikan dari kartu / kendaraan masing-masing.' })
   @IsString()
-  @IsNotEmpty()
-  product_id: string;
+  @IsOptional()
+  product_id?: string;
 
-  @ApiProperty({ example: 200 })
+  @ApiPropertyOptional({ example: 200, description: 'Opsional. Default kuota (L). Jika tidak diisi, otomatis menggunakan monthly_limit dari masing-masing kartu.' })
   @IsNumber()
   @IsPositive()
-  default_l: number;
+  @IsOptional()
+  default_l?: number;
 
   @ApiPropertyOptional({ enum: ['all', 'unit', 'custom'], default: 'all' })
   @IsEnum(['all', 'unit', 'custom'])
