@@ -256,6 +256,7 @@ export class CardsService {
     if (dto.holder_name !== undefined) updateData.holderName = dto.holder_name;
     if (dto.unit_id !== undefined) updateData.unitId = dto.unit_id;
     if (dto.monthly_limit !== undefined) updateData.monthlyLimit = dto.monthly_limit;
+    if (dto.rfid_uid !== undefined) updateData.rfidUid = dto.rfid_uid;
     if (dto.notes !== undefined) updateData.notes = dto.notes;
 
     if (dto.vehicle_id !== undefined) {

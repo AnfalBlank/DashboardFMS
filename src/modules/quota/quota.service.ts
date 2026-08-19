@@ -276,25 +276,147 @@ export class QuotaService {
   }
 
   async topup(dto: TopupQuotaDto, userId: string, ip?: string) {
-    const quota = await this.cardQuotaRepo
-      .createQueryBuilder('cq')
-      .innerJoin('cq.period', 'qp')
-      .where('cq.cardId = :cardId AND cq.productId = :productId AND qp.status = :status', {
-        cardId: dto.card_id,
-        productId: dto.product_id,
-        status: 'ACTIVE',
-      })
+    // 1. Find Card by ID or Card Number, including vehicle and vehicle's product
+    const card = await this.cardRepo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.vehicle', 'v')
+      .leftJoinAndSelect('v.product', 'vp')
+      .where('c.id = :cardId OR c.cardNumber = :cardId', { cardId: dto.card_id })
       .getOne();
+
+    if (!card) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Kartu tidak ditemukan',
+      });
+    }
+
+    // 2. Resolve Product ID
+    let targetProductId = dto.product_id;
+
+    if (!targetProductId) {
+      // Auto detect from card vehicle productId
+      if (card.vehicle?.productId) {
+        targetProductId = card.vehicle.productId;
+      } else if (card.fuelType) {
+        const ft = card.fuelType.trim();
+        const prod = await this.productRepo
+          .createQueryBuilder('p')
+          .where('p.id = :val OR p.code = :val OR p.name = :val', { val: ft })
+          .getOne();
+        if (prod) targetProductId = prod.id;
+      } else if (card.vehicle?.fuelType) {
+        const vft = card.vehicle.fuelType.trim();
+        const prod = await this.productRepo
+          .createQueryBuilder('p')
+          .where('p.id = :val OR p.code = :val OR p.name = :val', { val: vft })
+          .getOne();
+        if (prod) targetProductId = prod.id;
+      }
+    }
+
+    // 3. Find active Quota Period
+    const activePeriod = await this.quotaPeriodRepo.findOne({
+      where: { status: 'ACTIVE' },
+      order: { year: 'DESC', month: 'DESC' },
+    });
+
+    let quota: CardQuota | null = null;
+
+    if (activePeriod) {
+      if (targetProductId) {
+        quota = await this.cardQuotaRepo.findOne({
+          where: {
+            cardId: card.id,
+            periodId: activePeriod.id,
+            productId: targetProductId,
+          },
+        });
+      }
+
+      if (!quota) {
+        // Find any quota record for this card in current active period
+        quota = await this.cardQuotaRepo.findOne({
+          where: {
+            cardId: card.id,
+            periodId: activePeriod.id,
+          },
+          order: { createdAt: 'DESC' },
+        });
+        if (quota && !targetProductId) {
+          targetProductId = quota.productId;
+        }
+      }
+    }
+
+    // Fallback: search most recent quota if active period query found nothing
+    if (!quota && !targetProductId) {
+      quota = await this.cardQuotaRepo.findOne({
+        where: { cardId: card.id },
+        order: { createdAt: 'DESC' },
+      });
+      if (quota) {
+        targetProductId = quota.productId;
+      }
+    }
+
+    // If still no quota exists, but active period and product are available, create new quota on the fly
+    if (!quota && activePeriod && targetProductId) {
+      const qId = uuid();
+      const newQuota = this.cardQuotaRepo.create({
+        id: qId,
+        cardId: card.id,
+        periodId: activePeriod.id,
+        productId: targetProductId,
+        allocatedL: dto.amount_l,
+        usedL: 0,
+        remainingL: dto.amount_l,
+        topupL: dto.amount_l,
+        status: 'ACTIVE',
+      });
+      await this.cardQuotaRepo.save(newQuota);
+
+      const ledger = this.quotaLedgerRepo.create({
+        id: uuid(),
+        quotaId: qId,
+        cardId: card.id,
+        type: 'TOPUP',
+        amountL: dto.amount_l,
+        balanceL: dto.amount_l,
+        description: `Top Up: ${dto.reason}`,
+        createdBy: userId,
+      });
+      await this.quotaLedgerRepo.save(ledger);
+
+      await this.audit.logAudit(
+        userId,
+        'TOPUP_QUOTA',
+        'Quota',
+        qId,
+        { remaining_l: 0 },
+        { remaining_l: dto.amount_l, added_l: dto.amount_l },
+        dto.reason,
+        ip,
+      );
+
+      return {
+        quota_id: qId,
+        product_id: targetProductId,
+        new_remaining_l: dto.amount_l,
+      };
+    }
 
     if (!quota) {
       throw new NotFoundException({
         success: false,
-        message: 'Kuota tidak ditemukan untuk periode aktif',
+        message: 'Kuota kartu tidak ditemukan untuk periode aktif dan produk terkait',
       });
     }
 
+    targetProductId = quota.productId || targetProductId;
     const currentRemaining = toNum(quota.remainingL);
     const newRemaining = currentRemaining + dto.amount_l;
+    const quotaId = quota.id;
 
     await this.dataSource.transaction(async (em) => {
       await em
@@ -305,13 +427,13 @@ export class QuotaService {
           topupL: () => `topup_l + ${dto.amount_l}`,
           allocatedL: () => `allocated_l + ${dto.amount_l}`,
         })
-        .where('id = :id', { id: quota.id })
+        .where('id = :id', { id: quotaId })
         .execute();
 
       const ledger = em.create(QuotaLedger, {
         id: uuid(),
-        quotaId: quota.id,
-        cardId: dto.card_id,
+        quotaId: quotaId,
+        cardId: card.id,
         type: 'TOPUP',
         amountL: dto.amount_l,
         balanceL: newRemaining,
@@ -325,15 +447,16 @@ export class QuotaService {
       userId,
       'TOPUP_QUOTA',
       'Quota',
-      quota.id,
-      { remaining_l: quota.remainingL },
-      { remaining_l: newRemaining, topup: dto.amount_l },
+      quotaId,
+      { remaining_l: currentRemaining },
+      { remaining_l: newRemaining, added_l: dto.amount_l },
       dto.reason,
       ip,
     );
 
     return {
-      quota_id: quota.id,
+      quota_id: quotaId,
+      product_id: targetProductId,
       new_remaining_l: newRemaining,
     };
   }

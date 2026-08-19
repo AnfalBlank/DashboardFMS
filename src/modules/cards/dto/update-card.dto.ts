@@ -31,5 +31,13 @@ export class UpdateCardDto {
   @ApiPropertyOptional({ example: 'Updated notes' })
   @IsString()
   @IsOptional()
+  @ApiPropertyOptional({ example: 'E28068940000', description: 'RFID UID tag' })
+  @IsString()
+  @IsOptional()
+  rfid_uid?: string;
+
+  @ApiPropertyOptional({ example: 'Updated notes' })
+  @IsString()
+  @IsOptional()
   notes?: string;
 }

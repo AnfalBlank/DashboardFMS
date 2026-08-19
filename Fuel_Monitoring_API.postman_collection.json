@@ -834,7 +834,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"card_id\": \"crd-01\",\n  \"product_id\": \"prod-ptx\",\n  \"amount_l\": 50,\n  \"reason\": \"Tambahan alokasi dinas patroli luar kota\"\n}"
+              "raw": "{\n  \"card_id\": \"crd-01\",\n  \"amount_l\": 50,\n  \"reason\": \"Tambahan alokasi dinas patroli luar kota\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/quota/topup",
@@ -847,7 +847,7 @@
                 "topup"
               ]
             },
-            "description": "Menambahkan kuota darurat/tambahan (top-up) ke kartu tertentu dengan alasan dinas."
+            "description": "Menambahkan kuota darurat/tambahan (top-up) ke kartu tertentu dengan alasan dinas. product_id bersifat opsional karena otomatis diambil dari data kendaraan/kartu."
           },
           "response": []
         }

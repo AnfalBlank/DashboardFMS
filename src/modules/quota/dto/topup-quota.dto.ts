@@ -1,24 +1,28 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsPositive, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class TopupQuotaDto {
-  @ApiProperty({ example: 'crd-01' })
+  @ApiProperty({ example: 'crd-01', description: 'Card ID or Card Number' })
   @IsString()
   @IsNotEmpty()
   card_id: string;
 
-  @ApiProperty({ example: 'prod-ptx' })
+  @ApiPropertyOptional({
+    example: 'prod-ptx',
+    description: 'Product ID (opsional: otomatis diambil dari data kendaraan tertaut ke kartu)',
+  })
   @IsString()
-  @IsNotEmpty()
-  product_id: string;
+  @IsOptional()
+  product_id?: string;
 
-  @ApiProperty({ example: 50 })
+  @ApiProperty({ example: 50, description: 'Volume top up dalam Liter' })
   @IsNumber()
   @IsPositive()
   amount_l: number;
 
-  @ApiProperty({ example: 'Tambahan patroli dinas luar kota' })
+  @ApiProperty({ example: 'Tambahan patroli dinas luar kota', description: 'Alasan pengajuan top up' })
   @IsString()
   @IsNotEmpty()
   reason: string;
 }
+

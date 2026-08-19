@@ -675,7 +675,6 @@ const collection = {
               mode: "raw",
               raw: JSON.stringify({
                 card_id: "crd-01",
-                product_id: "prod-ptx",
                 amount_l: 50,
                 reason: "Tambahan alokasi dinas patroli luar kota"
               }, null, 2)
@@ -685,7 +684,7 @@ const collection = {
               host: ["{{baseUrl}}"],
               path: ["api", "quota", "topup"]
             },
-            description: "Menambahkan kuota darurat/tambahan (top-up) ke kartu tertentu dengan alasan dinas."
+            description: "Menambahkan kuota darurat/tambahan (top-up) ke kartu tertentu dengan alasan dinas. product_id bersifat opsional karena otomatis diambil dari data kendaraan/kartu."
           },
           response: []
         }
