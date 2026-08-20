@@ -18,6 +18,7 @@ import { AuditService } from '../audit/audit.service';
 import { v4 as uuid } from 'uuid';
 import {
   CreateProductDto,
+  UpdateProductDto,
   CreatePriceDto,
   CreateVehicleDto,
   UpdateVehicleDto,
@@ -25,6 +26,7 @@ import {
   UpdateUnitDto,
 } from './dto/master.dto';
 import { toNum } from '../../common/utils/db.util';
+import { MasterAtgSyncService } from './master-atg-sync.service';
 
 @Injectable()
 export class MasterService {
@@ -46,7 +48,8 @@ export class MasterService {
     @InjectRepository(Permission)
     private readonly permissionRepo: Repository<Permission>,
     private readonly audit: AuditService,
-  ) {}
+    private readonly masterAtgSyncService: MasterAtgSyncService,
+  ) { }
 
   // ══════════════ PRODUCTS ══════════════
 
@@ -65,6 +68,7 @@ export class MasterService {
       type: p.type,
       unit: p.unit,
       active: p.active,
+      subsidi: p.subsidi ? 1 : 0,
       current_price: toNum(p.priceHistories?.[0]?.pricePerUnit, 0),
       created_at: p.createdAt,
     }));
@@ -85,8 +89,26 @@ export class MasterService {
       name: dto.name,
       type: dto.type,
       unit: dto.unit ?? 'Liter',
+      subsidi: dto.subsidi !== undefined ? Number(dto.subsidi) : 0,
     });
     await this.productRepo.save(product);
+
+    if (dto.price_per_unit && dto.price_per_unit > 0) {
+      const priceId = uuid();
+      const effectiveDate = dto.effective_date || new Date().toISOString().split('T')[0];
+      const price = this.priceHistoryRepo.create({
+        id: priceId,
+        productId: id,
+        pricePerUnit: dto.price_per_unit,
+        effectiveDate,
+        reason: 'Penetapan harga awal produk',
+        isActive: 1,
+        createdBy: userId,
+      });
+      await this.priceHistoryRepo.save(price);
+    }
+
+    await this.masterAtgSyncService.masterProductSync();
 
     await this.audit.logAudit(
       userId,
@@ -99,7 +121,57 @@ export class MasterService {
       ip,
     );
 
+
+
     return { id };
+  }
+
+  async updateProduct(id: string, dto: UpdateProductDto, userId: string, ip?: string) {
+    const updateData: Partial<Product> = {};
+    if (dto.name !== undefined) updateData.name = dto.name;
+    if (dto.type !== undefined) updateData.type = dto.type;
+    if (dto.unit !== undefined) updateData.unit = dto.unit;
+    if (dto.active !== undefined) updateData.active = dto.active;
+    if (dto.subsidi !== undefined) updateData.subsidi = Number(dto.subsidi);
+
+    if (Object.keys(updateData).length > 0) {
+      await this.productRepo.update(id, updateData);
+    }
+
+    if (dto.price_per_unit && dto.price_per_unit > 0) {
+      await this.priceHistoryRepo.update(
+        { productId: id },
+        { isActive: 0 },
+      );
+
+      const priceId = uuid();
+      const effectiveDate = dto.effective_date || new Date().toISOString().split('T')[0];
+      const price = this.priceHistoryRepo.create({
+        id: priceId,
+        productId: id,
+        pricePerUnit: dto.price_per_unit,
+        effectiveDate,
+        reason: 'Pembaruan harga dari master produk',
+        isActive: 1,
+        createdBy: userId,
+      });
+      await this.priceHistoryRepo.save(price);
+    }
+
+    await this.masterAtgSyncService.masterProductSync();
+
+    await this.audit.logAudit(
+      userId,
+      'UPDATE_PRODUCT',
+      'Master',
+      id,
+      null,
+      dto,
+      null,
+      ip,
+    );
+
+    return { message: 'Produk diperbarui' };
   }
 
   // ══════════════ PRICES ══════════════
@@ -110,6 +182,7 @@ export class MasterService {
       .innerJoinAndSelect('ph.product', 'p')
       .orderBy('p.name', 'ASC')
       .addOrderBy('ph.effectiveDate', 'DESC')
+      .addOrderBy('ph.createdAt', 'DESC')
       .getMany();
 
     return list.map((ph) => ({
@@ -119,6 +192,8 @@ export class MasterService {
       code: ph.product?.code,
       price_per_unit: toNum(ph.pricePerUnit),
       effective_date: ph.effectiveDate,
+      reason: ph.reason || 'Penetapan Resmi',
+      is_active: ph.isActive ? 1 : 0,
       created_by: ph.createdBy,
       created_at: ph.createdAt,
     }));
@@ -132,14 +207,27 @@ export class MasterService {
       .orderBy('ph.effectiveDate', 'DESC')
       .getOne();
 
+    const isActive = dto.is_active !== undefined ? Number(dto.is_active) : 1;
+
+    if (isActive === 1) {
+      await this.priceHistoryRepo.update(
+        { productId: dto.product_id },
+        { isActive: 0 },
+      );
+    }
+
     const price = this.priceHistoryRepo.create({
       id,
       productId: dto.product_id,
       pricePerUnit: dto.price_per_unit,
       effectiveDate: dto.effective_date,
+      reason: dto.reason ?? undefined,
+      isActive,
       createdBy: userId,
     });
     await this.priceHistoryRepo.save(price);
+
+    await this.masterAtgSyncService.masterProductSync();
 
     await this.audit.logAudit(
       userId,
@@ -147,7 +235,7 @@ export class MasterService {
       'Master',
       dto.product_id,
       { price: toNum(prev?.pricePerUnit) },
-      { price: dto.price_per_unit, effective: dto.effective_date },
+      { price: dto.price_per_unit, effective: dto.effective_date, reason: dto.reason },
       null,
       ip,
     );

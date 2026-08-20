@@ -27,6 +27,12 @@ export class PriceHistory {
   @Column({ name: 'effective_date', type: 'varchar', length: 32 })
   effectiveDate: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  reason?: string;
+
+  @Column({ name: 'is_active', type: 'tinyint', default: 1 })
+  isActive: number;
+
   @Column({ name: 'created_by', type: 'varchar', length: 64, nullable: true })
   createdBy?: string;
 

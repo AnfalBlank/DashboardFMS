@@ -21,6 +21,60 @@ export class CreateProductDto {
   @IsString()
   @IsOptional()
   unit?: string;
+
+  @ApiPropertyOptional({ example: 0, description: '1 for Subsidi, 0 for Non-Subsidi', default: 0 })
+  @IsNumber()
+  @IsOptional()
+  subsidi?: number;
+
+  @ApiPropertyOptional({ example: 12500, description: 'Initial price per unit / liter' })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  price_per_unit?: number;
+
+  @ApiPropertyOptional({ example: '2026-08-20', description: 'Effective date for initial price (YYYY-MM-DD)' })
+  @IsString()
+  @IsOptional()
+  effective_date?: string;
+}
+
+export class UpdateProductDto {
+  @ApiPropertyOptional({ example: 'Pertamax' })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiPropertyOptional({ enum: ['Bensin', 'Solar', 'LPG'], example: 'Bensin' })
+  @IsEnum(['Bensin', 'Solar', 'LPG'])
+  @IsOptional()
+  type?: 'Bensin' | 'Solar' | 'LPG';
+
+  @ApiPropertyOptional({ example: 'Liter' })
+  @IsString()
+  @IsOptional()
+  unit?: string;
+
+  @ApiPropertyOptional({ example: 1 })
+  @IsNumber()
+  @IsOptional()
+  active?: number;
+
+  @ApiPropertyOptional({ example: 0, description: '1 for Subsidi, 0 for Non-Subsidi' })
+  @IsNumber()
+  @IsOptional()
+  subsidi?: number;
+
+  @ApiPropertyOptional({ example: 12500, description: 'New price per unit / liter if updating price' })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  price_per_unit?: number;
+
+  @ApiPropertyOptional({ example: '2026-08-20', description: 'Effective date for new price (YYYY-MM-DD)' })
+  @IsString()
+  @IsOptional()
+  effective_date?: string;
 }
 
 export class CreatePriceDto {
@@ -38,6 +92,16 @@ export class CreatePriceDto {
   @IsString()
   @IsNotEmpty()
   effective_date: string;
+
+  @ApiPropertyOptional({ example: 'Penyesuaian Keputusan Harga BBM Pertamina' })
+  @IsString()
+  @IsOptional()
+  reason?: string;
+
+  @ApiPropertyOptional({ example: 1, description: '1 for active/berlaku, 0 for historis', default: 1 })
+  @IsNumber()
+  @IsOptional()
+  is_active?: number;
 }
 
 export class CreateVehicleDto {

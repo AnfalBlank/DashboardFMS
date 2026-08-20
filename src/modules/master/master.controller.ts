@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 import { MasterService } from './master.service';
 import {
   CreateProductDto,
+  UpdateProductDto,
   CreatePriceDto,
   CreateVehicleDto,
   UpdateVehicleDto,
@@ -53,6 +54,19 @@ export class MasterController {
   ) {
     const data = await this.masterService.createProduct(dto, userId, ip);
     return { success: true, data };
+  }
+
+  @Put('products/:id')
+  @RequirePermissions('system.manage')
+  @ApiOperation({ summary: 'Update fuel product details' })
+  async updateProduct(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.masterService.updateProduct(id, dto, userId, ip);
+    return { success: true, ...data };
   }
 
   // ══════════════ PRICES ══════════════

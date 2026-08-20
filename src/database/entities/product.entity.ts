@@ -30,6 +30,9 @@ export class Product {
   @Column({ type: 'tinyint', default: 1 })
   active: number;
 
+  @Column({ type: 'tinyint', default: 0 })
+  subsidi: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'datetime' })
   createdAt: Date;
 
@@ -44,5 +47,19 @@ export class Product {
 
   @OneToMany(() => Vehicle, (vehicle) => vehicle.product)
   vehicles: Vehicle[];
+
+  getActivePrice() {
+    if (!this.priceHistories || this.priceHistories.length === 0) return null;
+    return this.priceHistories.find((ph) => ph.isActive === 1);
+  }
+
+  getLatestPrice() {
+    if (!this.priceHistories || this.priceHistories.length === 0) return null;
+    return [...this.priceHistories].sort((a, b) => {
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      return timeB - timeA;
+    })[0];
+  }
 }
 
