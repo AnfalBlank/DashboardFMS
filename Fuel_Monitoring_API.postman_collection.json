@@ -871,7 +871,35 @@
                 "tanks"
               ]
             },
-            "description": "Mendapatkan daftar tangki pendam SPBP, kapasitas, volume saat ini, dan level status."
+            "description": "Mendapatkan daftar seluruh tangki pendam SPBP beserta kapasitas, volume saat ini, dan status level."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Storage Tank",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"TANK-04\",\n  \"product_id\": \"prod-solar\",\n  \"capacity_l\": 20000,\n  \"current_l\": 15000,\n  \"oil_color\": \"blue\",\n  \"water_color\": \"blue\",\n  \"active\": 1,\n  \"id_port\": 1,\n  \"id_polling\": 1,\n  \"id_tank_enabler\": 1,\n  \"threshold_low\": 30,\n  \"threshold_critical\": 15,\n  \"threshold_high\": 90,\n  \"status\": \"NORMAL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tanks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks"
+              ]
+            },
+            "description": "Mendaftarkan tangki pendam baru secara manual dengan konfigurasi warna cairan, sensor port/polling ATG, dan ID Tank Enabler."
           },
           "response": []
         },
@@ -894,11 +922,74 @@
                 {
                   "key": "id",
                   "value": "tank-01",
+                  "description": "Tank ID (mis. tank-01)"
+                }
+              ]
+            },
+            "description": "Mendapatkan data detail satu tangki pendam berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Tank Details / Stock",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"prod-solar\",\n  \"capacity_l\": 20000,\n  \"current_l\": 12000,\n  \"oil_color\": \"blue\",\n  \"water_color\": \"blue\",\n  \"active\": 1,\n  \"id_port\": 1,\n  \"id_polling\": 1,\n  \"id_tank_enabler\": 1,\n  \"threshold_low\": 30,\n  \"threshold_critical\": 15,\n  \"threshold_high\": 90,\n  \"status\": \"NORMAL\",\n  \"reason\": \"Kalibrasi fisik tangki pendam bulanan\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tanks/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "tank-01",
                   "description": "Tank ID"
                 }
               ]
             },
-            "description": "Mendapatkan detail spesifik tangki pendam beserta produk yang ditampung."
+            "description": "Memperbarui data produk, kapasitas, ambang batas alarm, warna visual, sensor port, id tank enabler, atau stok tangki."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Storage Tank",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tanks/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tanks",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "tank-04",
+                  "description": "Tank ID yang akan dihapus"
+                }
+              ]
+            },
+            "description": "Menghapus tangki pendam dari sistem."
           },
           "response": []
         },
@@ -918,22 +1009,22 @@
                 ":id",
                 "readings"
               ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Jumlah data riwayat pembacaan yang diambil"
+                }
+              ],
               "variable": [
                 {
                   "key": "id",
                   "value": "tank-01",
                   "description": "Tank ID"
                 }
-              ],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "50",
-                  "description": "Jumlah data pembacaan"
-                }
               ]
             },
-            "description": "Mendapatkan riwayat pembacaan sensor ATG / pengukuran manual tangki."
+            "description": "Mendapatkan riwayat pembacaan sensor ATG / manual dipping untuk tangki tertentu."
           },
           "response": []
         },
@@ -949,7 +1040,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"volume_l\": 12500,\n  \"height_cm\": 280.5,\n  \"water_level\": 0,\n  \"temperature\": 28.5,\n  \"source\": \"SENSOR\",\n  \"read_at\": \"2026-08-17T10:00:00.000Z\"\n}"
+              "raw": "{\n  \"volume_l\": 14850,\n  \"height_cm\": 295.4,\n  \"water_level\": 0.2,\n  \"temperature\": 28.5,\n  \"source\": \"MANUAL\",\n  \"read_at\": \"2026-08-20T08:00:00Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/tanks/:id/readings",
@@ -970,43 +1061,7 @@
                 }
               ]
             },
-            "description": "Mengirimkan data pengukuran volume, level air, dan suhu tangki dari sensor ATG atau manual."
-          },
-          "response": []
-        },
-        {
-          "name": "Update Tank Thresholds / Stock",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"current_l\": 12000,\n  \"threshold_low\": 30,\n  \"threshold_critical\": 15,\n  \"threshold_high\": 90,\n  \"reason\": \"Kalibrasi fisik tangki pendam\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/tanks/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "tanks",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "tank-01",
-                  "description": "Tank ID"
-                }
-              ]
-            },
-            "description": "Memperbarui konfigurasi ambang batas alarm (low, critical, high) atau stok tangki."
+            "description": "Mencatat data pengukuran volume, ketinggian, level air, dan suhu tangki."
           },
           "response": []
         }
@@ -1174,32 +1229,130 @@
                 "pumps"
               ]
             },
-            "description": "Mendapatkan daftar pulau pompa (pump dispensers) di SPBP."
+            "description": "Mendapatkan daftar seluruh pompa dispenser beserta status dan nozzle terhubung."
           },
           "response": []
         },
         {
-          "name": "List Nozzles (via Pumps)",
+          "name": "Create Pump",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"03\",\n  \"location\": \"Pulau Pompa 3 (Barat)\",\n  \"status\": \"ACTIVE\",\n  \"active\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pumps",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps"
+              ]
+            },
+            "description": "Mendaftarkan unit pompa dispenser baru."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pump Details",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/pumps/nozzles",
+              "raw": "{{baseUrl}}/api/pumps/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "pumps",
-                "nozzles"
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "pump-01",
+                  "description": "Pump ID"
+                }
               ]
             },
-            "description": "Mendapatkan daftar nozzle beserta produk yang disalurkan."
+            "description": "Mendapatkan detail unit pompa dispenser."
           },
           "response": []
         },
         {
-          "name": "List Nozzles (Direct)",
+          "name": "Update Pump",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"01\",\n  \"location\": \"Pulau Pompa 1 (Utara)\",\n  \"status\": \"ACTIVE\",\n  \"active\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pumps/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "pump-01",
+                  "description": "Pump ID"
+                }
+              ]
+            },
+            "description": "Memperbarui nomor, lokasi, dan status pompa dispenser."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Pump",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pumps/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PUMP-03",
+                  "description": "Pump ID"
+                }
+              ]
+            },
+            "description": "Menghapus pompa dispenser dari sistem."
+          },
+          "response": []
+        },
+        {
+          "name": "List Nozzles",
           "request": {
             "method": "GET",
             "header": [],
@@ -1213,7 +1366,125 @@
                 "nozzles"
               ]
             },
-            "description": "Mendapatkan daftar seluruh nozzle dispenser yang terdaftar."
+            "description": "Mendapatkan daftar seluruh nozzle dispensing BBM."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Nozzle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"1\",\n  \"pump_id\": \"pump-01\",\n  \"product_id\": \"prod-solar\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/nozzles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "nozzles"
+              ]
+            },
+            "description": "Mendaftarkan nozzle baru yang terhubung ke pompa dispenser dan produk BBM."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Nozzle Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nozzles/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "nozzles",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "nozzle-01-1",
+                  "description": "Nozzle ID"
+                }
+              ]
+            },
+            "description": "Mendapatkan detail konfigurasi nozzle."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Nozzle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"1\",\n  \"pump_id\": \"pump-01\",\n  \"product_id\": \"prod-dexlite\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/nozzles/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "nozzles",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "nozzle-01-1",
+                  "description": "Nozzle ID"
+                }
+              ]
+            },
+            "description": "Memperbarui konfigurasi nomor, pompa, produk, atau status nozzle."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Nozzle",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nozzles/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "nozzles",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "nozzle-01-1",
+                  "description": "Nozzle ID"
+                }
+              ]
+            },
+            "description": "Menghapus nozzle dari dispenser."
           },
           "response": []
         },
@@ -1223,7 +1494,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/pumps/totalizers?date=",
+              "raw": "{{baseUrl}}/api/pumps/totalizers?date=2026-08-20",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1235,12 +1506,12 @@
               "query": [
                 {
                   "key": "date",
-                  "value": "",
-                  "description": "Filter tanggal shift (YYYY-MM-DD)"
+                  "value": "2026-08-20",
+                  "description": "Tanggal shift pembacaan (YYYY-MM-DD)"
                 }
               ]
             },
-            "description": "Mendapatkan data pembacaan totalizer dispenser per nozzle."
+            "description": "Mendapatkan data pembacaan angka meteran totalizer per shift."
           },
           "response": []
         },
@@ -1256,7 +1527,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nozzle_id\": \"nzl-01-1\",\n  \"opening_value\": 10450.5,\n  \"current_value\": 10890.2,\n  \"shift_date\": \"2026-08-17\",\n  \"shift\": \"PAGI\"\n}"
+              "raw": "{\n  \"nozzle_id\": \"nozzle-01-1\",\n  \"opening_value\": 105432.5,\n  \"current_value\": 106120,\n  \"shift_date\": \"2026-08-20\",\n  \"shift\": \"PAGI\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/pumps/totalizers",
@@ -1269,7 +1540,7 @@
                 "totalizers"
               ]
             },
-            "description": "Mencatat angka awal dan akhir totalizer mekanik/elektronik per shift kerja."
+            "description": "Menyimpan atau memperbarui pembacaan totalizer nozzle."
           },
           "response": []
         },
@@ -1279,7 +1550,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/pumps/reconciliation?date=",
+              "raw": "{{baseUrl}}/api/pumps/reconciliation?date=2026-08-20",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1291,12 +1562,12 @@
               "query": [
                 {
                   "key": "date",
-                  "value": "",
-                  "description": "Filter tanggal (YYYY-MM-DD)"
+                  "value": "2026-08-20",
+                  "description": "Tanggal rekonsiliasi (YYYY-MM-DD)"
                 }
               ]
             },
-            "description": "Mendapatkan perbandingan antara total liter totalizer pompa vs total transaksi sistem."
+            "description": "Rekonsiliasi perbandingan antara angka meteran dispenser (totalizer) dan catatan transaksi sistem POS."
           },
           "response": []
         }

@@ -32,6 +32,24 @@ export class Tank {
   @Column({ type: 'varchar', length: 32, default: 'NORMAL' })
   status: 'NORMAL' | 'LOW' | 'CRITICAL' | 'HIGH' | 'SENSOR_ERROR' | 'OFFLINE';
 
+  @Column({ name: 'oil_color', type: 'varchar', length: 32, default: 'blue' })
+  oilColor: 'blue' | 'green' | 'red' | 'yellow';
+
+  @Column({ name: 'water_color', type: 'varchar', length: 32, default: 'blue' })
+  waterColor: 'blue' | 'yellow';
+
+  @Column({ type: 'tinyint', default: 1 })
+  active: number;
+
+  @Column({ name: 'id_port', type: 'int', nullable: true })
+  idPort?: number;
+
+  @Column({ name: 'id_polling', type: 'int', nullable: true })
+  idPolling?: number;
+
+  @Column({ name: 'id_tank_enabler', type: 'int', nullable: true })
+  idTankEnabler?: number;
+
   @Column({ name: 'threshold_low', type: 'decimal', precision: 5, scale: 2, default: 30 })
   thresholdLow: number;
 

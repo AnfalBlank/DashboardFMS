@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Param,
   Query,
   Body,
@@ -13,8 +14,9 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { TanksService } from './tanks.service';
-import { TankReadingDto } from './dto/tank-reading.dto';
+import { CreateTankDto } from './dto/create-tank.dto';
 import { UpdateTankDto } from './dto/update-tank.dto';
+import { TankReadingDto } from './dto/tank-reading.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { RequirePermissions } from '../../common/decorators/permissions.decorator';
@@ -35,12 +37,50 @@ export class TanksController {
     return { success: true, data };
   }
 
+  @Post()
+  @RequirePermissions('stock.adjust')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a new storage tank' })
+  async create(
+    @Body() dto: CreateTankDto,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.tanksService.create(dto, userId, ip);
+    return { success: true, data };
+  }
+
   @Get(':id')
   @RequirePermissions('stock.view')
   @ApiOperation({ summary: 'Get tank details by ID' })
   async findOne(@Param('id') id: string) {
     const data = await this.tanksService.findOne(id);
     return { success: true, data };
+  }
+
+  @Put(':id')
+  @RequirePermissions('stock.adjust')
+  @ApiOperation({ summary: 'Update tank details, stock or thresholds' })
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateTankDto,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.tanksService.update(id, dto, userId, ip);
+    return { success: true, ...data };
+  }
+
+  @Delete(':id')
+  @RequirePermissions('stock.adjust')
+  @ApiOperation({ summary: 'Delete a storage tank' })
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.tanksService.remove(id, userId, ip);
+    return { success: true, ...data };
   }
 
   @Get(':id/readings')
@@ -65,18 +105,5 @@ export class TanksController {
   ) {
     const data = await this.tanksService.addReading(id, dto, userId);
     return { success: true, data };
-  }
-
-  @Put(':id')
-  @RequirePermissions('stock.adjust')
-  @ApiOperation({ summary: 'Update tank current stock or thresholds' })
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateTankDto,
-    @CurrentUser('userId') userId: string,
-    @Ip() ip: string,
-  ) {
-    const data = await this.tanksService.update(id, dto, userId, ip);
-    return { success: true, ...data };
   }
 }

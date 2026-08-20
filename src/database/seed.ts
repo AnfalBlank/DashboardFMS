@@ -202,11 +202,11 @@ async function seed(): Promise<void> {
 
   // ── Tanks ──
   const tanks = [
-    { id: 'tank-01', productId: 'prod-ptx',  capacityL: 16000, currentL: 12480 },
-    { id: 'tank-02', productId: 'prod-plt',  capacityL: 16000, currentL: 4480  },
-    { id: 'tank-03', productId: 'prod-dxl',  capacityL: 8000,  currentL: 4320  },
-    { id: 'tank-04', productId: 'prod-ptxt', capacityL: 4000,  currentL: 480   },
-    { id: 'tank-05', productId: 'prod-pdex', capacityL: 4000,  currentL: 2480  },
+    { id: 'tank-01', productId: 'prod-ptx',  capacityL: 16000, currentL: 12480, oilColor: 'blue' as const,   waterColor: 'blue' as const,   active: 1, idPort: 1, idPolling: 1, idTankEnabler: 1 },
+    { id: 'tank-02', productId: 'prod-plt',  capacityL: 16000, currentL: 4480,  oilColor: 'green' as const,  waterColor: 'blue' as const,   active: 1, idPort: 1, idPolling: 2, idTankEnabler: 2 },
+    { id: 'tank-03', productId: 'prod-dxl',  capacityL: 8000,  currentL: 4320,  oilColor: 'red' as const,    waterColor: 'yellow' as const, active: 1, idPort: 2, idPolling: 1, idTankEnabler: 3 },
+    { id: 'tank-04', productId: 'prod-ptxt', capacityL: 4000,  currentL: 480,   oilColor: 'yellow' as const, waterColor: 'blue' as const,   active: 1, idPort: 2, idPolling: 2, idTankEnabler: 4 },
+    { id: 'tank-05', productId: 'prod-pdex', capacityL: 4000,  currentL: 2480,  oilColor: 'green' as const,  waterColor: 'yellow' as const, active: 1, idPort: 3, idPolling: 1, idTankEnabler: 5 },
   ];
   for (const t of tanks) {
     const exists = await tankRepo.findOneBy({ id: t.id });

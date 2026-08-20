@@ -1,35 +1,52 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Min,
+  IsIn,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class UpdateTankDto {
+export class CreateTankDto {
   @ApiPropertyOptional({
+    description: 'Kode / ID Unik Tangki (misal TANK-01, jika kosong akan di-generate otomatis)',
+    example: 'TANK-01',
+  })
+  @IsString()
+  @IsOptional()
+  id?: string;
+
+  @ApiProperty({
     description: 'ID Produk BBM yang ditampung tangki',
     example: 'prod-solar',
   })
   @IsString()
-  @IsOptional()
-  product_id?: string;
+  @IsNotEmpty()
+  product_id: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Kapasitas maksimal tangki (Liter)',
     example: 20000,
   })
   @IsNumber()
-  @IsOptional()
-  capacity_l?: number;
+  @Min(1)
+  capacity_l: number;
 
   @ApiPropertyOptional({
-    description: 'Stok fisik saat ini (Liter)',
+    description: 'Stok fisik awal tangki (Liter)',
     example: 15000,
+    default: 0,
   })
   @IsNumber()
   @IsOptional()
+  @Min(0)
   current_l?: number;
 
   @ApiPropertyOptional({
     description: 'Warna minyak (oil_color)',
     enum: ['blue', 'green', 'red', 'yellow'],
-    example: 'blue',
+    default: 'blue',
   })
   @IsString()
   @IsOptional()
@@ -39,7 +56,7 @@ export class UpdateTankDto {
   @ApiPropertyOptional({
     description: 'Warna air (water_color)',
     enum: ['blue', 'yellow'],
-    example: 'blue',
+    default: 'blue',
   })
   @IsString()
   @IsOptional()
@@ -49,6 +66,7 @@ export class UpdateTankDto {
   @ApiPropertyOptional({
     description: 'Status aktif (1 = Aktif, 0 = Nonaktif)',
     example: 1,
+    default: 1,
   })
   @IsNumber()
   @IsOptional()
@@ -81,6 +99,7 @@ export class UpdateTankDto {
   @ApiPropertyOptional({
     description: 'Ambang batas status LOW (%)',
     example: 30,
+    default: 30,
   })
   @IsNumber()
   @IsOptional()
@@ -89,6 +108,7 @@ export class UpdateTankDto {
   @ApiPropertyOptional({
     description: 'Ambang batas status CRITICAL (%)',
     example: 15,
+    default: 15,
   })
   @IsNumber()
   @IsOptional()
@@ -97,26 +117,19 @@ export class UpdateTankDto {
   @ApiPropertyOptional({
     description: 'Ambang batas status HIGH (%)',
     example: 90,
+    default: 90,
   })
   @IsNumber()
   @IsOptional()
   threshold_high?: number;
 
   @ApiPropertyOptional({
-    description: 'Status operasional tangki',
+    description: 'Status tangki',
     enum: ['NORMAL', 'LOW', 'CRITICAL', 'HIGH', 'SENSOR_ERROR', 'OFFLINE'],
-    example: 'NORMAL',
+    default: 'NORMAL',
   })
   @IsString()
   @IsOptional()
   @IsIn(['NORMAL', 'LOW', 'CRITICAL', 'HIGH', 'SENSOR_ERROR', 'OFFLINE'])
   status?: 'NORMAL' | 'LOW' | 'CRITICAL' | 'HIGH' | 'SENSOR_ERROR' | 'OFFLINE';
-
-  @ApiPropertyOptional({
-    description: 'Alasan penyesuaian atau kalibrasi',
-    example: 'Kalibrasi fisik tangki',
-  })
-  @IsString()
-  @IsOptional()
-  reason?: string;
 }
