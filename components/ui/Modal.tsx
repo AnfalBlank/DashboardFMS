@@ -22,7 +22,7 @@ export function Modal({ open, onClose, title, subtitle, children, size = 'md' }:
 
   if (!open) return null;
 
-  const widths = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
+  const widths = { sm: 'max-w-lg', md: 'max-w-xl', lg: 'max-w-3xl' };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

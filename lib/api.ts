@@ -136,12 +136,14 @@ export const api = {
   tanks: {
     list: () => request<ApiListResponse<Tank>>('GET', '/api/tanks'),
     get: (id: string) => request<ApiResponse<Tank>>('GET', `/api/tanks/${id}`),
+    create: (data: CreateTank) => request<ApiResponse<Tank>>('POST', '/api/tanks', data),
     readings: (id: string, limit = 50) =>
       request<ApiListResponse<TankReading>>('GET', `/api/tanks/${id}/readings?limit=${limit}`),
     pushReading: (id: string, data: TankReadingInput) =>
       request<{ success: boolean }>('POST', `/api/tanks/${id}/readings`, data),
     update: (id: string, data: Partial<Tank> & { reason?: string }) =>
-      request<{ success: boolean }>('PUT', `/api/tanks/${id}`, data),
+      request<{ success: boolean; message?: string; data?: Tank }>('PUT', `/api/tanks/${id}`, data),
+    delete: (id: string) => request<{ success: boolean; message: string }>('DELETE', `/api/tanks/${id}`),
   },
 
   // ── Stock ──
@@ -157,6 +159,10 @@ export const api = {
   // ── Pumps & Nozzles ──
   pumps: {
     list: () => request<ApiListResponse<Pump>>('GET', '/api/pumps'),
+    get: (id: string) => request<ApiResponse<Pump>>('GET', `/api/pumps/${id}`),
+    create: (data: CreatePump) => request<ApiResponse<Pump>>('POST', '/api/pumps', data),
+    update: (id: string, data: Partial<CreatePump>) => request<{ success: boolean; message?: string; data?: Pump }>('PUT', `/api/pumps/${id}`, data),
+    delete: (id: string) => request<{ success: boolean; message: string }>('DELETE', `/api/pumps/${id}`),
     nozzles: () => request<ApiListResponse<Nozzle>>('GET', '/api/pumps/nozzles'),
     totalizers: (date?: string) =>
       request<ApiListResponse<Totalizer>>('GET', '/api/pumps/totalizers' + (date ? `?date=${date}` : '')),
@@ -166,6 +172,10 @@ export const api = {
   },
   nozzles: {
     list: () => request<ApiListResponse<Nozzle>>('GET', '/api/nozzles'),
+    get: (id: string) => request<ApiResponse<Nozzle>>('GET', `/api/nozzles/${id}`),
+    create: (data: CreateNozzle) => request<ApiResponse<Nozzle>>('POST', '/api/nozzles', data),
+    update: (id: string, data: Partial<CreateNozzle>) => request<{ success: boolean; message?: string; data?: Nozzle }>('PUT', `/api/nozzles/${id}`, data),
+    delete: (id: string) => request<{ success: boolean; message: string }>('DELETE', `/api/nozzles/${id}`),
   },
 
   // ── Reconciliation ──
@@ -431,6 +441,12 @@ export interface Tank {
   current_l: number;
   current?: number;
   status: string;
+  oil_color?: 'blue' | 'green' | 'red' | 'yellow';
+  water_color?: 'blue' | 'yellow';
+  active?: number;
+  id_port?: number | null;
+  id_polling?: number | null;
+  id_tank_enabler?: number | null;
   temperature?: number;
   temp?: number;
   water_level?: number;
@@ -1060,3 +1076,38 @@ export interface ControllerTransactionInput {
   totalizer_after: number;
   transaction_time: string;
 }
+
+export interface CreateTank {
+  id?: string;
+  product_id: string;
+  capacity_l: number;
+  current_l?: number;
+  oil_color?: 'blue' | 'green' | 'red' | 'yellow';
+  water_color?: 'blue' | 'yellow';
+  active?: number;
+  id_port?: number | null;
+  id_polling?: number | null;
+  id_tank_enabler?: number | null;
+  threshold_low?: number;
+  threshold_critical?: number;
+  threshold_high?: number;
+  status?: string;
+  reason?: string;
+}
+
+export interface CreatePump {
+  id?: string;
+  number: string;
+  location?: string;
+  status?: string;
+  active?: number;
+}
+
+export interface CreateNozzle {
+  id?: string;
+  number: string;
+  pump_id: string;
+  product_id: string;
+  status?: string;
+}
+
