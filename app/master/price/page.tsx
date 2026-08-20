@@ -129,25 +129,28 @@ export default function MasterPricePage() {
                   </td>
                 </tr>
               ) : (
-                prices.map((p) => (
-                  <tr key={p.id}>
-                    <td className="font-semibold text-zinc-900">
-                      {p.product_name || p.product_id}
-                    </td>
-                    <td className="font-bold text-[14px] text-zinc-900">
-                      Rp {p.price_per_unit?.toLocaleString("id-ID")}
-                    </td>
-                    <td className="text-zinc-600">{p.effective_date}</td>
-                    <td className="text-zinc-500 text-[12px]">
-                      {p.reason || "Keputusan Resmi"}
-                    </td>
-                    <td>
-                      <Badge variant={p.is_active ? "success" : "neutral"}>
-                        {p.is_active ? "BERLAKU" : "HISTORIS"}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))
+                prices.map((p) => {
+                  const isActive = p.is_active === 1 || p.is_active === true;
+                  return (
+                    <tr key={p.id}>
+                      <td className="font-semibold text-zinc-900">
+                        {p.product_name || p.product_id}
+                      </td>
+                      <td className="font-bold text-[14px] text-zinc-900">
+                        Rp {p.price_per_unit?.toLocaleString("id-ID")}
+                      </td>
+                      <td className="text-zinc-600">{p.effective_date}</td>
+                      <td className="text-zinc-500 text-[12px]">
+                        {p.reason || "Keputusan Resmi"}
+                      </td>
+                      <td>
+                        <Badge variant={isActive ? "success" : "neutral"}>
+                          {isActive ? "BERLAKU" : "HISTORIS"}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

@@ -195,6 +195,7 @@ export const api = {
     products: () => request<ApiListResponse<Product>>('GET', '/api/master/products'),
     addProduct: (data: CreateProduct) => request<ApiResponse<{ id: string }>>('POST', '/api/master/products', data),
     createProduct: (data: CreateProduct) => request<ApiResponse<{ id: string }>>('POST', '/api/master/products', data),
+    updateProduct: (id: string, data: UpdateProduct) => request<{ success: boolean; message?: string }>('PUT', `/api/master/products/${id}`, data),
     prices: () => request<ApiListResponse<PriceHistoryItem>>('GET', '/api/master/prices'),
     addPrice: (data: { product_id: string; price_per_liter?: number; price_per_unit?: number; effective_from?: string; effective_date?: string; reason?: string }) =>
       request<{ success: boolean }>('POST', '/api/master/prices', data),
@@ -459,6 +460,7 @@ export interface Product {
   type?: string;
   unit?: string;
   active: number | boolean;
+  subsidi?: number | boolean;
   current_price?: number;
   currentPrice?: number;
   octane_cetane?: string;
@@ -472,6 +474,7 @@ export interface PriceHistoryItem {
   product_id: string;
   product_name?: string;
   product?: string;
+  code?: string;
   price_per_unit?: number;
   price_per_liter?: number;
   price?: number;
@@ -479,7 +482,10 @@ export interface PriceHistoryItem {
   effectiveDate?: string;
   effective_from?: string;
   reason?: string;
-  is_active?: boolean;
+  is_active?: number | boolean;
+  isActive?: number | boolean;
+  created_by?: string;
+  created_at?: string;
   prices?: Array<{ effectiveDate: string; price: number }>;
 }
 
@@ -1003,12 +1009,21 @@ export interface TotalizerInput {
 export interface CreateProduct {
   code: string;
   name: string;
-  type?: string;
+  type: 'Bensin' | 'Solar' | 'LPG' | string;
   unit?: string;
-  octane_cetane?: string;
-  color_code?: string;
-  density_standard?: number;
-  description?: string;
+  subsidi?: number | boolean;
+  price_per_unit?: number;
+  effective_date?: string;
+}
+
+export interface UpdateProduct {
+  name?: string;
+  type?: 'Bensin' | 'Solar' | 'LPG' | string;
+  unit?: string;
+  active?: number | boolean;
+  subsidi?: number | boolean;
+  price_per_unit?: number;
+  effective_date?: string;
 }
 
 export interface CreateVehicle {
