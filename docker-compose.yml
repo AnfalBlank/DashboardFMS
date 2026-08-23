@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # NestJS Backend API Service
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fuel-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    networks:
+      - fuel-network
+
+  # ---------------------------------------------------------------------------
+  # Next.js Frontend Dashboard Service
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ../fuel-monitoring
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+    container_name: fuel-frontend
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=production
+      - PORT=4001
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    depends_on:
+      - backend
+    networks:
+      - fuel-network
+
+networks:
+  fuel-network:
+    driver: bridge
