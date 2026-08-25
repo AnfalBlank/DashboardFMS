@@ -62,11 +62,24 @@ export class PumpSyncService implements OnModuleInit {
           continue;
         }
         const newStatus = this.pumpStatusMapping(status);
+        const updatePayload: any = {};
+
         if (pump.status !== newStatus) {
+          updatePayload.status = newStatus;
+        }
+
+        // Automatic preset lifecycle transitions
+        if (newStatus === 'FUELLING' && pump.preset_status === 'SET') {
+          updatePayload.preset_status = 'ACTIVE';
+        } else if (newStatus === 'IDLE' && (pump.preset_status === 'ACTIVE' || (pump.preset_status === 'SET' && status.pump_complete === 1))) {
+          updatePayload.preset_status = 'NONE';
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
           this.logger.log(
-            `Pump ${pump.number} (ID: ${pump.id}) status changed: ${pump.status} -> ${newStatus}`,
+            `Pump ${pump.number} (ID: ${pump.id}) updated: ${JSON.stringify(updatePayload)}`,
           );
-          await this.pumpsService.updatePump(pump.id, { status: newStatus });
+          await this.pumpsService.updatePump(pump.id, updatePayload);
         }
       }
     } catch (error) {

@@ -26,63 +26,65 @@ export class EnablerPresetHistory {
   @Column('datetime', { name: 'waktu_preset' })
   waktu_preset: Date;
 
-  @Column('datetime', { name: 'waktu_batal' })
+  @Column('datetime', {
+    name: 'waktu_batal',
+  })
   waktu_batal: Date;
 
   @Column('text', { name: 'keterangan' })
   keterangan: string;
 
   @Column({ name: 'type_pot' })
-  type_pot: number;
+  type_pot: number = 1;
 
   @Column('text', { name: 'card_number_pot' })
-  card_number_pot: string;
+  card_number_pot: string = '';
 
   @Column('text', { name: 'customer_id_pot' })
-  customer_id_pot: string;
+  customer_id_pot: string = '';
 
   @Column('text', { name: 'customer_name_pot' })
-  customer_name_pot: string;
+  customer_name_pot: string = '';
 
   @Column('text', { name: 'driver_name_pot' })
-  driver_name_pot: string;
+  driver_name_pot: string = '';
 
   @Column('text', { name: 'vehicle_no_pot' })
-  vehicle_no_pot: string;
+  vehicle_no_pot: string = '';
 
   @Column('text', { name: 'balance_pot' })
-  balance_pot: string;
+  balance_pot: string = '';
 
   @Column('text', { name: 'pin_pot' })
-  pin_pot: string;
+  pin_pot: string = '';
 
   @Column('text', { name: 'volume_limit_pot' })
-  volume_limit_pot: string;
+  volume_limit_pot: string = '';
 
   @Column('text', { name: 'produk_pot' })
-  produk_pot: string;
+  produk_pot: string = '';
 
   @Column('text', { name: 'amount_pot' })
-  amount_pot: string;
+  amount_pot: string = '';
 
   @Column('text', { name: 'odometer_pot' })
-  odometer_pot: string;
+  odometer_pot: string = '';
 
   @Column('text', { name: 'vehicle_type_pot' })
-  vehicle_type_pot: string;
+  vehicle_type_pot: string = '';
 
   @Column('text', { name: 'phone_no_pot' })
-  phone_no_pot: string;
+  phone_no_pot: string = '';
 
   @Column('text', { name: 'agency_name_pot' })
-  agency_name_pot: string;
+  agency_name_pot: string = '';
 
   @Column('text', { name: 'agency_type_pot' })
-  agency_type_pot: string;
+  agency_type_pot: string = '';
 
   @Column('text', { name: 'customer_type_pot' })
-  customer_type_pot: string;
+  customer_type_pot: string = '';
 
   @Column('text', { name: 'payments_pot' })
-  payments_pot: string;
+  payments_pot: string = '';
 }

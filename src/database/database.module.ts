@@ -77,7 +77,7 @@ const entities = [
         charset: 'utf8mb4_unicode_ci',
         timezone: '+07:00',
         extra: {
-          connectionLimit: 20,
+          connectionLimit: 3,
         },
       }),
     }),
@@ -86,4 +86,4 @@ const entities = [
   providers: [DatabaseService],
   exports: [TypeOrmModule, DatabaseService],
 })
-export class DatabaseModule {}
+export class DatabaseModule { }

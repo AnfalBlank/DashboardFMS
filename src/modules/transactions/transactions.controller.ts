@@ -13,6 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { CreatePresetDto } from './dto/create-preset.dto';
 import { VoidTransactionDto } from './dto/void-transaction.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
@@ -71,7 +72,7 @@ export class TransactionsController {
   @Post()
   @RequirePermissions('transaction.create')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create new transaction' })
+  @ApiOperation({ summary: 'Create new manual transaction' })
   async create(
     @Body() dto: CreateTransactionDto,
     @CurrentUser('userId') userId: string,
@@ -79,6 +80,32 @@ export class TransactionsController {
   ) {
     const data = await this.transactionsService.create(dto, userId, ip);
     return { success: true, data };
+  }
+
+  @Post('preset')
+  @RequirePermissions('transaction.create')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Set dispenser preset from POS' })
+  async createPreset(
+    @Body() dto: CreatePresetDto,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.transactionsService.createPreset(dto, userId, ip);
+    return { success: true, ...data };
+  }
+
+  @Post('cancel-preset/:pumpId')
+  @RequirePermissions('transaction.create')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel active dispenser preset before nozzle up' })
+  async cancelPreset(
+    @Param('pumpId') pumpId: string,
+    @CurrentUser('userId') userId: string,
+    @Ip() ip: string,
+  ) {
+    const data = await this.transactionsService.cancelPreset(pumpId, userId, ip);
+    return { success: true, ...data };
   }
 
   @Post(':id/void')

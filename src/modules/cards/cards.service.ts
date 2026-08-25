@@ -45,7 +45,7 @@ export class CardsService {
 
     if (search) {
       qb.andWhere(
-        '(c.cardNumber LIKE :search OR c.holderName LIKE :search)',
+        '(c.cardNumber LIKE :search OR c.holderName LIKE :search OR c.rfidUid LIKE :search OR c.id LIKE :search OR v.policeNumber LIKE :search)',
         { search: `%${search}%` },
       );
     }

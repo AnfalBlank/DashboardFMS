@@ -26,7 +26,7 @@ import { EnablerDatabaseService } from './enabler-database.service';
         charset: 'utf8mb4_unicode_ci',
         timezone: '+07:00',
         extra: {
-          connectionLimit: 10,
+          connectionLimit: 3,
         },
       }),
     }),
@@ -35,4 +35,4 @@ import { EnablerDatabaseService } from './enabler-database.service';
   providers: [EnablerDatabaseService],
   exports: [TypeOrmModule, EnablerDatabaseService],
 })
-export class EnablerDatabaseModule {}
+export class EnablerDatabaseModule { }

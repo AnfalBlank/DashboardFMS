@@ -62,6 +62,7 @@ export class PumpsService {
         p.idPumpEnabler !== undefined && p.idPumpEnabler !== null
           ? Number(p.idPumpEnabler)
           : null,
+      preset_status: p.presetStatus || 'NONE',
       nozzle_count: p.nozzles?.length ?? 0,
       nozzles: (p.nozzles || []).map((n) => ({
         id: n.id,
@@ -99,6 +100,7 @@ export class PumpsService {
         p.idPumpEnabler !== undefined && p.idPumpEnabler !== null
           ? Number(p.idPumpEnabler)
           : null,
+      preset_status: p.presetStatus || 'NONE',
       nozzle_count: p.nozzles?.length ?? 0,
       nozzles: (p.nozzles || []).map((n) => ({
         id: n.id,
@@ -181,12 +183,15 @@ export class PumpsService {
     if (dto.location !== undefined) updateData.location = dto.location.trim();
     if (dto.status !== undefined) updateData.status = dto.status;
     if (dto.active !== undefined) updateData.active = Number(dto.active);
+    if (dto.preset_status !== undefined) updateData.presetStatus = dto.preset_status;
     if (dto.id_pump_enabler !== undefined) {
       updateData.idPumpEnabler =
         dto.id_pump_enabler !== null ? Number(dto.id_pump_enabler) : (null as any);
     }
 
-    await this.pumpRepo.update(id, updateData);
+    if (Object.keys(updateData).length > 0) {
+      await this.pumpRepo.update(id, updateData);
+    }
 
     await this.audit.logAudit(
       userId,
@@ -288,8 +293,10 @@ export class PumpsService {
       .createQueryBuilder('n')
       .innerJoinAndSelect('n.pump', 'p')
       .innerJoinAndSelect('n.product', 'pr')
+      .leftJoinAndSelect('pr.priceHistories', 'ph')
       .orderBy('p.number', 'ASC')
       .addOrderBy('n.number', 'ASC')
+      .addOrderBy('ph.effectiveDate', 'DESC')
       .getMany();
 
     return list.map((n) => ({
@@ -301,6 +308,7 @@ export class PumpsService {
       product_id: n.productId,
       product_name: n.product?.name,
       product_code: n.product?.code,
+      current_price: toNum(n.product?.priceHistories?.[0]?.pricePerUnit, 0),
       status: n.status,
       created_at: n.createdAt,
     }));
@@ -311,7 +319,9 @@ export class PumpsService {
       .createQueryBuilder('n')
       .innerJoinAndSelect('n.pump', 'p')
       .innerJoinAndSelect('n.product', 'pr')
+      .leftJoinAndSelect('pr.priceHistories', 'ph')
       .where('n.id = :id', { id })
+      .addOrderBy('ph.effectiveDate', 'DESC')
       .getOne();
 
     if (!n) {
@@ -330,6 +340,7 @@ export class PumpsService {
       product_id: n.productId,
       product_name: n.product?.name,
       product_code: n.product?.code,
+      current_price: toNum(n.product?.priceHistories?.[0]?.pricePerUnit, 0),
       status: n.status,
       created_at: n.createdAt,
     };

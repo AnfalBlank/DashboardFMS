@@ -384,6 +384,63 @@
           "response": []
         },
         {
+          "name": "Set Dispenser Preset (POS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"card_number\": \"CRD-2026-001\",\n  \"product_id\": \"prod-ptx\",\n  \"pump_id\": \"pump-01\",\n  \"nozzle_id\": \"nzl-01-1\",\n  \"volume_l\": 45.5,\n  \"shift\": \"PAGI\",\n  \"totalizer_before\": 12500.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/preset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "preset"
+              ]
+            },
+            "description": "Mengirim otorisasi preset dispenser ke Forecourt Controller dari halaman POS SPBP."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Dispenser Preset (POS)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/cancel-preset/:pumpId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "cancel-preset",
+                ":pumpId"
+              ],
+              "variable": [
+                {
+                  "key": "pumpId",
+                  "value": "pump-01",
+                  "description": "ID Pompa Dispenser yang ingin dibatalkan presetnya (hanya jika IDLE)"
+                }
+              ]
+            },
+            "description": "Membatalkan preset aktif pada dispenser sebelum nozzle diangkat."
+          },
+          "response": []
+        },
+        {
           "name": "Void Transaction",
           "request": {
             "method": "POST",
