@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -12,15 +13,21 @@ import {
   QuotaLedger,
   PriceHistory,
   Tank,
+  Pump,
+  Nozzle,
   SystemSetting,
 } from '../../database/entities';
 import { AuditService } from '../audit/audit.service';
+import { FmsService } from '../fms/fms.service';
+import { PumpsService } from '../pumps/pumps.service';
 import { toNum } from '../../common/utils/db.util';
 import { v4 as uuid } from 'uuid';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 @Injectable()
 export class TransactionsService {
+  private readonly logger = new Logger(TransactionsService.name);
+
   constructor(
     @InjectRepository(Transaction)
     private readonly txRepo: Repository<Transaction>,
@@ -32,9 +39,13 @@ export class TransactionsService {
     private readonly priceHistoryRepo: Repository<PriceHistory>,
     @InjectRepository(SystemSetting)
     private readonly settingRepo: Repository<SystemSetting>,
+    @InjectRepository(Nozzle)
+    private readonly nozzleRepo: Repository<Nozzle>,
     private readonly dataSource: DataSource,
     private readonly audit: AuditService,
-  ) {}
+    private readonly fmsService: FmsService,
+    private readonly pumpsService: PumpsService,
+  ) { }
 
   async getActivePrice(productId: string): Promise<number> {
     const ph = await this.priceHistoryRepo
@@ -185,7 +196,10 @@ export class TransactionsService {
   }
 
   async create(dto: CreateTransactionDto, userId: string, ip?: string) {
-    const card = await this.cardRepo.findOneBy({ cardNumber: dto.card_number });
+    const card = await this.cardRepo.findOne({
+      where: { cardNumber: dto.card_number },
+      relations: ['unit', 'vehicle'],
+    });
     if (!card) {
       throw new NotFoundException({
         success: false,
@@ -230,6 +244,16 @@ export class TransactionsService {
       quotaDeducted = Math.min(dto.volume_l, quotaBefore);
       quotaAfter = Math.max(0, quotaBefore - dto.volume_l);
       txStatus = 'SUCCESS';
+    }
+
+    if (dto.pump_id) {
+      const pump = await this.dataSource.getRepository(Pump).findOneBy({ id: dto.pump_id });
+      if (pump && pump.status !== 'IDLE') {
+        throw new BadRequestException({
+          success: false,
+          message: `Pompa dispenser ${pump.number || dto.pump_id} sedang berstatus '${pump.status}'. Transaksi hanya dapat diproses saat dispenser berstatus IDLE.`,
+        });
+      }
     }
 
     const price = await this.getActivePrice(dto.product_id);
@@ -278,7 +302,7 @@ export class TransactionsService {
           amountL: -quotaDeducted,
           balanceL: quotaAfter,
           refId: txId,
-          description: 'Fuel Transaction',
+          description: 'Fuel Transaction POS',
           createdBy: userId,
         });
         await em.save(QuotaLedger, ledger);
@@ -300,8 +324,13 @@ export class TransactionsService {
       'Transaction',
       txId,
       null,
-      { volume: dto.volume_l },
-      null,
+      {
+        card_number: card.cardNumber,
+        volume: dto.volume_l,
+        product_id: dto.product_id,
+        pump_id: dto.pump_id,
+      },
+      `Pencatatan transaksi POS ${dto.volume_l} L`,
       ip,
     );
 
@@ -309,6 +338,21 @@ export class TransactionsService {
       id: txId,
       status: txStatus,
       quota_after: quotaAfter,
+      data: {
+        id: txId,
+        card_number: card.cardNumber,
+        holder_name: card.holderName,
+        unit_name: card.unit?.name,
+        police_number: card.vehicle?.policeNumber,
+        volume_l: dto.volume_l,
+        price_per_unit: price,
+        total_amount: total,
+        quota_before: quotaBefore,
+        quota_deducted: quotaDeducted,
+        quota_after: quotaAfter,
+        status: txStatus,
+        transaction_time: new Date().toISOString(),
+      },
     };
   }
 

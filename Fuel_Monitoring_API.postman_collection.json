@@ -1215,6 +1215,38 @@
       "name": "08. Pumps & Nozzles",
       "item": [
         {
+          "name": "Stream Pump Status (SSE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pumps/sse?token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pumps",
+                "sse"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "description": "JWT Bearer Token untuk otentikasi koneksi EventSource/SSE"
+                }
+              ]
+            },
+            "description": "Membuka koneksi Server-Sent Events (SSE) realtime untuk menerima pembaruan live status pompa dispenser (OFFLINE, IDLE, NOZZLE_UP, FUELLING)."
+          },
+          "response": []
+        },
+        {
           "name": "List Pumps",
           "request": {
             "method": "GET",
@@ -1245,7 +1277,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"number\": \"03\",\n  \"location\": \"Pulau Pompa 3 (Barat)\",\n  \"status\": \"ACTIVE\",\n  \"active\": 1\n}"
+              "raw": "{\n  \"number\": \"03\",\n  \"location\": \"Pulau Pompa 3 (Barat)\",\n  \"status\": \"IDLE\",\n  \"active\": 1,\n  \"id_pump_enabler\": 3\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/pumps",
@@ -1257,7 +1289,7 @@
                 "pumps"
               ]
             },
-            "description": "Mendaftarkan unit pompa dispenser baru."
+            "description": "Mendaftarkan unit pompa dispenser baru beserta tautan ID Pompa Enabler Forecourt Controller."
           },
           "response": []
         },
@@ -1300,7 +1332,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"number\": \"01\",\n  \"location\": \"Pulau Pompa 1 (Utara)\",\n  \"status\": \"ACTIVE\",\n  \"active\": 1\n}"
+              "raw": "{\n  \"number\": \"01\",\n  \"location\": \"Pulau Pompa 1 (Utara)\",\n  \"status\": \"IDLE\",\n  \"active\": 1,\n  \"id_pump_enabler\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/pumps/:id",
@@ -1320,7 +1352,7 @@
                 }
               ]
             },
-            "description": "Memperbarui nomor, lokasi, dan status pompa dispenser."
+            "description": "Memperbarui nomor, lokasi, status, dan ID Pompa Enabler pompa dispenser."
           },
           "response": []
         },

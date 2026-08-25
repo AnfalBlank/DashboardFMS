@@ -18,11 +18,17 @@ export class Pump {
   @Column({ type: 'varchar', length: 128, nullable: true })
   location?: string;
 
-  @Column({ type: 'varchar', length: 32, default: 'ACTIVE' })
-  status: 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE' | 'OFFLINE';
+  @Column({ type: 'varchar', length: 32, default: 'IDLE' })
+  status: 'OFFLINE' | 'IDLE' | 'NOZZLE_UP' | 'FUELLING';
 
   @Column({ type: 'tinyint', default: 1 })
   active: number;
+
+  @Column({ name: 'id_pump_enabler', type: 'int', nullable: true })
+  idPumpEnabler?: number;
+
+  @Column({ name: 'preset_status', type: 'varchar', length: 32, default: 'NONE' })
+  presetStatus: 'NONE' | 'SET' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 
   @CreateDateColumn({ name: 'created_at', type: 'datetime' })
   createdAt: Date;

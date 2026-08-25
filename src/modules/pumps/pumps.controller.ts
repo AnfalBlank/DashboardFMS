@@ -11,8 +11,11 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Sse,
+  MessageEvent,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Observable } from 'rxjs';
 import { PumpsService } from './pumps.service';
 import { CreatePumpDto } from './dto/create-pump.dto';
 import { UpdatePumpDto } from './dto/update-pump.dto';
@@ -29,7 +32,14 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('api/pumps')
 export class PumpsController {
-  constructor(private readonly pumpsService: PumpsService) {}
+  constructor(private readonly pumpsService: PumpsService) { }
+
+  @Sse('sse')
+  @RequirePermissions('transaction.view')
+  @ApiOperation({ summary: 'Real-time Server-Sent Events (SSE) stream for pump dispenser status' })
+  streamPumpStatus(): Observable<MessageEvent> {
+    return this.pumpsService.getPumpStatusStream();
+  }
 
   @Get()
   @RequirePermissions('transaction.view')
@@ -125,7 +135,7 @@ export class PumpsController {
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('api/nozzles')
 export class NozzlesController {
-  constructor(private readonly pumpsService: PumpsService) {}
+  constructor(private readonly pumpsService: PumpsService) { }
 
   @Get()
   @RequirePermissions('transaction.view')

@@ -25,13 +25,13 @@ export class UpdatePumpDto {
 
   @ApiPropertyOptional({
     description: 'Status Pompa Dispenser',
-    enum: ['ACTIVE', 'INACTIVE', 'MAINTENANCE', 'OFFLINE'],
-    example: 'ACTIVE',
+    enum: ['OFFLINE', 'IDLE', 'NOZZLE_UP', 'FUELLING'],
+    example: 'IDLE',
   })
   @IsString()
   @IsOptional()
-  @IsIn(['ACTIVE', 'INACTIVE', 'MAINTENANCE', 'OFFLINE'])
-  status?: 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE' | 'OFFLINE';
+  @IsIn(['OFFLINE', 'IDLE', 'NOZZLE_UP', 'FUELLING'])
+  status?: 'OFFLINE' | 'IDLE' | 'NOZZLE_UP' | 'FUELLING';
 
   @ApiPropertyOptional({
     description: 'Status Aktif (1 = Aktif, 0 = Nonaktif)',
@@ -40,4 +40,22 @@ export class UpdatePumpDto {
   @IsNumber()
   @IsOptional()
   active?: number;
+
+  @ApiPropertyOptional({
+    description: 'ID Pompa Enabler (id_pump pada sistem Forecourt Controller)',
+    example: 1,
+  })
+  @IsNumber()
+  @IsOptional()
+  id_pump_enabler?: number;
+
+  @ApiPropertyOptional({
+    description: 'Status Preset Dispenser',
+    enum: ['NONE', 'SET', 'ACTIVE', 'COMPLETED', 'CANCELLED'],
+    example: 'SET',
+  })
+  @IsString()
+  @IsOptional()
+  @IsIn(['NONE', 'SET', 'ACTIVE', 'COMPLETED', 'CANCELLED'])
+  preset_status?: 'NONE' | 'SET' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
 }

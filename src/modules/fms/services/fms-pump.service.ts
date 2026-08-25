@@ -28,7 +28,7 @@ import {
 export class FmsPumpService {
   private readonly logger = new Logger(FmsPumpService.name);
 
-  constructor(private readonly client: FmsClientService) {}
+  constructor(private readonly client: FmsClientService) { }
 
   /**
    * Returns list of configured and active dispenser pumps with nozzles and product grades.

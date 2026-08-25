@@ -23,16 +23,22 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
+    const authHeader = request.headers?.authorization;
+    const queryToken = request.query?.token as string | undefined;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    let token: string | undefined;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    } else if (queryToken) {
+      token = queryToken;
+    }
+
+    if (!token) {
       throw new UnauthorizedException({
         success: false,
         message: 'Token tidak ditemukan',
       });
     }
-
-    const token = authHeader.slice(7);
     const secret = process.env.JWT_SECRET;
 
     try {

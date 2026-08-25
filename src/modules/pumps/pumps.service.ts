@@ -3,9 +3,11 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  MessageEvent,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Subject, Observable, from, merge, map, interval } from 'rxjs';
 import {
   Pump,
   Nozzle,
@@ -24,6 +26,8 @@ import { toNum } from '../../common/utils/db.util';
 
 @Injectable()
 export class PumpsService {
+  private readonly pumpEvents$ = new Subject<{ type: string; data?: any }>();
+
   constructor(
     @InjectRepository(Pump)
     private readonly pumpRepo: Repository<Pump>,
@@ -36,7 +40,7 @@ export class PumpsService {
     @InjectRepository(Transaction)
     private readonly txRepo: Repository<Transaction>,
     private readonly audit: AuditService,
-  ) {}
+  ) { }
 
   // ══════════════ PUMPS ══════════════
 
@@ -54,6 +58,10 @@ export class PumpsService {
       location: p.location,
       status: p.status,
       active: p.active,
+      id_pump_enabler:
+        p.idPumpEnabler !== undefined && p.idPumpEnabler !== null
+          ? Number(p.idPumpEnabler)
+          : null,
       nozzle_count: p.nozzles?.length ?? 0,
       nozzles: (p.nozzles || []).map((n) => ({
         id: n.id,
@@ -87,6 +95,10 @@ export class PumpsService {
       location: p.location,
       status: p.status,
       active: p.active,
+      id_pump_enabler:
+        p.idPumpEnabler !== undefined && p.idPumpEnabler !== null
+          ? Number(p.idPumpEnabler)
+          : null,
       nozzle_count: p.nozzles?.length ?? 0,
       nozzles: (p.nozzles || []).map((n) => ({
         id: n.id,
@@ -122,8 +134,12 @@ export class PumpsService {
       id: pumpId,
       number: pumpNumber,
       location: dto.location?.trim() || undefined,
-      status: dto.status || 'ACTIVE',
+      status: dto.status || 'IDLE',
       active: dto.active !== undefined ? Number(dto.active) : 1,
+      idPumpEnabler:
+        dto.id_pump_enabler !== undefined && dto.id_pump_enabler !== null
+          ? Number(dto.id_pump_enabler)
+          : undefined,
     });
 
     await this.pumpRepo.save(pump);
@@ -139,7 +155,9 @@ export class PumpsService {
       ip,
     );
 
-    return this.getPump(pumpId);
+    const created = await this.getPump(pumpId);
+    this.emitPumpUpdate();
+    return created;
   }
 
   async updatePump(id: string, dto: UpdatePumpDto, userId?: string, ip?: string) {
@@ -163,6 +181,10 @@ export class PumpsService {
     if (dto.location !== undefined) updateData.location = dto.location.trim();
     if (dto.status !== undefined) updateData.status = dto.status;
     if (dto.active !== undefined) updateData.active = Number(dto.active);
+    if (dto.id_pump_enabler !== undefined) {
+      updateData.idPumpEnabler =
+        dto.id_pump_enabler !== null ? Number(dto.id_pump_enabler) : (null as any);
+    }
 
     await this.pumpRepo.update(id, updateData);
 
@@ -178,6 +200,7 @@ export class PumpsService {
     );
 
     const updated = await this.getPump(id);
+    this.emitPumpUpdate();
     return { message: 'Pompa dispenser berhasil diperbarui', data: updated };
   }
 
@@ -199,7 +222,63 @@ export class PumpsService {
       ip,
     );
 
-    return { success: true, message: `Pompa dispenser '${before.number}' berhasil dihapus` };
+    this.emitPumpUpdate();
+    return { message: 'Pompa dispenser berhasil dihapus', data: before };
+  }
+
+  // ══════════════ SSE REALTIME STREAM ══════════════
+
+  emitPumpUpdate(pumps?: any) {
+    if (pumps) {
+      this.pumpEvents$.next({ type: 'PUMPS_UPDATE', data: pumps });
+    } else {
+      this.getPumps()
+        .then((list) => {
+          this.pumpEvents$.next({ type: 'PUMPS_UPDATE', data: list });
+        })
+        .catch(() => { });
+    }
+  }
+
+  getPumpStatusStream(): Observable<MessageEvent> {
+    const initial$ = from(this.getPumps()).pipe(
+      map(
+        (pumps) =>
+          ({
+            data: {
+              type: 'PUMPS_UPDATE',
+              data: pumps,
+              timestamp: new Date().toISOString(),
+            },
+          }) as MessageEvent,
+      ),
+    );
+
+    const updates$ = this.pumpEvents$.asObservable().pipe(
+      map(
+        (event) =>
+          ({
+            data: {
+              ...event,
+              timestamp: new Date().toISOString(),
+            },
+          }) as MessageEvent,
+      ),
+    );
+
+    const heartbeat$ = interval(15000).pipe(
+      map(
+        () =>
+          ({
+            data: {
+              type: 'HEARTBEAT',
+              timestamp: new Date().toISOString(),
+            },
+          }) as MessageEvent,
+      ),
+    );
+
+    return merge(initial$, updates$, heartbeat$);
   }
 
   // ══════════════ NOZZLES ══════════════
