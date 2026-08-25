@@ -169,6 +169,10 @@ export const api = {
     reconciliation: (date?: string) =>
       request<ApiListResponse<PumpRecon>>('GET', '/api/pumps/reconciliation' + (date ? `?date=${date}` : '')),
     pushTotalizer: (data: TotalizerInput) => request<{ success: boolean }>('POST', '/api/pumps/totalizers', data),
+    streamUrl: () => {
+      const token = getToken();
+      return `${BASE}/api/pumps/sse${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    },
   },
   nozzles: {
     list: () => request<ApiListResponse<Nozzle>>('GET', '/api/nozzles'),
@@ -557,6 +561,7 @@ export interface Pump {
   location?: string;
   status: string;
   active?: number;
+  id_pump_enabler?: number | null;
   nozzle_count?: number;
   nozzles?: Nozzle[];
 }
@@ -1101,6 +1106,7 @@ export interface CreatePump {
   location?: string;
   status?: string;
   active?: number;
+  id_pump_enabler?: number | null;
 }
 
 export interface CreateNozzle {

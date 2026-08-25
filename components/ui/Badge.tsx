@@ -43,10 +43,10 @@ export function StatusDot({ variant }: { variant: BadgeVariant }) {
 export function statusVariant(status: string): BadgeVariant {
   const map: Record<string, BadgeVariant> = {
     SUCCESS: 'success', ACTIVE: 'success', NORMAL: 'success', CONFIRMED: 'success', PERFECT: 'success', SYNCED: 'success', APPROVED: 'success',
-    WARNING: 'warning', LOW: 'warning', PENDING: 'warning', ANOMALY: 'warning', SUSPENDED: 'warning',
+    WARNING: 'warning', LOW: 'warning', PENDING: 'warning', ANOMALY: 'warning', SUSPENDED: 'warning', NOZZLE_UP: 'warning',
     CRITICAL: 'critical', FAILED: 'critical', BLOCKED: 'critical', CANCELLED: 'critical', VOID: 'critical',
-    INFO: 'info', HIGH: 'info',
-    INACTIVE: 'neutral', OFFLINE: 'neutral', EXPIRED: 'neutral', CLOSED: 'neutral',
+    INFO: 'info', HIGH: 'info', FUELLING: 'info', FUELING: 'info',
+    INACTIVE: 'neutral', OFFLINE: 'neutral', EXPIRED: 'neutral', CLOSED: 'neutral', IDLE: 'neutral',
   };
   return map[status] ?? 'neutral';
 }

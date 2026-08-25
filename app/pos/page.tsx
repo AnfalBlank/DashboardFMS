@@ -121,6 +121,32 @@ export default function POSPage() {
 
   useEffect(() => {
     loadData();
+
+    // SSE Realtime Pump Auto-sync
+    let es: EventSource | null = null;
+    try {
+      const sseUrl = api.pumps.streamUrl();
+      es = new EventSource(sseUrl);
+
+      es.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload?.type === 'PUMPS_UPDATE' && Array.isArray(payload.data)) {
+            setPumps(payload.data);
+          } else if (Array.isArray(payload)) {
+            setPumps(payload);
+          }
+        } catch {
+          // ignore
+        }
+      };
+    } catch (err) {
+      console.warn('[POS-SSE] Failed to initialize SSE stream:', err);
+    }
+
+    return () => {
+      if (es) es.close();
+    };
   }, [loadData]);
 
   // Live Clock
@@ -297,6 +323,24 @@ export default function POSPage() {
 
   // Validation
   const validation = useMemo(() => {
+    if (!currentPump) {
+      return { valid: false, message: 'Pilih unit dispenser pompa SPBP.' };
+    }
+    if (currentPump.status !== 'IDLE') {
+      const st = currentPump.status;
+      const desc =
+        st === 'NOZZLE_UP'
+          ? 'Nozzle Terangkat (NOZZLE_UP)'
+          : st === 'FUELLING'
+            ? 'Sedang Mengisi BBM (FUELLING)'
+            : st === 'OFFLINE'
+              ? 'Terputus (OFFLINE)'
+              : st;
+      return {
+        valid: false,
+        message: `Dispenser ${currentPump.number} sedang ${desc}. Transaksi hanya dapat diproses saat dispenser berstatus IDLE.`,
+      };
+    }
     if (!selectedCard) {
       return { valid: false, message: 'Pilih atau scan kartu RFID penerima BBM' };
     }
@@ -317,13 +361,21 @@ export default function POSPage() {
     if (parsedVolume > cardQuota.remaining) {
       return { valid: false, message: `Volume pengisian (${parsedVolume} L) melebihi sisa kuota (${cardQuota.remaining} L).` };
     }
-    return { valid: true, message: 'Siap untuk melakukan transaksi dispensing BBM' };
-  }, [selectedCard, currentProduct, parsedVolume, cardQuota]);
+    return { valid: true, message: 'Dispenser IDLE & siap untuk melakukan transaksi dispensing BBM' };
+  }, [currentPump, selectedCard, currentProduct, parsedVolume, cardQuota]);
 
   // Submit Transaction to API
   const handleExecuteTransaction = async () => {
-    if (!validation.valid || !selectedCard || !currentProduct) {
+    if (!validation.valid || !selectedCard || !currentProduct || !currentPump) {
       toastError('Transaksi Tidak Valid', validation.message);
+      return;
+    }
+
+    if (currentPump.status !== 'IDLE') {
+      toastError(
+        'Dispenser Tidak Siap',
+        `Dispenser ${currentPump.number} sedang berstatus ${currentPump.status}. Transaksi hanya dapat diproses saat dispenser IDLE.`,
+      );
       return;
     }
 
@@ -573,20 +625,48 @@ export default function POSPage() {
             </div>
 
             {/* Dispenser List */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
               {pumps.map(pump => {
                 const isSelected = pump.id === selectedPumpId;
+                const isIdle = pump.status === 'IDLE';
                 return (
                   <button
                     key={pump.id}
                     onClick={() => setSelectedPumpId(pump.id)}
-                    className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${isSelected
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative ${isSelected
+                        ? isIdle
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-blue-500/30'
+                          : 'bg-amber-950 text-white border-amber-800 shadow-md ring-2 ring-amber-500/30'
+                        : isIdle
+                          ? 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                          : 'bg-amber-50/60 text-slate-700 border-amber-200 hover:bg-amber-100/70'
                       }`}
                   >
-                    <p className="text-xs font-bold">{pump.number ? `Dispenser ${pump.number}` : pump.id}</p>
-                    <p className={`text-[10px] mt-0.5 ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${pump.status === 'IDLE'
+                            ? isSelected
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : pump.status === 'NOZZLE_UP'
+                              ? 'bg-amber-400 text-amber-950 font-black animate-pulse'
+                              : pump.status === 'FUELLING'
+                                ? 'bg-sky-400 text-sky-950 font-black animate-pulse'
+                                : 'bg-zinc-300 text-zinc-800 font-bold'
+                          }`}
+                      >
+                        {pump.status || 'OFFLINE'}
+                      </span>
+                      {pump.id_pump_enabler !== undefined && pump.id_pump_enabler !== null && (
+                        <span className={`text-[9px] ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
+                          FC #{pump.id_pump_enabler}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs font-bold leading-tight">
+                      {pump.number ? `Dispenser ${pump.number}` : pump.id}
+                    </p>
+                    <p className={`text-[10px] mt-0.5 truncate ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>
                       {pump.location || 'Pulau SPBP'}
                     </p>
                   </button>
@@ -785,7 +865,28 @@ export default function POSPage() {
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal size={16} className="text-blue-600" />
-                <h2 className="text-sm font-bold text-slate-800">3. Nominal & Eksekusi</h2>
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800">3. Nominal & Eksekusi</h2>
+                  {currentPump && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-[10.5px] text-slate-500 font-medium">
+                        Dispenser {currentPump.number}:
+                      </span>
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${currentPump.status === 'IDLE'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : currentPump.status === 'NOZZLE_UP'
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold animate-pulse'
+                              : currentPump.status === 'FUELLING'
+                                ? 'bg-sky-100 text-sky-900 border border-sky-300 font-extrabold animate-pulse'
+                                : 'bg-red-100 text-red-800 border border-red-200'
+                          }`}
+                      >
+                        {currentPump.status || 'OFFLINE'}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="bg-slate-100 p-0.5 rounded-lg flex text-[11px] font-semibold">

@@ -22,8 +22,9 @@ export default function PumpsPage() {
     id: '',
     number: '',
     location: '',
-    status: 'ACTIVE' as Pump['status'],
+    status: 'IDLE' as Pump['status'],
     active: 1,
+    id_pump_enabler: '',
   });
 
   // Edit Modal
@@ -32,8 +33,9 @@ export default function PumpsPage() {
   const [editForm, setEditForm] = useState({
     number: '',
     location: '',
-    status: 'ACTIVE' as Pump['status'],
+    status: 'IDLE' as Pump['status'],
     active: 1,
+    id_pump_enabler: '',
   });
 
   // Delete Modal
@@ -43,6 +45,8 @@ export default function PumpsPage() {
   const [submitting, setSubmitting] = useState(false);
   const { success, error: toastError } = useToast();
   const router = useRouter();
+
+  const [sseConnected, setSseConnected] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -62,9 +66,45 @@ export default function PumpsPage() {
 
   useEffect(() => {
     loadData();
+
+    // Setup Server-Sent Events (SSE) for realtime auto-sync
+    let es: EventSource | null = null;
+    try {
+      const sseUrl = api.pumps.streamUrl();
+      es = new EventSource(sseUrl);
+
+      es.onopen = () => {
+        setSseConnected(true);
+      };
+
+      es.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload?.type === 'PUMPS_UPDATE' && Array.isArray(payload.data)) {
+            setPumps(payload.data);
+          } else if (Array.isArray(payload)) {
+            setPumps(payload);
+          }
+        } catch {
+          // ignore parsing error or heartbeat
+        }
+      };
+
+      es.onerror = () => {
+        setSseConnected(false);
+      };
+    } catch (err) {
+      console.warn('[SSE] EventSource init failed:', err);
+    }
+
+    return () => {
+      if (es) {
+        es.close();
+      }
+    };
   }, [loadData]);
 
-  const activePumps = pumps.filter((p) => p.status === 'ACTIVE' || p.active === 1).length;
+  const activePumps = pumps.filter((p) => p.status !== 'OFFLINE' || p.active === 1).length;
 
   const handleOpenCreate = () => {
     const nextNum = (pumps.length + 1).toString().padStart(2, '0');
@@ -72,8 +112,9 @@ export default function PumpsPage() {
       id: `PUMP-${nextNum}`,
       number: nextNum,
       location: `Pulau Pompa ${pumps.length + 1}`,
-      status: 'ACTIVE',
+      status: 'IDLE',
       active: 1,
+      id_pump_enabler: String(pumps.length + 1),
     });
     setCreateModal(true);
   };
@@ -93,6 +134,7 @@ export default function PumpsPage() {
         location: createForm.location.trim() || undefined,
         status: createForm.status,
         active: Number(createForm.active),
+        id_pump_enabler: createForm.id_pump_enabler ? Number(createForm.id_pump_enabler) : null,
       });
 
       success('Dispenser Ditambahkan', `Pompa Dispenser ${createForm.number} berhasil didaftarkan.`);
@@ -110,8 +152,12 @@ export default function PumpsPage() {
     setEditForm({
       number: p.number || '',
       location: p.location || '',
-      status: p.status || 'ACTIVE',
+      status: p.status || 'IDLE',
       active: p.active !== undefined ? p.active : 1,
+      id_pump_enabler:
+        p.id_pump_enabler !== undefined && p.id_pump_enabler !== null
+          ? String(p.id_pump_enabler)
+          : '',
     });
     setEditModal(true);
   };
@@ -127,6 +173,7 @@ export default function PumpsPage() {
         location: editForm.location.trim() || undefined,
         status: editForm.status,
         active: Number(editForm.active),
+        id_pump_enabler: editForm.id_pump_enabler ? Number(editForm.id_pump_enabler) : null,
       });
 
       success('Dispenser Diperbarui', `Informasi Dispenser ${editForm.number} berhasil disimpan.`);
@@ -168,6 +215,14 @@ export default function PumpsPage() {
         title="Pumps & Dispensers"
         subtitle="Kelola master pulau pompa dispenser, monitor status operasional, dan nozzle dispensing"
       >
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              sseConnected ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'
+            }`}
+          />
+          {sseConnected ? 'Auto-Sync Live (SSE)' : 'Connecting SSE…'}
+        </div>
         <Button variant="outline" size="sm" onClick={loadData}>
           <RefreshCw size={13} /> Refresh
         </Button>
@@ -231,6 +286,9 @@ export default function PumpsPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
+                    {pump.id_pump_enabler !== undefined && pump.id_pump_enabler !== null && (
+                      <Badge variant="neutral">FC #{pump.id_pump_enabler}</Badge>
+                    )}
                     <Badge variant={statusVariant(pump.status)}>{pump.status}</Badge>
                   </div>
                 </div>
@@ -331,16 +389,31 @@ export default function PumpsPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-              Lokasi / Area Pulau Pompa
-            </label>
-            <input
-              placeholder="mis. Pulau Pompa 1 (Utara)"
-              value={createForm.location}
-              onChange={(e) => setCreateForm((f) => ({ ...f, location: e.target.value }))}
-              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Lokasi / Area Pulau Pompa
+              </label>
+              <input
+                placeholder="mis. Pulau Pompa 1 (Utara)"
+                value={createForm.location}
+                onChange={(e) => setCreateForm((f) => ({ ...f, location: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                ID Pompa Enabler (FC)
+              </label>
+              <input
+                type="number"
+                placeholder="mis. 1, 2"
+                value={createForm.id_pump_enabler}
+                onChange={(e) => setCreateForm((f) => ({ ...f, id_pump_enabler: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -351,11 +424,11 @@ export default function PumpsPage() {
               <select
                 value={createForm.status}
                 onChange={(e) => setCreateForm((f) => ({ ...f, status: e.target.value as Pump['status'] }))}
-                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-medium"
               >
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="INACTIVE">INACTIVE</option>
-                <option value="MAINTENANCE">MAINTENANCE</option>
+                <option value="IDLE">IDLE</option>
+                <option value="NOZZLE_UP">NOZZLE_UP</option>
+                <option value="FUELLING">FUELLING</option>
                 <option value="OFFLINE">OFFLINE</option>
               </select>
             </div>
@@ -422,16 +495,31 @@ export default function PumpsPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-[12px] font-medium text-zinc-600 mb-1">
-              Lokasi / Area Pulau Pompa
-            </label>
-            <input
-              placeholder="mis. Pulau Pompa 1 (Utara)"
-              value={editForm.location}
-              onChange={(e) => setEditForm((f) => ({ ...f, location: e.target.value }))}
-              className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                Lokasi / Area Pulau Pompa
+              </label>
+              <input
+                placeholder="mis. Pulau Pompa 1 (Utara)"
+                value={editForm.location}
+                onChange={(e) => setEditForm((f) => ({ ...f, location: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-medium text-zinc-600 mb-1">
+                ID Pompa Enabler (FC)
+              </label>
+              <input
+                type="number"
+                placeholder="mis. 1, 2"
+                value={editForm.id_pump_enabler}
+                onChange={(e) => setEditForm((f) => ({ ...f, id_pump_enabler: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-mono"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -442,11 +530,11 @@ export default function PumpsPage() {
               <select
                 value={editForm.status}
                 onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value as Pump['status'] }))}
-                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10"
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-black/10 font-medium"
               >
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="INACTIVE">INACTIVE</option>
-                <option value="MAINTENANCE">MAINTENANCE</option>
+                <option value="IDLE">IDLE</option>
+                <option value="NOZZLE_UP">NOZZLE_UP</option>
+                <option value="FUELLING">FUELLING</option>
                 <option value="OFFLINE">OFFLINE</option>
               </select>
             </div>
