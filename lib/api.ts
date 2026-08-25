@@ -106,6 +106,21 @@ export const api = {
       request<ApiListResponse<Transaction>>('GET', '/api/transactions' + toQuery(params)),
     get: (id: string) => request<ApiResponse<Transaction>>('GET', `/api/transactions/${id}`),
     create: (data: CreateTransaction) => request<ApiResponse<{ id: string }>>('POST', '/api/transactions', data),
+    createPreset: (data: CreatePreset) =>
+      request<{
+        success: boolean;
+        message: string;
+        pump_id: string;
+        pump_number: string;
+        preset_status: string;
+        volume_l: number;
+        [key: string]: unknown;
+      }>('POST', '/api/transactions/preset', data),
+    cancelPreset: (pumpId: string) =>
+      request<{ success: boolean; message: string; pump_id?: string; preset_status?: string }>(
+        'POST',
+        `/api/transactions/cancel-preset/${pumpId}`,
+      ),
     void: (id: string, reason: string) => request<{ success: boolean }>('POST', `/api/transactions/${id}/void`, { reason }),
   },
 
@@ -169,6 +184,11 @@ export const api = {
     reconciliation: (date?: string) =>
       request<ApiListResponse<PumpRecon>>('GET', '/api/pumps/reconciliation' + (date ? `?date=${date}` : '')),
     pushTotalizer: (data: TotalizerInput) => request<{ success: boolean }>('POST', '/api/pumps/totalizers', data),
+    cancelPreset: (id: string) =>
+      request<{ success: boolean; message?: string; pump_id?: string; preset_status?: string }>(
+        'POST',
+        `/api/transactions/cancel-preset/${id}`,
+      ),
     streamUrl: () => {
       const token = getToken();
       return `${BASE}/api/pumps/sse${token ? `?token=${encodeURIComponent(token)}` : ''}`;
@@ -562,6 +582,7 @@ export interface Pump {
   status: string;
   active?: number;
   id_pump_enabler?: number | null;
+  preset_status?: 'NONE' | 'SET' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | string;
   nozzle_count?: number;
   nozzles?: Nozzle[];
 }
@@ -958,6 +979,16 @@ export interface CreateTransaction {
   totalizer_after?: number;
   source?: string;
   transaction_time?: string;
+}
+
+export interface CreatePreset {
+  card_number: string;
+  product_id: string;
+  pump_id: string;
+  nozzle_id?: string;
+  volume_l: number;
+  shift?: string;
+  totalizer_before?: number;
 }
 
 export interface CreateCard {

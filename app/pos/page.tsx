@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/Toast';
 import {
   Fuel, CreditCard, Radio, Zap, AlertTriangle,
   Printer, Search, Clock, User as UserIcon,
-  SlidersHorizontal, Ban, Gauge, CheckSquare,
+  SlidersHorizontal, Gauge, CheckSquare,
   Droplets, RefreshCw, CheckCircle2, ChevronRight, Loader2
 } from 'lucide-react';
 
@@ -33,7 +33,6 @@ export default function POSPage() {
   const [pumps, setPumps] = useState<Pump[]>([]);
   const [nozzles, setNozzles] = useState<Nozzle[]>([]);
   const [cards, setCards] = useState<CardType[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [operators, setOperators] = useState<User[]>([]);
 
   // Card Quota API State
@@ -66,25 +65,15 @@ export default function POSPage() {
   const [receiptTrx, setReceiptTrx] = useState<Transaction | null>(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
-  // Void Modal
-  const [voidTarget, setVoidTarget] = useState<Transaction | null>(null);
-  const [voidReason, setVoidReason] = useState('');
-  const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
-
-  // History Filter
-  const [historySearch, setHistorySearch] = useState('');
-  const [historyStatusFilter, setHistoryStatusFilter] = useState('ALL');
-
   // ── Fetch Dynamic Data from API ──────────────────────────────────────
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [prodRes, pumpRes, nozRes, cardRes, trxRes, userRes] = await Promise.allSettled([
+      const [prodRes, pumpRes, nozRes, cardRes, userRes] = await Promise.allSettled([
         api.master.products(),
         api.pumps.list(),
         api.pumps.nozzles(),
         api.cards.list({ limit: 100 }),
-        api.transactions.list({ limit: 50 }),
         api.master.users(),
       ]);
 
@@ -102,9 +91,6 @@ export default function POSPage() {
       }
       if (cardRes.status === 'fulfilled' && cardRes.value?.data) {
         setCards(cardRes.value.data);
-      }
-      if (trxRes.status === 'fulfilled' && trxRes.value?.data) {
-        setTransactions(trxRes.value.data);
       }
       if (userRes.status === 'fulfilled' && userRes.value?.data) {
         setOperators(userRes.value.data);
@@ -338,7 +324,13 @@ export default function POSPage() {
               : st;
       return {
         valid: false,
-        message: `Dispenser ${currentPump.number} sedang ${desc}. Transaksi hanya dapat diproses saat dispenser berstatus IDLE.`,
+        message: `Dispenser ${currentPump.number} sedang ${desc}. Preset hanya dapat disetel saat dispenser berstatus IDLE.`,
+      };
+    }
+    if (currentPump.preset_status === 'SET' || currentPump.preset_status === 'ACTIVE') {
+      return {
+        valid: false,
+        message: `Dispenser ${currentPump.number} sudah memiliki preset aktif (${currentPump.preset_status}). Selesaikan atau batalkan pengisian sebelumnya.`,
       };
     }
     if (!selectedCard) {
@@ -361,20 +353,20 @@ export default function POSPage() {
     if (parsedVolume > cardQuota.remaining) {
       return { valid: false, message: `Volume pengisian (${parsedVolume} L) melebihi sisa kuota (${cardQuota.remaining} L).` };
     }
-    return { valid: true, message: 'Dispenser IDLE & siap untuk melakukan transaksi dispensing BBM' };
+    return { valid: true, message: 'Dispenser IDLE & siap untuk disetel preset pengisian BBM' };
   }, [currentPump, selectedCard, currentProduct, parsedVolume, cardQuota]);
 
-  // Submit Transaction to API
+  // Submit Preset to FMS Controller via API
   const handleExecuteTransaction = async () => {
     if (!validation.valid || !selectedCard || !currentProduct || !currentPump) {
-      toastError('Transaksi Tidak Valid', validation.message);
+      toastError('Preset Tidak Valid', validation.message);
       return;
     }
 
     if (currentPump.status !== 'IDLE') {
       toastError(
         'Dispenser Tidak Siap',
-        `Dispenser ${currentPump.number} sedang berstatus ${currentPump.status}. Transaksi hanya dapat diproses saat dispenser IDLE.`,
+        `Dispenser ${currentPump.number} sedang berstatus ${currentPump.status}. Preset hanya dapat disetel saat dispenser IDLE.`,
       );
       return;
     }
@@ -382,100 +374,50 @@ export default function POSPage() {
     try {
       setSubmitting(true);
       const cardNum = selectedCard.card_number || selectedCard.number || selectedCard.id;
-      const res = await api.transactions.create({
+      const res = await api.transactions.createPreset({
         card_number: cardNum,
         product_id: currentProduct.id,
-        volume_l: parsedVolume,
+        pump_id: currentPump.id,
         nozzle_id: currentNozzle?.id || undefined,
-        pump_id: currentPump?.id || undefined,
+        volume_l: parsedVolume,
         shift: selectedShift,
-        source: 'API',
-        transaction_time: new Date().toISOString(),
+        totalizer_before: currentNozzle?.totalizerCurrent ?? undefined,
       });
 
-      const newTrxId = res?.data?.id || `TRX-${Date.now()}`;
-      const newTrx: Transaction = {
-        id: newTrxId,
-        card_number: cardNum,
-        holder_name: selectedCard.holder_name || selectedCard.holder,
-        unit_name: selectedCard.unit_name || selectedCard.unit,
-        police_number: selectedCard.police_number || selectedCard.vehicle,
-        product_name: currentProduct.name,
-        volume_l: parsedVolume,
-        price_per_unit: currentPrice,
-        total_amount: parsedTotal,
-        pump_number: currentPump?.number,
-        nozzle_number: currentNozzle?.number,
-        operator_name: selectedOperator,
-        shift: selectedShift,
-        transaction_time: new Date().toISOString(),
-        status: 'SUCCESS',
-        quota_before: cardQuota.remaining,
-        quota_deducted: parsedVolume,
-        quota_after: Math.max(0, cardQuota.remaining - parsedVolume),
-      };
+      toastSuccess(
+        'Preset Dispenser Berhasil',
+        res?.message ||
+        `Preset ${parsedVolume} L berhasil disetel ke Dispenser ${currentPump.number}. Silakan angkat nozzle untuk memulai pengisian.`,
+      );
 
-      toastSuccess('Transaksi Berhasil', `Pengisian ${parsedVolume} L ${currentProduct.name} berhasil dicatat.`);
-      setReceiptTrx(newTrx);
-      setIsReceiptModalOpen(true);
       if (selectedCard) {
         fetchCardQuota(selectedCard.id || selectedCard.card_number || selectedCard.number || '');
       }
       loadData();
     } catch (err) {
-      toastError('Gagal Mencatat Transaksi', err instanceof Error ? err.message : 'Terjadi kesalahan saat memproses API.');
+      toastError('Gagal Menyetel Preset', err instanceof Error ? err.message : 'Terjadi kesalahan saat memproses API.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Void Transaction
-  const handleConfirmVoid = async () => {
-    if (!voidTarget || !voidReason.trim()) {
-      toastError('Alasan Diperlukan', 'Silakan masukkan alasan pembatalan transaksi (VOID).');
-      return;
-    }
+  // Cancel Active Preset
+  const [cancellingPreset, setCancellingPreset] = useState(false);
+  const handleCancelPreset = async (pumpId?: string) => {
+    const targetId = pumpId || currentPump?.id;
+    if (!targetId) return;
 
     try {
-      setSubmitting(true);
-      await api.transactions.void(voidTarget.id, voidReason);
-      toastSuccess('Transaksi Di-VOID', `Transaksi ${voidTarget.id} berhasil dibatalkan.`);
-      setIsVoidModalOpen(false);
-      setVoidTarget(null);
-      setVoidReason('');
-      if (selectedCard) {
-        fetchCardQuota(selectedCard.id || selectedCard.card_number || selectedCard.number || '');
-      }
+      setCancellingPreset(true);
+      const res = await api.pumps.cancelPreset(targetId);
+      toastSuccess('Preset Dibatalkan', res?.message || 'Preset dispenser berhasil dibatalkan.');
       loadData();
     } catch (err) {
-      toastError('Gagal VOID', err instanceof Error ? err.message : 'Terjadi kesalahan pada API VOID.');
+      toastError('Gagal Membatalkan Preset', err instanceof Error ? err.message : 'Terjadi kesalahan sistem.');
     } finally {
-      setSubmitting(false);
+      setCancellingPreset(false);
     }
   };
-
-  // Filtered History
-  const filteredHistory = useMemo(() => {
-    return transactions.filter(t => {
-      const q = historySearch.toLowerCase();
-      const cardNum = t.card_number || t.card || '';
-      const holder = t.holder_name || t.holder || '';
-      const veh = t.police_number || t.vehicle || '';
-      const id = t.id || '';
-      const matchesSearch = !q || id.toLowerCase().includes(q) || cardNum.toLowerCase().includes(q) || holder.toLowerCase().includes(q) || veh.toLowerCase().includes(q);
-      const matchesStatus = historyStatusFilter === 'ALL' || t.status === historyStatusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [transactions, historySearch, historyStatusFilter]);
-
-  // Session Stats
-  const sessionStats = useMemo(() => {
-    const active = transactions.filter(t => t.status === 'SUCCESS');
-    const count = active.length;
-    const totalVol = active.reduce((acc, t) => acc + (t.volume_l ?? t.volume ?? 0), 0);
-    const totalAmt = active.reduce((acc, t) => acc + (t.total_amount ?? t.total ?? 0), 0);
-    return { count, totalVol, totalAmt };
-  }, [transactions]);
 
   return (
     <div className="space-y-6 pb-12">
@@ -555,12 +497,14 @@ export default function POSPage() {
         <Card className="bg-white border border-slate-200 shadow-sm" padding={false}>
           <div className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Transaksi</p>
-              <p className="text-2xl font-bold text-slate-900 mt-0.5">{sessionStats.count} <span className="text-xs font-normal text-slate-400">Trx</span></p>
-              <p className="text-[11px] text-emerald-600 font-medium mt-1">Shift {selectedShift}</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Unit Dispenser</p>
+              <p className="text-2xl font-bold text-slate-900 mt-0.5">{pumps.length} <span className="text-xs font-normal text-slate-400">Pompa</span></p>
+              <p className="text-[11px] text-emerald-600 font-medium mt-1">
+                {pumps.filter(p => p.status === 'IDLE').length} Siap / IDLE
+              </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <CheckSquare size={20} />
+              <Fuel size={20} />
             </div>
           </div>
         </Card>
@@ -568,12 +512,18 @@ export default function POSPage() {
         <Card className="bg-white border border-slate-200 shadow-sm" padding={false}>
           <div className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Volume Disalurkan</p>
-              <p className="text-2xl font-bold text-blue-600 mt-0.5">{sessionStats.totalVol.toLocaleString('id-ID')} <span className="text-xs font-normal text-slate-500">Liter</span></p>
-              <p className="text-[11px] text-slate-400 mt-1">Total Dispensing</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Status Pompa</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">
+                {currentPump ? currentPump.status : 'OFFLINE'}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-1">
+                {currentPump?.preset_status && currentPump.preset_status !== 'NONE'
+                  ? `Preset: ${currentPump.preset_status}`
+                  : `Dispenser ${currentPump?.number || '-'}`}
+              </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-              <Droplets size={20} />
+              <Zap size={20} />
             </div>
           </div>
         </Card>
@@ -581,9 +531,14 @@ export default function POSPage() {
         <Card className="bg-white border border-slate-200 shadow-sm" padding={false}>
           <div className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Nilai Transaksi</p>
-              <p className="text-2xl font-bold text-slate-900 mt-0.5">Rp {sessionStats.totalAmt.toLocaleString('id-ID')}</p>
-              <p className="text-[11px] text-slate-400 mt-1">Valuasi Alokasi BBM</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Sisa Kuota Kartu</p>
+              <p className="text-2xl font-bold text-blue-600 mt-0.5">
+                {selectedCard ? `${cardQuota.remaining.toLocaleString('id-ID')}` : '0'}{' '}
+                <span className="text-xs font-normal text-slate-500">Liter</span>
+              </p>
+              <p className="text-[11px] text-slate-400 mt-1 truncate max-w-[140px]">
+                {selectedCard ? selectedCard.holder_name || selectedCard.holder || 'Dinas' : 'Belum pilih kartu'}
+              </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
               <CreditCard size={20} />
@@ -603,7 +558,7 @@ export default function POSPage() {
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-              <Zap size={20} />
+              <Droplets size={20} />
             </div>
           </div>
         </Card>
@@ -634,29 +589,34 @@ export default function POSPage() {
                     key={pump.id}
                     onClick={() => setSelectedPumpId(pump.id)}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative ${isSelected
-                        ? isIdle
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-blue-500/30'
-                          : 'bg-amber-950 text-white border-amber-800 shadow-md ring-2 ring-amber-500/30'
-                        : isIdle
-                          ? 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
-                          : 'bg-amber-50/60 text-slate-700 border-amber-200 hover:bg-amber-100/70'
+                      ? isIdle
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-blue-500/30'
+                        : 'bg-amber-950 text-white border-amber-800 shadow-md ring-2 ring-amber-500/30'
+                      : isIdle
+                        ? 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                        : 'bg-amber-50/60 text-slate-700 border-amber-200 hover:bg-amber-100/70'
                       }`}
                   >
-                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                    <div className="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
                       <span
                         className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${pump.status === 'IDLE'
-                            ? isSelected
-                              ? 'bg-emerald-500 text-white'
-                              : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                            : pump.status === 'NOZZLE_UP'
-                              ? 'bg-amber-400 text-amber-950 font-black animate-pulse'
-                              : pump.status === 'FUELLING'
-                                ? 'bg-sky-400 text-sky-950 font-black animate-pulse'
-                                : 'bg-zinc-300 text-zinc-800 font-bold'
+                          ? isSelected
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          : pump.status === 'NOZZLE_UP'
+                            ? 'bg-amber-400 text-amber-950 font-black animate-pulse'
+                            : pump.status === 'FUELLING'
+                              ? 'bg-sky-400 text-sky-950 font-black animate-pulse'
+                              : 'bg-zinc-300 text-zinc-800 font-bold'
                           }`}
                       >
                         {pump.status || 'OFFLINE'}
                       </span>
+                      {pump.preset_status && pump.preset_status !== 'NONE' && (
+                        <span className="text-[8.5px] font-black px-1.5 py-0.5 rounded bg-amber-400 text-amber-950 border border-amber-500 animate-pulse">
+                          PRESET: {pump.preset_status}
+                        </span>
+                      )}
                       {pump.id_pump_enabler !== undefined && pump.id_pump_enabler !== null && (
                         <span className={`text-[9px] ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
                           FC #{pump.id_pump_enabler}
@@ -868,22 +828,27 @@ export default function POSPage() {
                 <div>
                   <h2 className="text-sm font-bold text-slate-800">3. Nominal & Eksekusi</h2>
                   {currentPump && (
-                    <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                       <span className="text-[10.5px] text-slate-500 font-medium">
                         Dispenser {currentPump.number}:
                       </span>
                       <span
                         className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${currentPump.status === 'IDLE'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                            : currentPump.status === 'NOZZLE_UP'
-                              ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold animate-pulse'
-                              : currentPump.status === 'FUELLING'
-                                ? 'bg-sky-100 text-sky-900 border border-sky-300 font-extrabold animate-pulse'
-                                : 'bg-red-100 text-red-800 border border-red-200'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          : currentPump.status === 'NOZZLE_UP'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold animate-pulse'
+                            : currentPump.status === 'FUELLING'
+                              ? 'bg-sky-100 text-sky-900 border border-sky-300 font-extrabold animate-pulse'
+                              : 'bg-red-100 text-red-800 border border-red-200'
                           }`}
                       >
                         {currentPump.status || 'OFFLINE'}
                       </span>
+                      {currentPump.preset_status && currentPump.preset_status !== 'NONE' && (
+                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">
+                          PRESET: {currentPump.preset_status}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -992,8 +957,33 @@ export default function POSPage() {
               )}
             </div>
 
+            {/* Active Preset Cancellation Option */}
+            {currentPump?.preset_status === 'SET' && currentPump?.status === 'IDLE' && (
+              <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 mb-4 flex items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <AlertTriangle size={17} className="text-amber-600 flex-shrink-0 animate-bounce" />
+                  <div>
+                    <p className="text-xs font-bold text-amber-900">
+                      Preset Aktif di Dispenser {currentPump.number}
+                    </p>
+                    <p className="text-[11px] text-amber-700">
+                      Nozzle belum diangkat. Anda dapat membatalkan preset jika diperlukan.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCancelPreset(currentPump.id)}
+                  disabled={cancellingPreset}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer whitespace-nowrap disabled:opacity-50"
+                >
+                  {cancellingPreset ? 'Membatalkan...' : 'Batalkan Preset'}
+                </button>
+              </div>
+            )}
+
             {/* Validation Message */}
-            {!validation.valid && (
+            {!validation.valid && currentPump?.preset_status !== 'SET' && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-800 flex items-start gap-2 mb-4">
                 <AlertTriangle size={15} className="flex-shrink-0 mt-0.5 text-amber-600" />
                 <p className="leading-snug">{validation.message}</p>
@@ -1005,131 +995,15 @@ export default function POSPage() {
               onClick={handleExecuteTransaction}
               disabled={!validation.valid || submitting}
               className={`w-full py-3 px-4 rounded-xl font-bold text-sm tracking-wide transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${validation.valid && !submitting
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
                 }`}
             >
-              <Zap size={18} /> {submitting ? 'Menyimpan Transaksi...' : `PROSES TRANSAKSI (${parsedVolume} L)`}
+              <Zap size={18} /> {submitting ? 'Mengirim Preset ke FMS Controller...' : `SET PRESET DISPENSER (${parsedVolume} L)`}
             </button>
           </Card>
         </div>
       </div>
-
-      {/* ── Transaction History Table ── */}
-      <Card className="bg-white border-slate-200">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900">Riwayat Transaksi POS</h3>
-            <p className="text-xs text-slate-400">Daftar transaksi pengisian bahan bakar resmi yang tersimpan di sistem</p>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <Search size={13} className="absolute left-3 top-2.5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Cari TRX / Kartu / Plat..."
-                value={historySearch}
-                onChange={e => setHistorySearch(e.target.value)}
-                className="pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-400 w-48"
-              />
-            </div>
-
-            <select
-              value={historyStatusFilter}
-              onChange={e => setHistoryStatusFilter(e.target.value)}
-              className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 bg-white outline-none"
-            >
-              <option value="ALL">Semua Status</option>
-              <option value="SUCCESS">SUCCESS</option>
-              <option value="VOID">VOID</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-100">
-                <th className="py-2.5 px-3">ID Transaksi</th>
-                <th className="py-2.5 px-3">Waktu</th>
-                <th className="py-2.5 px-3">Pemegang / Satker</th>
-                <th className="py-2.5 px-3">Kendaraan</th>
-                <th className="py-2.5 px-3">Produk & Nozzle</th>
-                <th className="py-2.5 px-3 text-right">Volume</th>
-                <th className="py-2.5 px-3 text-right">Total (Rp)</th>
-                <th className="py-2.5 px-3 text-center">Status</th>
-                <th className="py-2.5 px-3 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredHistory.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="text-center py-8 text-slate-400">
-                    Tidak ada transaksi ditemukan.
-                  </td>
-                </tr>
-              ) : (
-                filteredHistory.map(trx => {
-                  const vol = trx.volume_l ?? trx.volume ?? 0;
-                  const tot = trx.total_amount ?? trx.total ?? 0;
-                  const time = trx.transaction_time ? trx.transaction_time.slice(11, 19) : trx.time || '-';
-
-                  return (
-                    <tr key={trx.id} className="hover:bg-slate-50/60 transition">
-                      <td className="py-2.5 px-3 font-mono font-bold text-slate-800">{trx.id}</td>
-                      <td className="py-2.5 px-3 text-slate-500">{time}</td>
-                      <td className="py-2.5 px-3">
-                        <p className="font-semibold text-slate-800">{trx.holder_name || trx.holder || '-'}</p>
-                        <p className="text-[10px] text-slate-400">{trx.unit_name || trx.unit || '-'} • #{trx.card_number || trx.card || '-'}</p>
-                      </td>
-                      <td className="py-2.5 px-3 font-medium text-slate-700">{trx.police_number || trx.vehicle || '-'}</td>
-                      <td className="py-2.5 px-3">
-                        <span className="font-semibold text-slate-800">{trx.product_name || trx.product || 'BBM'}</span>
-                        <span className="text-[10px] text-slate-400 ml-1.5">(P{trx.pump_number || trx.pump || '1'}-N{trx.nozzle_number || trx.nozzle || '1'})</span>
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-blue-600">{vol} L</td>
-                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900">
-                        Rp {tot.toLocaleString('id-ID')}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <Badge variant={statusVariant(trx.status)}>{trx.status}</Badge>
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => {
-                              setReceiptTrx(trx);
-                              setIsReceiptModalOpen(true);
-                            }}
-                            className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition cursor-pointer"
-                            title="Cetak Struk"
-                          >
-                            <Printer size={14} />
-                          </button>
-                          {trx.status === 'SUCCESS' && (
-                            <button
-                              onClick={() => {
-                                setVoidTarget(trx);
-                                setVoidReason('');
-                                setIsVoidModalOpen(true);
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition cursor-pointer"
-                              title="Batalkan (VOID)"
-                            >
-                              <Ban size={14} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
 
       {/* ── MODAL: Scan RFID Card ── */}
       <Modal
@@ -1263,47 +1137,6 @@ export default function POSPage() {
               </Button>
               <Button variant="primary" size="sm" onClick={() => setIsReceiptModalOpen(false)}>
                 Selesai
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* ── MODAL: Pembatalan Transaksi (VOID) ── */}
-      <Modal
-        open={isVoidModalOpen}
-        onClose={() => setIsVoidModalOpen(false)}
-        title="Pembatalan Transaksi (VOID)"
-      >
-        {voidTarget && (
-          <div className="space-y-4 text-xs">
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-800 flex items-start gap-2">
-              <AlertTriangle size={16} className="flex-shrink-0 mt-0.5 text-red-600" />
-              <div>
-                <p className="font-bold">Konfirmasi Pembatalan Transaksi</p>
-                <p className="mt-0.5">
-                  Membatalkan transaksi <strong>{voidTarget.id}</strong> ({voidTarget.volume_l ?? voidTarget.volume} L) untuk kartu <strong>#{voidTarget.card_number || voidTarget.card}</strong>.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-semibold text-slate-700 block">Alasan Pembatalan (Wajib)</label>
-              <textarea
-                rows={3}
-                placeholder="Masukkan alasan dinas pembatalan..."
-                value={voidReason}
-                onChange={e => setVoidReason(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl p-2.5 text-xs outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setIsVoidModalOpen(false)}>
-                Batal
-              </Button>
-              <Button variant="danger" size="sm" onClick={handleConfirmVoid} disabled={submitting}>
-                {submitting ? 'Memproses VOID...' : 'Konfirmasi VOID'}
               </Button>
             </div>
           </div>
